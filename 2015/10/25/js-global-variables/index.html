@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JavaScript,Frontend," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="毕业来 JD 后完成的第一个任务是写选号中心的前端。由于和 PM 没有及时沟通，其间改了几次需求，导致一部分工作推倒重来。这个过程中体会较多的是谨慎使用 JavaScript 全局变量，带来便利的同时也有意想不到的坑，更不应滥用，很多时候全局变量并不是一个好选择。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="小记 JavaScript 全局变量的一些思考">
+<meta property="og:url" content="http://isudox.com/2015/10/25/js-global-variables/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="毕业来 JD 后完成的第一个任务是写选号中心的前端。由于和 PM 没有及时沟通，其间改了几次需求，导致一部分工作推倒重来。这个过程中体会较多的是谨慎使用 JavaScript 全局变量，带来便利的同时也有意想不到的坑，更不应滥用，很多时候全局变量并不是一个好选择。">
+<meta property="og:updated_time" content="2016-08-05T14:14:39.238Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="小记 JavaScript 全局变量的一些思考">
+<meta name="twitter:description" content="毕业来 JD 后完成的第一个任务是写选号中心的前端。由于和 PM 没有及时沟通，其间改了几次需求，导致一部分工作推倒重来。这个过程中体会较多的是谨慎使用 JavaScript 全局变量，带来便利的同时也有意想不到的坑，更不应滥用，很多时候全局变量并不是一个好选择。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> 小记 JavaScript 全局变量的一些思考 | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                小记 JavaScript 全局变量的一些思考
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-10-25T19:37:47+08:00" content="2015-10-25">
+              2015-10-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/10/25/js-global-variables/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/10/25/js-global-variables/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/10/25/js-global-variables/" class="leancloud_visitors" data-flag-title="小记 JavaScript 全局变量的一些思考">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>毕业来 JD 后完成的第一个任务是写选号中心的前端。由于和 PM 没有及时沟通，其间改了几次需求，导致一部分工作推倒重来。这个过程中体会较多的是谨慎使用 <code>JavaScript</code> 全局变量，带来便利的同时也有意想不到的坑，更不应滥用，很多时候全局变量并不是一个好选择。</p>
+<a id="more"></a>
+<p>一个很重要的原因就是，页面所引用的 JS 文件里所有变量和函数都是在同一个域(scope)中运行，重名的变量和函数被覆盖，bug 将随之而来。如果仅仅只是一个展示页或由个人独立开发的项目，这个问题或许并不明显，但对于团队开发，组件化开发而言，全局变量会是深埋的地雷，你不知道什么时候自己会踩上，或者下一时刻会是谁踩上。举个简单的栗子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// example1.js</span></div><div class="line"><span class="keyword">var</span> vim_fan = <span class="literal">true</span>;</div><div class="line"><span class="keyword">var</span> emacs_fan = <span class="literal">false</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">judge</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">if</span> (vim_fan &amp;&amp; emacs_fan) &#123;</div><div class="line">        alert(<span class="string">"You must be burned!"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// example2.js</span></div><div class="line"><span class="keyword">var</span> emacs_fan = <span class="number">1</span>;</div></pre></td></tr></table></figure>
+<p>如果 HTML 页面里引用了这两个 JS 文件，那么这个既加入 Vim 党又加入 Emacs 党的人将被烧死。然而这种情况是不应该存在的。这就是 JavaScript 全局变量的隐患，尤其是在公司里团队开发，当你调用已有的组件时，往往是黑箱操作，当全局变量出现冲突时，就会引发未知错误。</p>
+<p>JavaScript 语法太过灵活，有时无意中就声明了一个全局变量，比如忘了加 <code>var</code>，或者像这样赋值 <code>var a = b = 1;</code>（值是传递了，但变量的生存期没有传递，b 变成了全局变量）。<br>对应的解决办法也很简单，同时也是很好的 JavaScript 编码习惯，因为同一域下的 JS 文件都不重名，当需要在当前 JS 文件里调用全局变量时，创建以该 JS 文件名命名的全局对象，在全局对象中添加属性。这样即使在同一域下其他 JS 文件中有同名属性，由于所属对象不同，也不会发生冲突。相当于是在一个域里各自圈地，互不相扰。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// bad.js</span></div><div class="line"><span class="keyword">var</span> current = <span class="literal">null</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">init</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">change</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">verify</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="comment">//...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面的写法很糟糕，全局变量暴露在外，简直就是不定时炸弹。那么来圈地运动吧。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// notbad.js</span></div><div class="line"><span class="keyword">var</span> NOT_BAD = &#123;</div><div class="line">    current: <span class="literal">null</span>,</div><div class="line">    init: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;,</div><div class="line">    change: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;,</div><div class="line">    verify: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如上，这样处理不算糟糕，至少是将当前 JS 所需要的全局变量包裹在专属对象中，但由此也带来一个问题：当需要调用全局变量时，总要加上对象名，比如 <code>NOT_BAD.current</code>，这种代码实在是太丑陋了，孰不可忍。再看下一种处理方式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// good.js</span></div><div class="line"><span class="keyword">var</span> GOOD = (<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> current = <span class="literal">null</span>;</div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">init</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">change</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">verify</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        init: init,</div><div class="line">        change: change</div><div class="line">    &#125;;</div><div class="line">&#125;) ();</div></pre></td></tr></table></figure>
+<p>这种写法就是将全局变量和全局函数包裹进一个匿名函数中，该匿名函数会返回包含了外部所需变量的对象。这就是模块模式（Module Pattern）。</p>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+            <a href="/tags/Frontend/" rel="tag"># Frontend</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/26/begin-arch-linux/" rel="next" title="开启 Arch 之旅">
+                <i class="fa fa-chevron-left"></i> 开启 Arch 之旅
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/10/29/my-hhkb-pro2-type-s/" rel="prev" title="神器有价，情怀无价 —— HHKB">
+                神器有价，情怀无价 —— HHKB <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2015/10/25/js-global-variables/';
+      var disqus_title = '小记 JavaScript 全局变量的一些思考';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>

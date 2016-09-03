@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="近期课余时间开发一个基于 Django 的 RESTful Web Service，需要接入短信验证发送功能，比较之后选定阿里大鱼的解决方案。
+然而，选 Python 作为技术栈的悲催之处在于，虽然 Python 的第三方库和生态很强大，但是就国内的开发圈而言，Python 是一个相对小众的流派，又由于 Python 2.x 和 Python 3.x 的分化，许多第三方库并没有跟进 Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="阿里大鱼短信 SDK 迁移到 Python 3.x">
+<meta property="og:url" content="http://isudox.com/2016/02/02/migrate-alidayu-to-py3-from-py2/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="近期课余时间开发一个基于 Django 的 RESTful Web Service，需要接入短信验证发送功能，比较之后选定阿里大鱼的解决方案。
+然而，选 Python 作为技术栈的悲催之处在于，虽然 Python 的第三方库和生态很强大，但是就国内的开发圈而言，Python 是一个相对小众的流派，又由于 Python 2.x 和 Python 3.x 的分化，许多第三方库并没有跟进 Python">
+<meta property="og:updated_time" content="2016-08-05T14:14:39.238Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="阿里大鱼短信 SDK 迁移到 Python 3.x">
+<meta name="twitter:description" content="近期课余时间开发一个基于 Django 的 RESTful Web Service，需要接入短信验证发送功能，比较之后选定阿里大鱼的解决方案。
+然而，选 Python 作为技术栈的悲催之处在于，虽然 Python 的第三方库和生态很强大，但是就国内的开发圈而言，Python 是一个相对小众的流派，又由于 Python 2.x 和 Python 3.x 的分化，许多第三方库并没有跟进 Python">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> 阿里大鱼短信 SDK 迁移到 Python 3.x | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                阿里大鱼短信 SDK 迁移到 Python 3.x
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-02-02T11:05:24+08:00" content="2016-02-02">
+              2016-02-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/02/02/migrate-alidayu-to-py3-from-py2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/02/02/migrate-alidayu-to-py3-from-py2/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/02/02/migrate-alidayu-to-py3-from-py2/" class="leancloud_visitors" data-flag-title="阿里大鱼短信 SDK 迁移到 Python 3.x">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>近期课余时间开发一个基于 Django 的 RESTful Web Service，需要接入短信验证发送功能，比较之后选定<a href="http://www.alidayu.com/" target="_blank" rel="external">阿里大鱼</a>的解决方案。</p>
+<p>然而，选 Python 作为技术栈的悲催之处在于，虽然 Python 的第三方库和生态很强大，但是就国内的开发圈而言，Python 是一个相对小众的流派，又由于 Python 2.x 和 Python 3.x 的分化，许多第三方库并没有跟进 Python 3，导致很多时候用 Python 会有些捉襟见肘，尤其是像我这种野路子的 Python 开发。</p>
+<a id="more"></a>
+<p>比如阿里大鱼的短信方案，虽然相比其他厂商很良心的在 PHP 、 Java 版 SDK 之外，友情附赠了 Python 版，但集成进 Django 工程并 debug 后，真是握了棵草，它是基于 Python 2.x 开发的，翻了下开发包源码文件，署名为 “lihao” 的这位阿里同学是在 2012 年更新的源码，这竟是一份蒙尘多年的代码啊，当时我的内心是奔溃的……</p>
+<blockquote>
+<p>自己动手，丰衣足食。——《毛选》</p>
+</blockquote>
+<p>阿里大鱼短信开发包的源码并不复杂，来来去去无非一些 request，response 和 string 的处理，底层都是在阿里服务端 api 里实现的，短信包只是提供 api 调用、处理功能，因此迁移工作倒也不是很令人拙计。下面就把我填的坑一一道来（难免有遗忘和疏漏，见谅）——</p>
+<h4 id="一号坑"><a href="#一号坑" class="headerlink" title="一号坑"></a>一号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果parameters是字典类</span></div><div class="line">keys = parameters.keys()</div></pre></td></tr></table></figure>
+<p>不出所料的话，控制台会输出<br><code>&gt;&gt;&gt;TypeError: &#39;dict_keys&#39; object does not support indexing</code><br>这是一大坑，在 Python 3.x 里，<code>dict.keys()</code>, <code>dict.values()</code> 和 <code>dict.items()</code> 是返回一个 <code>dict_keys</code> 对象（dict_keys 不支持 indexing），而不是 Python 2.x 那样返回一个 <code>list</code>。因此最简单的迁移方法就是显式调用 <code>list()</code> 处理，<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 如果parameters是字典类</span></div><div class="line">keys = list(parameters.keys())</div></pre></td></tr></table></figure></p>
+<p>但实际上，这种处理办法并不是最优解，可参考 <a href="http://blog.labix.org/2008/06/27/watch-out-for-listdictkeys-in-python-3" target="_blank" rel="external">Watch out for list(dict.keys()) in Python 3</a></p>
+<h4 id="二号坑"><a href="#二号坑" class="headerlink" title="二号坑"></a>二号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sign = hashlib.md5(parameters).hexdigest().upper()</div></pre></td></tr></table></figure>
+<p>哈哈，控制台会报如下错<br><code>&gt;&gt;&gt;Python hashlib problem “TypeError: Unicode-objects must be encoded before hashing”</code><br>言简意赅，debug 信息已经给出了解决方案，上述代码中的 parameters 参数必须先 encoded 后才能 hash。So easy!<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sign = hashlib.md5(parameters.encode(<span class="string">'utf8'</span>)).hexdigest().upper()</div></pre></td></tr></table></figure></p>
+<p>utf-8 转码后就没问题了，一个赛艇！</p>
+<h4 id="三号坑"><a href="#三号坑" class="headerlink" title="三号坑"></a>三号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (isinstance(pstr, str)):</div><div class="line">    <span class="keyword">return</span> pstr</div><div class="line"><span class="keyword">elif</span> (isinstance(pstr, unicode)):</div><div class="line">    <span class="keyword">return</span> pstr.encode(<span class="string">'utf-8'</span>)</div></pre></td></tr></table></figure>
+<p>运行后的错误信息：<br><code>&gt;&gt;&gt;NameError: global name &#39;unicode&#39; is not defined</code><br>Python 3.x 把 <code>unicode</code> 类型改名为 <code>str</code>，而原来 Python 2.x 下的 <code>str</code> 类型被 <code>bytes</code> 替代。所以解决办法就是按 Python 3.x 的定义来<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (isinstance(pstr, bytes)):</div><div class="line">    <span class="keyword">return</span> pstr</div><div class="line"><span class="keyword">elif</span> (isinstance(pstr, str)):</div><div class="line">    <span class="keyword">return</span> pstr.encode(<span class="string">'utf-8'</span>)</div></pre></td></tr></table></figure></p>
+<h4 id="四号坑"><a href="#四号坑" class="headerlink" title="四号坑"></a>四号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">connection = httplib.HTTPConnection(self.__domain, self.__port, <span class="keyword">False</span>, timeout)</div></pre></td></tr></table></figure>
+<p>这里需要注意的地方有两处，Python 2.x 的 httplib 包的 import 路径为<br><code>import httplib</code><br>在 Python 3.x 里的 import 路径则是：<br><code>import http.client as httplib</code><br>还有一处注意点是，在更改了包路径后，httplib.HTTPConnection(httplib.HTTPConnection() 的参数也发生了变化，<br>Python 2.x 中该接口为<br><code>httplib.HTTPConnection(host[, port[, strict[, timeout[, source_address]]]])</code><br>其中，strict 默认为 False，而 Python 3.x 里该接口则修改成<br><code>httplib.HTTPConnection(self, host, port=None, timeout=socket._GLOBAL_DEFAULT_TIMEOUT, source_address=None）</code><br>很显然，阿里源码里的传参是按照 Python 2.x 的写法，对照 Python 3.x 接口改过来便是<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">connection = httplib.HTTPConnection(self.__domain, self.__port, timeout)</div></pre></td></tr></table></figure></p>
+<h4 id="五号坑"><a href="#五号坑" class="headerlink" title="五号坑"></a>五号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">P_TIMESTAMP: str(long(time.time() * <span class="number">1000</span>))</div></pre></td></tr></table></figure>
+<p><code>&gt;&gt;&gt;NameError: name &#39;long&#39; is not defined</code><br>Python 3.x 已经将 Python 2.x 中的 <code>int</code> 和 <code>long</code> 型合并为 <code>int</code>，因此在 Python 3.x 下，已经不存在 <code>long</code> 类型了。修改成<code>int()</code>即可<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">P_TIMESTAMP: str(int(time.time() * <span class="number">1000</span>))</div></pre></td></tr></table></figure></p>
+<h4 id="六号坑"><a href="#六号坑" class="headerlink" title="六号坑"></a>六号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> urlencode</div><div class="line">body = urllib.urlencode(application_parameter)</div></pre></td></tr></table></figure>
+<p>Python 3.x 把 Python 2.x 下 <code>urlencode()</code> 函数转移到了 <code>urllib.parse</code> 里。修改为<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlencode</div><div class="line">body = urllib.parse.urlencode(application_parameter)</div></pre></td></tr></table></figure></p>
+<h4 id="七号坑"><a href="#七号坑" class="headerlink" title="七号坑"></a>七号坑</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">result = response.read()</div><div class="line">jsonobj = json.loads(result)</div></pre></td></tr></table></figure>
+<p>Python 3.x 里 JSON 只接收 unicode，因此 result 需要转码为 unicode<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">result = response.read().decode(<span class="string">'utf-8'</span>)</div><div class="line">jsonobj = json.loads(result)</div></pre></td></tr></table></figure></p>
+<h4 id="八号坑"><a href="#八号坑" class="headerlink" title="八号坑"></a>八号坑</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> key, value <span class="keyword">in</span> application_parameter.iteritems():</div><div class="line">    <span class="keyword">pass</span></div></pre></td></tr></table></figure>
+<p>控制台报错：<br><code>&gt;&gt;&gt;AttributeError: &#39;dict&#39; object has no attribute &#39;iteritems&#39;</code><br>字典没有 iteritems 属性？原来是 Python 3.x 已经把 <code>iteritems()</code> 给移除掉了，因此不能再调用该方法。<br>参考 <a href="https://wiki.python.org/moin/Python3.0" target="_blank" rel="external">Python Wiki</a>:</p>
+<blockquote>
+<p>Remove dict.iteritems(), dict.iterkeys(), and dict.itervalues().<br>    Instead: use dict.items(), dict.keys(), and dict.values() respectively.</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> key, value <span class="keyword">in</span> application_parameter.items():</div><div class="line">    <span class="keyword">pass</span></div></pre></td></tr></table></figure>
+<p>Done!</p>
+<h4 id="Python-3-x-版本的-base-py"><a href="#Python-3-x-版本的-base-py" class="headerlink" title="Python 3.x 版本的 base.py"></a>Python 3.x 版本的 base.py</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div><div class="line">297</div><div class="line">298</div><div class="line">299</div><div class="line">300</div><div class="line">301</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># base.py</span></div><div class="line"><span class="comment"># -*- coding: utf-8 -*-</span></div><div class="line"><span class="string">"""</span></div><div class="line">Created on 2012-7-3</div><div class="line"></div><div class="line">@author: lihao</div><div class="line">"""</div><div class="line"></div><div class="line"><span class="keyword">try</span>:</div><div class="line">    <span class="keyword">import</span> httplib</div><div class="line"><span class="keyword">except</span> ImportError:</div><div class="line">    <span class="keyword">import</span> http.client <span class="keyword">as</span> httplib</div><div class="line"><span class="keyword">import</span> urllib</div><div class="line"><span class="keyword">import</span> time</div><div class="line"><span class="keyword">import</span> hashlib</div><div class="line"><span class="keyword">import</span> json</div><div class="line"><span class="keyword">import</span> top</div><div class="line"><span class="keyword">import</span> itertools</div><div class="line"><span class="keyword">import</span> mimetypes</div><div class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlencode</div><div class="line"></div><div class="line"><span class="string">'''</span></div><div class="line">定义一些系统变量</div><div class="line">'''</div><div class="line"></div><div class="line">SYSTEM_GENERATE_VERSION = <span class="string">"taobao-sdk-python-20151217"</span></div><div class="line"></div><div class="line">P_APPKEY = <span class="string">"app_key"</span></div><div class="line">P_API = <span class="string">"method"</span></div><div class="line">P_SESSION = <span class="string">"session"</span></div><div class="line">P_ACCESS_TOKEN = <span class="string">"access_token"</span></div><div class="line">P_VERSION = <span class="string">"v"</span></div><div class="line">P_FORMAT = <span class="string">"format"</span></div><div class="line">P_TIMESTAMP = <span class="string">"timestamp"</span></div><div class="line">P_SIGN = <span class="string">"sign"</span></div><div class="line">P_SIGN_METHOD = <span class="string">"sign_method"</span></div><div class="line">P_PARTNER_ID = <span class="string">"partner_id"</span></div><div class="line"></div><div class="line">P_CODE = <span class="string">'code'</span></div><div class="line">P_SUB_CODE = <span class="string">'sub_code'</span></div><div class="line">P_MSG = <span class="string">'msg'</span></div><div class="line">P_SUB_MSG = <span class="string">'sub_msg'</span></div><div class="line"></div><div class="line">N_REST = <span class="string">'/router/rest'</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">sign</span><span class="params">(secret, parameters)</span>:</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="comment"># '''签名方法</span></div><div class="line">    <span class="comment"># @param secret: 签名需要的密钥</span></div><div class="line">    <span class="comment"># @param parameters: 支持字典和string两种</span></div><div class="line">    <span class="comment"># '''</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="comment"># 如果parameters 是字典类的话</span></div><div class="line">    <span class="keyword">if</span> hasattr(parameters, <span class="string">"items"</span>):</div><div class="line">        <span class="comment"># keys = parameters.keys()</span></div><div class="line">        keys = list(parameters.keys())  <span class="comment"># sudoz: Py3</span></div><div class="line">        keys.sort()</div><div class="line"></div><div class="line">        parameters = <span class="string">"%s%s%s"</span> % (secret,</div><div class="line">                                 str().join(</div><div class="line">                                         <span class="string">'%s%s'</span> % (key, parameters[key]) <span class="keyword">for</span> key</div><div class="line">                                         <span class="keyword">in</span> keys),</div><div class="line">                                 secret)</div><div class="line">    <span class="comment"># sign = hashlib.md5(parameters).hexdigest().upper()</span></div><div class="line">    sign = hashlib.md5(parameters.encode(<span class="string">'utf8'</span>)).hexdigest().upper()   <span class="comment"># sudoz: Py3</span></div><div class="line">    <span class="keyword">return</span> sign</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mixStr</span><span class="params">(pstr)</span>:</span></div><div class="line">    <span class="keyword">if</span> (isinstance(pstr, str)):</div><div class="line">        <span class="keyword">return</span> pstr</div><div class="line">    <span class="comment"># elif(isinstance(pstr, unicode)):</span></div><div class="line">    <span class="keyword">elif</span> (isinstance(pstr, str)):  <span class="comment"># sudoz: Py3</span></div><div class="line">        <span class="keyword">return</span> pstr.encode(<span class="string">'utf-8'</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> str(pstr)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileItem</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, filename=None, content=None)</span>:</span></div><div class="line">        self.filename = filename</div><div class="line">        self.content = content</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MultiPartForm</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="string">"""Accumulate the data to be used when posting a form."""</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.form_fields = []</div><div class="line">        self.files = []</div><div class="line">        self.boundary = <span class="string">"PYTHON_SDK_BOUNDARY"</span></div><div class="line">        <span class="keyword">return</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_content_type</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">'multipart/form-data; boundary=%s'</span> % self.boundary</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_field</span><span class="params">(self, name, value)</span>:</span></div><div class="line">        <span class="string">"""Add a simple field to the form data."""</span></div><div class="line">        self.form_fields.append((name, str(value)))</div><div class="line">        <span class="keyword">return</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">add_file</span><span class="params">(self, fieldname, filename, fileHandle, mimetype=None)</span>:</span></div><div class="line">        <span class="string">"""Add a file to be uploaded."""</span></div><div class="line">        body = fileHandle.read()</div><div class="line">        <span class="keyword">if</span> mimetype <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            mimetype = mimetypes.guess_type(filename)[</div><div class="line">                           <span class="number">0</span>] <span class="keyword">or</span> <span class="string">'application/octet-stream'</span></div><div class="line">        self.files.append((</div><div class="line">                          mixStr(fieldname), mixStr(filename), mixStr(mimetype),</div><div class="line">                          mixStr(body)))</div><div class="line">        <span class="keyword">return</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__str__</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""Return a string representing the form data, including attached files."""</span></div><div class="line">        <span class="comment"># Build a list of lists, each containing "lines" of the</span></div><div class="line">        <span class="comment"># request.  Each part is separated by a boundary string.</span></div><div class="line">        <span class="comment"># Once the list is built, return a string where each</span></div><div class="line">        <span class="comment"># line is separated by '\r\n'.  </span></div><div class="line">        parts = []</div><div class="line">        part_boundary = <span class="string">'--'</span> + self.boundary</div><div class="line"></div><div class="line">        <span class="comment"># Add the form fields</span></div><div class="line">        parts.extend(</div><div class="line">                [part_boundary,</div><div class="line">                 <span class="string">'Content-Disposition: form-data; name="%s"'</span> % name,</div><div class="line">                 <span class="string">'Content-Type: text/plain; charset=UTF-8'</span>,</div><div class="line">                 <span class="string">''</span>,</div><div class="line">                 value,</div><div class="line">                 ]</div><div class="line">                <span class="keyword">for</span> name, value <span class="keyword">in</span> self.form_fields</div><div class="line">        )</div><div class="line"></div><div class="line">        <span class="comment"># Add the files to upload</span></div><div class="line">        parts.extend(</div><div class="line">                [part_boundary,</div><div class="line">                 <span class="string">'Content-Disposition: file; name="%s"; filename="%s"'</span> % \</div><div class="line">                 (field_name, filename),</div><div class="line">                 <span class="string">'Content-Type: %s'</span> % content_type,</div><div class="line">                 <span class="string">'Content-Transfer-Encoding: binary'</span>,</div><div class="line">                 <span class="string">''</span>,</div><div class="line">                 body,</div><div class="line">                 ]</div><div class="line">                <span class="keyword">for</span> field_name, filename, content_type, body <span class="keyword">in</span> self.files</div><div class="line">        )</div><div class="line"></div><div class="line">        <span class="comment"># Flatten the list and add closing boundary marker,</span></div><div class="line">        <span class="comment"># then return CR+LF separated data</span></div><div class="line">        flattened = list(itertools.chain(*parts))</div><div class="line">        flattened.append(<span class="string">'--'</span> + self.boundary + <span class="string">'--'</span>)</div><div class="line">        flattened.append(<span class="string">''</span>)</div><div class="line">        <span class="keyword">return</span> <span class="string">'\r\n'</span>.join(flattened)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">TopException</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="comment"># 业务异常类</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self.errorcode = <span class="keyword">None</span></div><div class="line">        self.message = <span class="keyword">None</span></div><div class="line">        self.subcode = <span class="keyword">None</span></div><div class="line">        self.submsg = <span class="keyword">None</span></div><div class="line">        self.application_host = <span class="keyword">None</span></div><div class="line">        self.service_host = <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__str__</span><span class="params">(self, *args, **kwargs)</span>:</span></div><div class="line">        sb = <span class="string">"errorcode="</span> + mixStr(self.errorcode) + \</div><div class="line">             <span class="string">" message="</span> + mixStr(self.message) + \</div><div class="line">             <span class="string">" subcode="</span> + mixStr(self.subcode) + \</div><div class="line">             <span class="string">" submsg="</span> + mixStr(self.submsg) + \</div><div class="line">             <span class="string">" application_host="</span> + mixStr(self.application_host) + \</div><div class="line">             <span class="string">" service_host="</span> + mixStr(self.service_host)</div><div class="line">        <span class="keyword">return</span> sb</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestException</span><span class="params">(Exception)</span>:</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="comment"># 请求连接异常类</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RestApi</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line">    <span class="comment"># Rest api的基类</span></div><div class="line">    <span class="comment"># ===========================================================================</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, domain=<span class="string">'gw.api.taobao.com'</span>, port=<span class="number">80</span>)</span>:</span></div><div class="line">        <span class="comment"># =======================================================================</span></div><div class="line">        <span class="comment"># 初始化基类</span></div><div class="line">        <span class="comment"># Args @param domain: 请求的域名或者ip</span></div><div class="line">        <span class="comment">#      @param port: 请求的端口</span></div><div class="line">        <span class="comment"># =======================================================================</span></div><div class="line">        self.__domain = domain</div><div class="line">        self.__port = port</div><div class="line">        self.__httpmethod = <span class="string">"POST"</span></div><div class="line">        <span class="keyword">if</span> (top.getDefaultAppInfo()):</div><div class="line">            self.__app_key = top.getDefaultAppInfo().appkey</div><div class="line">            self.__secret = top.getDefaultAppInfo().secret</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_request_header</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> &#123;</div><div class="line">            <span class="string">'Content-type'</span>: <span class="string">'application/x-www-form-urlencoded;charset=UTF-8'</span>,</div><div class="line">            <span class="string">"Cache-Control"</span>: <span class="string">"no-cache"</span>,</div><div class="line">            <span class="string">"Connection"</span>: <span class="string">"Keep-Alive"</span>,</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">set_app_info</span><span class="params">(self, appinfo)</span>:</span></div><div class="line">        <span class="comment"># =======================================================================</span></div><div class="line">        <span class="comment"># 设置请求的app信息</span></div><div class="line">        <span class="comment"># @param appinfo: import top</span></div><div class="line">        <span class="comment">#                 appinfo top.appinfo(appkey,secret)</span></div><div class="line">        <span class="comment"># =======================================================================</span></div><div class="line">        self.__app_key = appinfo.appkey</div><div class="line">        self.__secret = appinfo.secret</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getapiname</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">""</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getMultipartParas</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> []</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getTranslateParas</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> &#123;&#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_check_requst</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">pass</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getResponse</span><span class="params">(self, authrize=None, timeout=<span class="number">30</span>)</span>:</span></div><div class="line">        <span class="comment"># =======================================================================</span></div><div class="line">        <span class="comment"># 获取response结果</span></div><div class="line">        <span class="comment"># =======================================================================</span></div><div class="line">        <span class="comment"># connection = httplib.HTTPConnection(self.__domain, self.__port, False,</span></div><div class="line">        <span class="comment">#                                     timeout)</span></div><div class="line">        connection = httplib.HTTPConnection(self.__domain, self.__port, timeout)    <span class="comment"># sudoz: Py3</span></div><div class="line">        sys_parameters = &#123;</div><div class="line">            P_FORMAT: <span class="string">'json'</span>,</div><div class="line">            P_APPKEY: self.__app_key,</div><div class="line">            P_SIGN_METHOD: <span class="string">"md5"</span>,</div><div class="line">            P_VERSION: <span class="string">'2.0'</span>,</div><div class="line">            <span class="comment"># P_TIMESTAMP: str(long(time.time() * 1000)),</span></div><div class="line">            P_TIMESTAMP: str(int(time.time() * <span class="number">1000</span>)),  <span class="comment"># sudoz: Py3</span></div><div class="line">            P_PARTNER_ID: SYSTEM_GENERATE_VERSION,</div><div class="line">            P_API: self.getapiname(),</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> authrize <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">            sys_parameters[P_SESSION] = authrize</div><div class="line">        application_parameter = self.getApplicationParameters()</div><div class="line">        sign_parameter = sys_parameters.copy()</div><div class="line">        sign_parameter.update(application_parameter)</div><div class="line">        sys_parameters[P_SIGN] = sign(self.__secret, sign_parameter)</div><div class="line">        connection.connect()</div><div class="line"></div><div class="line">        header = self.get_request_header()</div><div class="line">        <span class="keyword">if</span> self.getMultipartParas():</div><div class="line">            form = MultiPartForm()</div><div class="line">            <span class="keyword">for</span> key, value <span class="keyword">in</span> application_parameter.items():</div><div class="line">                form.add_field(key, value)</div><div class="line">            <span class="keyword">for</span> key <span class="keyword">in</span> self.getMultipartParas():</div><div class="line">                fileitem = getattr(self, key)</div><div class="line">                <span class="keyword">if</span> fileitem <span class="keyword">and</span> isinstance(fileitem, FileItem):</div><div class="line">                    form.add_file(key, fileitem.filename, fileitem.content)</div><div class="line">            body = str(form)</div><div class="line">            header[<span class="string">'Content-type'</span>] = form.get_content_type()</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="comment"># body = urllib.urlencode(application_parameter)</span></div><div class="line">            body = urllib.parse.urlencode(application_parameter)    <span class="comment"># sudoz: Py3</span></div><div class="line"></div><div class="line">        <span class="comment"># url = N_REST + "?" + urllib.urlencode(sys_parameters)</span></div><div class="line">        url = N_REST + <span class="string">"?"</span> + urllib.parse.urlencode(sys_parameters)   <span class="comment"># sudoz: Py3</span></div><div class="line">        connection.request(self.__httpmethod, url, body=body, headers=header)</div><div class="line">        response = connection.getresponse()</div><div class="line">        <span class="keyword">if</span> response.status <span class="keyword">is</span> <span class="keyword">not</span> <span class="number">200</span>:</div><div class="line">            <span class="keyword">raise</span> RequestException(<span class="string">'invalid http status '</span> + str(</div><div class="line">                response.status) + <span class="string">',detail body:'</span> + response.read())</div><div class="line">        <span class="comment"># result = response.read()</span></div><div class="line">        result = response.read().decode(<span class="string">'utf-8'</span>)    <span class="comment"># sudoz: Py3里JSON只接收unicode</span></div><div class="line">        jsonobj = json.loads(result)</div><div class="line">        <span class="keyword">return</span> jsonobj</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">getApplicationParameters</span><span class="params">(self)</span>:</span></div><div class="line">        application_parameter = &#123;&#125;</div><div class="line">        <span class="comment"># for key, value in self.__dict__.iteritems():</span></div><div class="line">        <span class="keyword">for</span> key, value <span class="keyword">in</span> self.__dict__.items():</div><div class="line">            <span class="keyword">if</span> <span class="keyword">not</span> key.startswith(</div><div class="line">                    <span class="string">"__"</span>) <span class="keyword">and</span> <span class="keyword">not</span> key <span class="keyword">in</span> self.getMultipartParas() <span class="keyword">and</span> <span class="keyword">not</span> key.startswith(</div><div class="line">                    <span class="string">"_RestApi__"</span>) <span class="keyword">and</span> value <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</div><div class="line">                <span class="keyword">if</span> (key.startswith(<span class="string">"_"</span>)):</div><div class="line">                    application_parameter[key[<span class="number">1</span>:]] = value</div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    application_parameter[key] = value</div><div class="line">        <span class="comment"># 查询翻译字典来规避一些关键字属性</span></div><div class="line">        translate_parameter = self.getTranslateParas()</div><div class="line">        <span class="comment"># for key, value in application_parameter.iteritems():</span></div><div class="line">        <span class="keyword">for</span> key, value <span class="keyword">in</span> application_parameter.items():  <span class="comment"># sudoz: Py3</span></div><div class="line">            <span class="keyword">if</span> key <span class="keyword">in</span> translate_parameter:</div><div class="line">                application_parameter[translate_parameter[key]] = \</div><div class="line">                application_parameter[key]</div><div class="line">                <span class="keyword">del</span> application_parameter[key]</div><div class="line">        <span class="keyword">return</span> application_parameter</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/23/leetcode-1st-week/" rel="next" title="LeetCode 探险第一弹">
+                <i class="fa fa-chevron-left"></i> LeetCode 探险第一弹
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/17/difference-between-string-stringbuilder-stringbuffer/" rel="prev" title="String, StringBuilder, StringBuffer 区别">
+                String, StringBuilder, StringBuffer 区别 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一号坑"><span class="nav-number">1.</span> <span class="nav-text">一号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二号坑"><span class="nav-number">2.</span> <span class="nav-text">二号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三号坑"><span class="nav-number">3.</span> <span class="nav-text">三号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四号坑"><span class="nav-number">4.</span> <span class="nav-text">四号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五号坑"><span class="nav-number">5.</span> <span class="nav-text">五号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#六号坑"><span class="nav-number">6.</span> <span class="nav-text">六号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#七号坑"><span class="nav-number">7.</span> <span class="nav-text">七号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#八号坑"><span class="nav-number">8.</span> <span class="nav-text">八号坑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Python-3-x-版本的-base-py"><span class="nav-number">9.</span> <span class="nav-text">Python 3.x 版本的 base.py</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2016/02/02/migrate-alidayu-to-py3-from-py2/';
+      var disqus_title = '阿里大鱼短信 SDK 迁移到 Python 3.x';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>

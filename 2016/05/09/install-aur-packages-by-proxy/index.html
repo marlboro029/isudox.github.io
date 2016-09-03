@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Arch,Proxy," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="Arch 最迷人的地方莫过于完善的 Wiki 和强大的 AUR(Arch User Repository)。然而由于某些{不可说}的人为原因，在 Arch 里安装 AUR 包时不时就会遇到连接失败导致无法安装的问题。比如之前我试图安装 Atom，但屡试屡败，其中的苦你一定懂。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通过代理安装 AUR 软件包">
+<meta property="og:url" content="http://isudox.com/2016/05/09/install-aur-packages-by-proxy/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="Arch 最迷人的地方莫过于完善的 Wiki 和强大的 AUR(Arch User Repository)。然而由于某些{不可说}的人为原因，在 Arch 里安装 AUR 包时不时就会遇到连接失败导致无法安装的问题。比如之前我试图安装 Atom，但屡试屡败，其中的苦你一定懂。">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/install-aur-packages-by-proxy-1.png">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/install-aur-packages-by-proxy-2.png">
+<meta property="og:updated_time" content="2016-08-05T14:14:39.238Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="通过代理安装 AUR 软件包">
+<meta name="twitter:description" content="Arch 最迷人的地方莫过于完善的 Wiki 和强大的 AUR(Arch User Repository)。然而由于某些{不可说}的人为原因，在 Arch 里安装 AUR 包时不时就会遇到连接失败导致无法安装的问题。比如之前我试图安装 Atom，但屡试屡败，其中的苦你一定懂。">
+<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/install-aur-packages-by-proxy-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> 通过代理安装 AUR 软件包 | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                通过代理安装 AUR 软件包
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-09T23:27:07+08:00" content="2016-05-09">
+              2016-05-09
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/05/09/install-aur-packages-by-proxy/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/05/09/install-aur-packages-by-proxy/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/05/09/install-aur-packages-by-proxy/" class="leancloud_visitors" data-flag-title="通过代理安装 AUR 软件包">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Arch 最迷人的地方莫过于完善的 Wiki 和强大的 <a href="https://wiki.archlinux.org/index.php/Arch_User_Repository" target="_blank" rel="external">AUR</a>(Arch User Repository)。然而由于某些{不可说}的人为原因，在 Arch 里安装 AUR 包时不时就会遇到连接失败导致无法安装的问题。比如之前我试图安装 Atom，但屡试屡败，其中的苦你一定懂。</p>
+<a id="more"></a>
+<p>这种问题当然不会难到我，解决的办法就是让安装 AUR 的程序能通过一把梯子翻过高墙，毕竟梯子是掌握正确上网姿势的必备条件。</p>
+<p>就以上面提到的 <a href="https://aur.archlinux.org/packages/atom-editor/" target="_blank" rel="external">atom-editor</a> 的安装为例，通常 AUR 维护的包都会包含一个记录安装信息和安装命令的脚本文件 PKGBUILD，比如 atom-editor 包的 PKGBUILD 文件内容为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line"># Maintainer: Sebastian Jug &lt;seb@stianj.ug&gt;</div><div class="line"># Contributor: John Reese &lt;jreese@noswap.com&gt;</div><div class="line"># Upstream URL: https://github.com/atom/atom</div><div class="line">#</div><div class="line"># For improvements/fixes to this package, please send a pull request:</div><div class="line"># https://github.com/sjug/atom-editor</div><div class="line"></div><div class="line">pkgname=atom-editor</div><div class="line">pkgver=1.7.3</div><div class="line">pkgrel=1</div><div class="line">pkgdesc=&apos;Chrome-based text editor from Github&apos;</div><div class="line">arch=(&apos;x86_64&apos; &apos;i686&apos;)</div><div class="line">url=&apos;https://github.com/atom/atom&apos;</div><div class="line">license=(&apos;MIT&apos;)</div><div class="line">depends=(&apos;alsa-lib&apos; &apos;desktop-file-utils&apos; &apos;gconf&apos; &apos;gtk2&apos; &apos;libgnome-keyring&apos; &apos;libnotify&apos; &apos;libxtst&apos; &apos;nodejs&apos; &apos;nss&apos; &apos;python2&apos;)</div><div class="line">optdepends=(&apos;gvfs: file deletion support&apos;)</div><div class="line">makedepends=(&apos;git&apos; &apos;npm&apos;)</div><div class="line">conflicts=(&apos;atom-editor-bin&apos; &apos;atom-editor-git&apos;)</div><div class="line">install=atom.install</div><div class="line">source=(&quot;https://github.com/atom/atom/archive/v$&#123;pkgver&#125;.tar.gz&quot;</div><div class="line">        &apos;package.patch&apos;)</div><div class="line">sha256sums=(&apos;5074b59ddaca5525eb48098dee6fe63013799cbc77749add314b9e1bc894b8f4&apos;</div><div class="line">            &apos;ab27ab817f67043e98298d525efb6a417dea07f4012b6dfb7cf6a538f9b50bab&apos;)</div><div class="line"></div><div class="line">prepare() &#123;</div><div class="line">  cd &quot;atom-$pkgver&quot;</div><div class="line"></div><div class="line">  patch -Np0 -i &quot;$srcdir/package.patch&quot;</div><div class="line"></div><div class="line">  sed -i -e &quot;/exception-reporting/d&quot; \</div><div class="line">      -e &quot;/metrics/d&quot; package.json</div><div class="line"></div><div class="line">  sed -e &quot;s/&lt;%= description %&gt;/$pkgdesc/&quot; \</div><div class="line">    -e &quot;s|&lt;%= appName %&gt;|Atom|&quot;\</div><div class="line">    -e &quot;s|&lt;%= installDir %&gt;/share/&lt;%= appFileName %&gt;|/usr/bin|&quot;\</div><div class="line">    -e &quot;s|&lt;%= iconPath %&gt;|atom|&quot;\</div><div class="line">    resources/linux/atom.desktop.in &gt; resources/linux/Atom.desktop</div><div class="line">&#125;</div><div class="line"></div><div class="line">build() &#123;</div><div class="line">  cd &quot;$srcdir/atom-$pkgver&quot;</div><div class="line"></div><div class="line">  export PYTHON=python2</div><div class="line">  script/build --build-dir &quot;$srcdir/atom-build&quot;</div><div class="line">&#125;</div><div class="line"></div><div class="line">package() &#123;</div><div class="line">  cd &quot;$srcdir/atom-$pkgver&quot;</div><div class="line"></div><div class="line">  script/grunt install --build-dir &quot;$srcdir/atom-build&quot; --install-dir &quot;$pkgdir/usr&quot;</div><div class="line"></div><div class="line">  install -Dm644 resources/linux/Atom.desktop &quot;$pkgdir/usr/share/applications/atom.desktop&quot;</div><div class="line">  install -Dm644 resources/app-icons/stable/png/1024.png &quot;$pkgdir/usr/share/pixmaps/atom.png&quot;</div><div class="line">  install -Dm644 LICENSE.md &quot;$pkgdir/usr/share/licenses/$pkgname/LICENSE.md&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>脚本内容很清晰，注明了软件包的说明，下载路径，依赖/冲突关系和安装命令。很显然，安装失败的原因就是因为国内网络无法连接上 atom 的安装包下载地址 <a href="https://github.com/atom/atom/archive/v1.7.3.tar.gz。" target="_blank" rel="external">https://github.com/atom/atom/archive/v1.7.3.tar.gz。</a><br>AUR 包的安装需要在包目录下执行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">makepkg -sri</div></pre></td></tr></table></figure></p>
+<p>因此得修改 makepkg 的配置，使得 makepkg 在调用下载程序时能通过 Proxy 翻过防火墙的阻碍。makepkg 的配置文件位于 <code>/etc/makepkg.conf</code>，找到 DLAGENT 字段</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">#-- The download utilities that makepkg should use to acquire sources</div><div class="line">#  Format: &apos;protocol::agent&apos;</div><div class="line">DLAGENTS=(&apos;ftp::/usr/bin/curl -fC - --ftp-pasv --retry 3 --retry-delay 3 -o %o %u&apos;</div><div class="line">          &apos;http::/usr/bin/curl -fLC - --retry 3 --retry-delay 3 -o %o %u&apos;</div><div class="line">          &apos;https::/usr/bin/curl -fLC - --retry 3 --retry-delay 3 -o %o %u&apos;</div><div class="line">          &apos;rsync::/usr/bin/rsync --no-motd -z %u %o&apos;</div><div class="line">          &apos;scp::/usr/bin/scp -C %u %o&apos;)</div></pre></td></tr></table></figure>
+<p>DLAGENT 顾名思义就是 Download Agent 的意思，这个字段指定了不同网络协议的下载工具和下载参数，默认是调用 curl 下载。现在只需要让 curl 通过 Proxy 而非直连的方式去下载 PKGBUILD 里设置的软件包即可。查看 curl 命令的参数用法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">curl -h | grep socks</div><div class="line">     --socks4 HOST[:PORT]  SOCKS4 proxy on given host + port</div><div class="line">     --socks4a HOST[:PORT]  SOCKS4a proxy on given host + port</div><div class="line">     --socks5 HOST[:PORT]  SOCKS5 proxy on given host + port</div><div class="line">     --socks5-hostname HOST[:PORT]  SOCKS5 proxy, pass host name to proxy</div><div class="line">     --socks5-gssapi-service NAME  SOCKS5 proxy service name <span class="keyword">for</span> GSS-API</div><div class="line">     --socks5-gssapi-nec  Compatibility with NEC SOCKS5 server</div></pre></td></tr></table></figure>
+<p>因为我搭的 Proxy 是通过 socks5，所以在 makepkg.conf 配置文件里的 DLAGENT 字段中加上 <code>--socks5 127.0.0.1:1080</code> 参数就行了。最后测试一把：</p>
+<p><img src="https://o70e8d1kb.qnssl.com/install-aur-packages-by-proxy-1.png" alt="Imgur"></p>
+<p><img src="https://o70e8d1kb.qnssl.com/install-aur-packages-by-proxy-2.png" alt="Imgur"></p>
+<p>大功告成，喜大普奔！</p>
+<p>另外，也可以自定义下载工具，比如 axel 就是很好的替代选择，可以设置多线程下载，速度非常快。</p>
+<p>没有自由，何谈快乐！</p>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Arch/" rel="tag"># Arch</a>
+          
+            <a href="/tags/Proxy/" rel="tag"># Proxy</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/18/imitate-wechat-moment-on-mobile-device/" rel="next" title="移动端仿微信朋友圈发布图文">
+                <i class="fa fa-chevron-left"></i> 移动端仿微信朋友圈发布图文
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/05/10/summary-of-spring-mvc-interceptor/" rel="prev" title="Spring MVC 拦截器使用小结">
+                Spring MVC 拦截器使用小结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2016/05/09/install-aur-packages-by-proxy/';
+      var disqus_title = '通过代理安装 AUR 软件包';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>

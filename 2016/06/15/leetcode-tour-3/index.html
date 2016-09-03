@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Algorithm,LeetCode," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="继上篇 LeetCode 探险第二弹，第三弹记录第 11 到 15 题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LeetCode 探险第三弹">
+<meta property="og:url" content="http://isudox.com/2016/06/15/leetcode-tour-3/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="继上篇 LeetCode 探险第二弹，第三弹记录第 11 到 15 题。">
+<meta property="og:updated_time" content="2016-08-05T14:14:39.242Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LeetCode 探险第三弹">
+<meta name="twitter:description" content="继上篇 LeetCode 探险第二弹，第三弹记录第 11 到 15 题。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> LeetCode 探险第三弹 | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                LeetCode 探险第三弹
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-15T20:18:15+08:00" content="2016-06-15">
+              2016-06-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/15/leetcode-tour-3/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/06/15/leetcode-tour-3/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/06/15/leetcode-tour-3/" class="leancloud_visitors" data-flag-title="LeetCode 探险第三弹">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>继上篇 <a href="/2016/05/17/leetcode-tour-2/">LeetCode 探险第二弹</a>，第三弹记录第 11 到 15 题。</p>
+<a id="more"></a>
+<h3 id="Container-With-Most-Water"><a href="#Container-With-Most-Water" class="headerlink" title="Container With Most Water"></a>Container With Most Water</h3><p>第 11 题 <a href="https://leetcode.com/problems/container-with-most-water/" target="_blank" rel="external">Container With Most Water</a></p>
+<blockquote>
+<p>给出 n 个非负整数 a<sub>1</sub>, a<sub>2</sub>, …, a<sub>n</sub>，每个数指向一个坐标点 (i, a<sub>i</sub>)。该 n 个坐标点画出了 n 条纵线，即从 (i, a<sub>i</sub>) 到 (i, 0) 之间的线段。找出其中的两条线段和 x 轴形成的容器能装满最多的水。</p>
+</blockquote>
+<p>假设待求的这两条线段的坐标分别为(i, 0)-(i, a<sub>i</sub>) 和 (j, 0)-(j, a<sub>j</sub>)，那么容器的底座长度 L=Math.abs(i - j)，高度 H=Math.min(a<sub>i</sub>, a<sub>j</sub>)，容积 V=L*H。</p>
+<p>最笨也是最直接的办法就是在循环里暴力枚举。把所有能组成的容器都测量一遍，不多说了，直接撸代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ContainerWithMostWater.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxArea</span><span class="params">(<span class="keyword">int</span>[] height)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> maxV = <span class="number">0</span>, curV = <span class="number">0</span>;</div><div class="line">        <span class="keyword">int</span> count = height.length;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count - <span class="number">1</span>; i++) &#123;</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; count; j++) &#123;</div><div class="line">                curV = (j - i) * (height[i] &lt; height[j] ? height[i] : height[j]);</div><div class="line">                maxV = Math.max(maxV, curV);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> maxV;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>提交后被 Lee他Code 婉拒，因为 Time Limit Exceeded，这种解法时间复杂度是 O(n<sup>2</sup>)，当 n 很大时，运行时间随指数增长会非常可怕。只能想办法精简处理过程，是不是所有 0.5(n*(n-1)) 中组合都要计算一遍，必须不是。涉及两个变量长和高，因为长的最大值是已知的，从长度取最大开始比较：<br>先取首末两个点 1 和 n，容积是 V=(n-1)*Math.min(a<sub>1</sub>, a<sub>n</sub>)。除此之外的选点，长度不可能比这种情况大，要使长度变小的前提下，容积更大，必要条件就是 Math.min(a<sub>i</sub>, a<sub>j</sub>) 要大于 Math.min(a<sub>1</sub>, a<sub>n</sub>)。所以可以从首末两端往中间移动，求取容积并存储当前最大容积后，放弃两侧高度较小的那个点，并向中心移动，这样处理可以省去很多不必要的计算，时间复杂度降低到 O(n)。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ContainerWithMostWater.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">maxArea</span><span class="params">(<span class="keyword">int</span>[] height)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> maxV = <span class="number">0</span>, curV = <span class="number">0</span>;</div><div class="line">        <span class="keyword">int</span> i = <span class="number">0</span>, j = height.length - <span class="number">1</span>;</div><div class="line">        <span class="keyword">while</span> (i &lt; j) &#123;</div><div class="line">            <span class="keyword">if</span> (height[i] &lt; height[j]) &#123;</div><div class="line">                curV = (j - i) * (height[i++]);</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (height[i] &gt; height[j]) &#123;</div><div class="line">                curV = (j - i) * (height[j--]);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                curV = (j - i) * (height[i++]);</div><div class="line">                j--;</div><div class="line">            &#125;</div><div class="line">            maxV = Math.max(maxV, curV);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> maxV;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">45 / 45</td>
+<td style="text-align:center">5 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="Integer-to-Roman"><a href="#Integer-to-Roman" class="headerlink" title="Integer to Roman"></a>Integer to Roman</h3><p>第 12 题 <a href="https://leetcode.com/problems/integer-to-roman/" target="_blank" rel="external">Integer to Roman</a></p>
+<blockquote>
+<p>给出一个整型数，将其转换为罗马数字。输入的整数在 1-3999 之间。</p>
+</blockquote>
+<p>先来整理下罗马数字的表达方式：<br>1-9: “I”, “II”, “III”, “IV”, “V”, “VI”, “VII”, “VIII”, “IX”<br>10-90: “X”, “XX”, “XXX”, “XL”, “L”, “LX”, “LXX”, “LXXX”, “XC”<br>100-900: “C”, “CC”, “CCC”, “CD”, “D”, “DC”, “DCC”, “DCCC”, “CM”<br>1000-3000: “M”, “MM”, “MMM”</p>
+<p>I 表示单位 1，V 表示单位 5。同理，X 表示 10，L 表示 50；C 表示 100，D 表示 500；M 表示 1000。单位较小的如果在单位较大的符号左边，则是相减关系，反之则是相加关系。</p>
+<p>比如数字 432，先拆分成 400+20+3，即分别为 CD、XXX、II，所以转换结果是 CDXXXII；再比如 98，拆分为 90+8，即 XCVIII。<br>算法的关键就是把整数拆分成各个数位上所代表的数值的相加。通过二维字符串数组的索引位置和值的映射实现各个加和整数与罗马数字的对应。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// IntegerToRoman.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">intToRoman</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</div><div class="line">        String[] ones = &#123;<span class="string">""</span>, <span class="string">"I"</span>, <span class="string">"II"</span>, <span class="string">"III"</span>, <span class="string">"IV"</span>, <span class="string">"V"</span>, <span class="string">"VI"</span>, <span class="string">"VII"</span>, <span class="string">"VIII"</span>, <span class="string">"IX"</span>&#125;;</div><div class="line">        String[] tens = &#123;<span class="string">""</span>, <span class="string">"X"</span>, <span class="string">"XX"</span>, <span class="string">"XXX"</span>, <span class="string">"XL"</span>, <span class="string">"L"</span>, <span class="string">"LX"</span>, <span class="string">"LXX"</span>, <span class="string">"LXXX"</span>, <span class="string">"XC"</span>&#125;;</div><div class="line">        String[] hundreds = &#123;<span class="string">""</span>, <span class="string">"C"</span>, <span class="string">"CC"</span>, <span class="string">"CCC"</span>, <span class="string">"CD"</span>, <span class="string">"D"</span>, <span class="string">"DC"</span>, <span class="string">"DCC"</span>, <span class="string">"DCCC"</span>, <span class="string">"CM"</span>&#125;;</div><div class="line">        String[] thousands = &#123;<span class="string">""</span>, <span class="string">"M"</span>, <span class="string">"MM"</span>, <span class="string">"MMM"</span>&#125;;</div><div class="line">        String[][] romans = &#123;ones, tens, hundreds, thousands&#125;;</div><div class="line">        String res = <span class="string">""</span>;</div><div class="line">        <span class="keyword">int</span> len = String.valueOf(num).length();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = len - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</div><div class="line">            <span class="keyword">int</span> x = num / pow(<span class="number">10</span>, i);</div><div class="line">            res = res + romans[i][x];</div><div class="line">            num = num % pow(<span class="number">10</span>, i);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">pow</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> z = <span class="number">1</span>;</div><div class="line">        <span class="keyword">for</span> (; y &gt; <span class="number">0</span>; y--) z *= x;</div><div class="line">        <span class="keyword">return</span> z;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">3999 / 3999</td>
+<td style="text-align:center">15 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<p>这种做法在细节上处理的很不好，算法复杂度略高，因为整数的分拆和转换罗马数字是从最高位开始，所以需要幂运算，浪费了一些运算时间。如果从整数的最低位开始处理，就不需要做幂运算了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// IntegerToRoman.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">intToRoman</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</div><div class="line">        String[] ones = &#123;<span class="string">""</span>, <span class="string">"I"</span>, <span class="string">"II"</span>, <span class="string">"III"</span>, <span class="string">"IV"</span>, <span class="string">"V"</span>, <span class="string">"VI"</span>, <span class="string">"VII"</span>, <span class="string">"VIII"</span>, <span class="string">"IX"</span>&#125;;</div><div class="line">        String[] tens = &#123;<span class="string">""</span>, <span class="string">"X"</span>, <span class="string">"XX"</span>, <span class="string">"XXX"</span>, <span class="string">"XL"</span>, <span class="string">"L"</span>, <span class="string">"LX"</span>, <span class="string">"LXX"</span>, <span class="string">"LXXX"</span>, <span class="string">"XC"</span>&#125;;</div><div class="line">        String[] hundreds = &#123;<span class="string">""</span>, <span class="string">"C"</span>, <span class="string">"CC"</span>, <span class="string">"CCC"</span>, <span class="string">"CD"</span>, <span class="string">"D"</span>, <span class="string">"DC"</span>, <span class="string">"DCC"</span>, <span class="string">"DCCC"</span>, <span class="string">"CM"</span>&#125;;</div><div class="line">        String[] thousands = &#123;<span class="string">""</span>, <span class="string">"M"</span>, <span class="string">"MM"</span>, <span class="string">"MMM"</span>&#125;;</div><div class="line">        String[][] romans = &#123;ones, tens, hundreds, thousands&#125;;</div><div class="line">        String res = <span class="string">""</span>;</div><div class="line">        <span class="keyword">int</span> digit = <span class="number">0</span>;</div><div class="line">        <span class="keyword">while</span> (num &gt; <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">int</span> x = num % <span class="number">10</span>;</div><div class="line">            res = romans[digit][x] + res;</div><div class="line">            num = num / <span class="number">10</span>;</div><div class="line">            digit++;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">3999 / 3999</td>
+<td style="text-align:center">12 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<p>另外再提供一个思路，罗马数字 1 - 3999 的匹配过程中，9*10<sup>n</sup>，5*10<sup>n</sup> 和 4*10<sup>n</sup> 是特殊的符号，因此把它们单独放进映射列表中。让整数从高位作消减，每减去一个数，就拼接该数所对应的罗马数字，直到不能再减为止。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// IntegerToRoman.java v1.2</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">intToRoman</span><span class="params">(<span class="keyword">int</span> num)</span> </span>&#123;</div><div class="line">        String[] romans = &#123;<span class="string">"M"</span>, <span class="string">"CM"</span>, <span class="string">"D"</span>, <span class="string">"CD"</span>, <span class="string">"C"</span>, <span class="string">"XC"</span>, <span class="string">"L"</span>, <span class="string">"XL"</span>, <span class="string">"X"</span>, <span class="string">"IX"</span>, <span class="string">"V"</span>, <span class="string">"IV"</span>, <span class="string">"I"</span>&#125;;</div><div class="line">        <span class="keyword">int</span>[] ints = &#123;<span class="number">1000</span>, <span class="number">900</span>, <span class="number">500</span>, <span class="number">400</span>, <span class="number">100</span>, <span class="number">90</span>, <span class="number">50</span>, <span class="number">40</span>, <span class="number">10</span>, <span class="number">9</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">1</span>&#125;;</div><div class="line">        StringBuilder res = <span class="keyword">new</span> StringBuilder();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; ints.length; i++) &#123;</div><div class="line">            <span class="keyword">while</span> (num &gt;= ints[i]) &#123;</div><div class="line">                res.append(romans[i]);</div><div class="line">                num -= ints[i];</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res.toString();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">3999 / 3999</td>
+<td style="text-align:center">8 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="Roman-to-Integer"><a href="#Roman-to-Integer" class="headerlink" title="Roman to Integer"></a>Roman to Integer</h3><p>第 13 题 <a href="https://leetcode.com/problems/roman-to-integer/" target="_blank" rel="external">Roman to Integer</a></p>
+<blockquote>
+<p>给出一个罗马数字，将其转换为整型数。范围在 1-3999 之间。</p>
+</blockquote>
+<p>这题就是前一题的逆向。可以借用上面的思路，从字符串的首位开始寻找匹配的罗马数字，如果从首位开始的字符串能匹配罗马数字，则把该字符串截掉，继续匹配；如果没有匹配，则换下一个罗马数字继续判断是否匹配。这里有一个注意点，就是一旦匹配后截取子字符串时，要根据被截掉的罗马数字的长度来定截取的起始位置。Java 代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// RomanToInteger.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">romanToInt</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">        String[] romans = &#123;<span class="string">"M"</span>, <span class="string">"CM"</span>, <span class="string">"D"</span>, <span class="string">"CD"</span>, <span class="string">"C"</span>, <span class="string">"XC"</span>, <span class="string">"L"</span>, <span class="string">"XL"</span>, <span class="string">"X"</span>, <span class="string">"IX"</span>, <span class="string">"V"</span>, <span class="string">"IV"</span>, <span class="string">"I"</span>&#125;;</div><div class="line">        <span class="keyword">int</span>[] ints = &#123;<span class="number">1000</span>, <span class="number">900</span>, <span class="number">500</span>, <span class="number">400</span>, <span class="number">100</span>, <span class="number">90</span>, <span class="number">50</span>, <span class="number">40</span>, <span class="number">10</span>, <span class="number">9</span>, <span class="number">5</span>, <span class="number">4</span>, <span class="number">1</span>&#125;;</div><div class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; romans.length;) &#123;</div><div class="line">            <span class="keyword">int</span> index = s.indexOf(romans[i]);</div><div class="line">            <span class="keyword">if</span> (index == <span class="number">0</span>) &#123;</div><div class="line">                res += ints[i];</div><div class="line">                s = s.substring(index + romans[i].length());</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                i++;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">3999 / 3999</td>
+<td style="text-align:center">10 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<p>再换种思路，前一题分析时讲到，小单位在大单位左边时时相减的关系，反之则是相加的关系，比如 “IV” 表示 V-I=4，而 “VI” 表示 V+I=6。每次在匹配当前罗马数字时再去和前一位罗马数字进行比较，如果是比之前的大，则在加上当前罗马数字所代表的整数后还要减去前一位所代表的数字；如果比之前的要小，就只需要加上当前的数字。还有一个细节，如果当前罗马数字比前一位大，由于上一次操作时已经把前一位的数字加上去了，所以在操作当前罗马数字时需要减两次前一罗马数字。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// RomanToInteger.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">romanToInt</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> pre = <span class="number">0</span>, cur = <span class="number">0</span>, res = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.length(); i++) &#123;</div><div class="line">            <span class="keyword">switch</span> (s.charAt(i)) &#123;</div><div class="line">                <span class="keyword">case</span> <span class="string">'M'</span>: cur = <span class="number">1000</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> <span class="string">'D'</span>: cur = <span class="number">500</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> <span class="string">'C'</span>: cur = <span class="number">100</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> <span class="string">'L'</span>: cur = <span class="number">50</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> <span class="string">'X'</span>: cur = <span class="number">10</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> <span class="string">'V'</span>: cur = <span class="number">5</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">case</span> <span class="string">'I'</span>: cur = <span class="number">1</span>;</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (cur &gt; pre) &#123;</div><div class="line">                res += cur - pre * <span class="number">2</span>;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                res += cur;</div><div class="line">            &#125;</div><div class="line">            pre = cur;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">3999 / 3999</td>
+<td style="text-align:center">7 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="Longest-Common-Prefix"><a href="#Longest-Common-Prefix" class="headerlink" title="Longest Common Prefix"></a>Longest Common Prefix</h3><p>第 14 题 <a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank" rel="external">Longest Common Prefix</a></p>
+<blockquote>
+<p>编写一个函数，找出给定的字符串数组中最长的公共前缀字符串。</p>
+</blockquote>
+<p>这是一道非常非常经典的算法题，江湖人称 “LCP”。由于限定了是前缀字符串，使得子字符串的起始位置是固定的，因此题目变得很好处理。<br>先判断两种特殊输入，字符串数组为空或者 <code>null</code>，以及字符串数组仅包含一个字符串这两种情况。<br>然后找出字符串数组中的最短字符串的长度，因为这个长度限定了最长公共前缀字符串的最大长度。接下来就从字符串的首位依次往后比较，一旦出现不相同的情况，保存当前的公共前缀字符串，立即终止比较。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// LongestCommonPrefix.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">longestCommonPrefix</span><span class="params">(String[] strs)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (strs == <span class="keyword">null</span> || strs.length == <span class="number">0</span>) <span class="keyword">return</span> <span class="string">""</span>;</div><div class="line">        <span class="keyword">if</span> (strs.length == <span class="number">1</span>) <span class="keyword">return</span> strs[<span class="number">0</span>];</div><div class="line">        <span class="keyword">int</span> minLen = strs[<span class="number">0</span>].length();</div><div class="line">        <span class="keyword">for</span> (String str : strs) &#123;</div><div class="line">            minLen = str.length() &lt; minLen ? str.length() : minLen;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; minLen; i++) &#123;</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; strs.length - <span class="number">1</span>; j++) &#123;</div><div class="line">                <span class="keyword">if</span> (strs[j].charAt(i) != strs[j + <span class="number">1</span>].charAt(i)) &#123;</div><div class="line">                    <span class="keyword">return</span> strs[j].substring(<span class="number">0</span>, i);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> strs[<span class="number">0</span>].substring(<span class="number">0</span>, minLen);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">117 / 117</td>
+<td style="text-align:center">2 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="3Sum"><a href="#3Sum" class="headerlink" title="3Sum"></a>3Sum</h3><p>第 15 题 <a href="https://leetcode.com/problems/3sum/" target="_blank" rel="external">3Sum</a></p>
+<blockquote>
+<p>有 n 个整型数组成的数组 S，其中是否存在 a, b, c 三个数，使得 a + b + c = 0？找出所有的组合。<br>比如给出数组 S = [ -1, 0, 1, 2, -1, -4 ]，结果就是：[ [-1, 0, 1], [-1, -1, 2] ]<br>注，需要去重。</p>
+</blockquote>
+<p>首先排除数组元素小于 3 的异常情况。因为三者求和为 0，因此必然包含正数和负数，所以把数组排序后如果首个元素大于 0，或者最后一个元素小于 0 都可以直接终止算法。另外，由于最终的结果不能有重复的组合，所以有必要对数组进行排序，这样方便去掉重复的数字组合。<br>对递增排序后的数组枚举，枚举时选定一个数 nums[i] 作为最小数，然后再从后面的数中选定中间数 nums[i+1] 和最大数 nums[n]，三者求和。如果结果等于 0，则需要把中间数和最大数的下标同时往中间移动，如果移动后的数和之前一样，则继续向中间移动，这样处理是一方面是节省不必要的运算，更重要的是为了去重；如果结果大于 0，相应的把最大数减小，即向左移动下标 n；如果结果小于 0，则把中间数的下标向右移动；直到中间数和最大数相遇为止。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 3Sum.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; threeSum(<span class="keyword">int</span>[] nums) &#123;</div><div class="line">        List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">if</span> (nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">3</span>) <span class="keyword">return</span> res;</div><div class="line">        Arrays.sort(nums);</div><div class="line">        <span class="keyword">int</span> count = nums.length, i = <span class="number">0</span>;</div><div class="line">        <span class="keyword">while</span> (nums[i] &lt;= <span class="number">0</span> &amp;&amp; nums[count - <span class="number">1</span>] &gt;= <span class="number">0</span> &amp;&amp; i &lt; count - <span class="number">2</span>) &#123;</div><div class="line">            <span class="keyword">int</span> j = i + <span class="number">1</span>;</div><div class="line">            <span class="keyword">int</span> k = count - <span class="number">1</span>;</div><div class="line">            <span class="keyword">while</span> (j &lt; k) &#123;</div><div class="line">                <span class="keyword">int</span> sum = nums[i] + nums[j] + nums[k];</div><div class="line">                <span class="keyword">if</span> (sum == <span class="number">0</span>) &#123;</div><div class="line">                    res.add(Arrays.asList(nums[i], nums[j++], nums[k--]));</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[j] == nums[j - <span class="number">1</span>]) j++;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[k] == nums[k + <span class="number">1</span>]) k--;</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sum &lt; <span class="number">0</span>) &#123;</div><div class="line">                    j++;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[j] == nums[j - <span class="number">1</span>]) j++;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    k--;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[k] == nums[k + <span class="number">1</span>]) k--;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            i++;</div><div class="line">            <span class="keyword">while</span> (i &lt; count - <span class="number">2</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) i++;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Status</th>
+<th style="text-align:center">Tests</th>
+<th style="text-align:center">Run Time</th>
+<th style="text-align:center">Language</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Accepted</td>
+<td style="text-align:center">311 / 311</td>
+<td style="text-align:center">9 ms</td>
+<td style="text-align:center">Java</td>
+</tr>
+</tbody>
+</table>
+<p>下一篇：<a href="/2016/07/04/leetcode-tour-4/">LeetCode 探险第四弹</a></p>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Algorithm/" rel="tag"># Algorithm</a>
+          
+            <a href="/tags/LeetCode/" rel="tag"># LeetCode</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/06/using-chain-of-responsibility-pattern/" rel="next" title="责任链模式的实际运用">
+                <i class="fa fa-chevron-left"></i> 责任链模式的实际运用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/22/memory-model-of-string-in-java-language/" rel="prev" title="Java String 的内存模型">
+                Java String 的内存模型 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Container-With-Most-Water"><span class="nav-number">1.</span> <span class="nav-text">Container With Most Water</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Integer-to-Roman"><span class="nav-number">2.</span> <span class="nav-text">Integer to Roman</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Roman-to-Integer"><span class="nav-number">3.</span> <span class="nav-text">Roman to Integer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Longest-Common-Prefix"><span class="nav-number">4.</span> <span class="nav-text">Longest Common Prefix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3Sum"><span class="nav-number">5.</span> <span class="nav-text">3Sum</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2016/06/15/leetcode-tour-3/';
+      var disqus_title = 'LeetCode 探险第三弹';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>

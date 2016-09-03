@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Python,Nginx,Django,uWSGI,BestPractice," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="上周末接到急差，要重新部署之前开发的 Django 项目。磕磕绊绊遇到很多预想不到的问题，也发现自己对 Django 应用的部署依旧很生疏，遂记一篇水文。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django 部署的非最佳实践">
+<meta property="og:url" content="http://isudox.com/2016/06/01/non-best-practice-of-django-deployment/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="上周末接到急差，要重新部署之前开发的 Django 项目。磕磕绊绊遇到很多预想不到的问题，也发现自己对 Django 应用的部署依旧很生疏，遂记一篇水文。">
+<meta property="og:updated_time" content="2016-08-05T14:14:39.238Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Django 部署的非最佳实践">
+<meta name="twitter:description" content="上周末接到急差，要重新部署之前开发的 Django 项目。磕磕绊绊遇到很多预想不到的问题，也发现自己对 Django 应用的部署依旧很生疏，遂记一篇水文。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> Django 部署的非最佳实践 | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Django 部署的非最佳实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-01T17:24:27+08:00" content="2016-06-01">
+              2016-06-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/DevOps/" itemprop="url" rel="index">
+                    <span itemprop="name">DevOps</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/01/non-best-practice-of-django-deployment/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/06/01/non-best-practice-of-django-deployment/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/06/01/non-best-practice-of-django-deployment/" class="leancloud_visitors" data-flag-title="Django 部署的非最佳实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上周末接到急差，要重新部署之前开发的 Django 项目。磕磕绊绊遇到很多预想不到的问题，也发现自己对 Django 应用的部署依旧很生疏，遂记一篇水文。</p>
+<a id="more"></a>
+<h3 id="一些题外话"><a href="#一些题外话" class="headerlink" title="一些题外话"></a>一些题外话</h3><h4 id="Django-工程结构"><a href="#Django-工程结构" class="headerlink" title="Django 工程结构"></a>Django 工程结构</h4><p>在 Django 官方<a href="https://docs.djangoproject.com/en/1.9/intro/tutorial01/#creating-a-project" target="_blank" rel="external">文档</a>里，新建 Django 工程用下面的命令完成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">django-admin startproject mysite</div></pre></td></tr></table></figure>
+<p>这样创建的工程根目录下，会生成一个和项目名称同名的子目录，存放 settings.py wsgi.py 等文件。这样做肯定没问题，但是没必要，也不优雅。对此 Kenneth Reitz 的建议是，在命令的后面加一 <code>.</code> 号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">django-admin.py start-project mysite .</div></pre></td></tr></table></figure>
+<p>这样，Django 工程的配置文件就存放在根目录下了。</p>
+<h4 id="虚拟环境-virtualenv"><a href="#虚拟环境-virtualenv" class="headerlink" title="虚拟环境 virtualenv"></a>虚拟环境 virtualenv</h4><p>一般在测试服务器上，用 virtualenv 把不同版本的环境隔离开来是首选的方案。此外还有一个工具 <a href="https://virtualenvwrapper.readthedocs.io/en/latest/" target="_blank" rel="external">virtualenvwrapper</a>，来管理由 virtualenv 虚拟出来的 Python 环境，非常实用。</p>
+<p>pip 安装 virtualenvwrapper 后，需要设置几个全局环境变量。可以把下面的配置添加进 shell 的配置文件里，比如我用的 zsh，那么就是添加进 .zshrc 文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">export</span> VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3.4</div><div class="line"><span class="built_in">export</span> WORKON_HOME=<span class="variable">$HOME</span>/.virtualenvs</div><div class="line"><span class="built_in">source</span> /usr/<span class="built_in">local</span>/bin/virtualenvwrapper.sh</div></pre></td></tr></table></figure>
+<p>分别指定默认的 Python 版本和 Python 虚拟环境的目录。设置后，就可以非常方便的通过 workon 命令切换已安装的 Python 虚拟环境，而无需定向到虚拟环境的路径。</p>
+<h4 id="导出-pip-列表"><a href="#导出-pip-列表" class="headerlink" title="导出 pip 列表"></a>导出 pip 列表</h4><p>在有了 Python 虚拟环境后，还得有快速安装 pip 包的方法，pip 提供了导出 pip 列表的功能 freeze，以及快速安装工程所需 pip 包的功能 install：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">pip freeze &gt; requirements.txt</div><div class="line">pip install -r requirements.txt</div></pre></td></tr></table></figure>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><h4 id="uWSGI-Nginx"><a href="#uWSGI-Nginx" class="headerlink" title="uWSGI + Nginx"></a>uWSGI + Nginx</h4><p>在安装好 Django 项目专有 Python 环境后，就是部署工作。Nginx 和 uWSGI 是不错的选择，uWSGI 是服务器网关接口 WSGI 的一种实现，它可以通过 Unix socket 或指定端口将客户端请求打到 Django 的路由，并将响应通过 WSGI 协议提交到服务器返回给客户端，请求 - 响应的流程如下：</p>
+<blockquote>
+<p>the web client &lt;-&gt; the web server &lt;-&gt; the socket &lt;-&gt; uwsgi &lt;-&gt; Django</p>
+</blockquote>
+<p>先来配置对应 Django 工程的 Nginx conf</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"># mysite_nginx.conf</div><div class="line"></div><div class="line"># the upstream component nginx needs to connect to</div><div class="line">upstream django &#123;</div><div class="line">    server unix:///path/to/your/mysite/mysite.sock; # for a file socket</div><div class="line">&#125;</div><div class="line"></div><div class="line"># configuration of the server</div><div class="line">server &#123;</div><div class="line">    # the port your site will be served on</div><div class="line">    listen      80;</div><div class="line">    # the domain name it will serve for</div><div class="line">    server_name 127.0.0.1; # substitute your machine's IP address or FQDN</div><div class="line">    charset     utf-8;</div><div class="line"></div><div class="line">    # max upload size</div><div class="line">    client_max_body_size 75M;   # adjust to taste</div><div class="line"></div><div class="line">    # Django media</div><div class="line">    location /media  &#123;</div><div class="line">        alias /path/to/your/mysite/media;  # your Django project's media files - amend as required</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    location /static &#123;</div><div class="line">        alias /path/to/your/mysite/static; # your Django project's static files - amend as required</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    # Finally, send all non-media requests to the Django server.</div><div class="line">    location / &#123;</div><div class="line">        uwsgi_pass  django;</div><div class="line">        include     /path/to/your/mysite/uwsgi_params; # the uwsgi_params file you installed</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>/static 和 /media 指向的路径应匹配 Django settings.py 里对应的路径参数。此外，还可能遇到一个问题，就是权限，nginx 进程的用户多半是 www-data，但我们在服务器上进行操作的用户往往是 root，因此 nginx 并没有操作 Django 工程的权限，可以把 Django 工程的用户和组改成 www-data，但更好的办法是把 www-data 用户加进 root 用户组：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo usermod <span class="_">-a</span>G root www-data</div></pre></td></tr></table></figure></p>
+<p>指定 sock 后，就可以连接 Nginx 和 uWSGI 了，启动 uWSGI 伺服 Django 工程：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">uwsgi --http :80 --home /path/to/your/virtualenv/mysite --chdir /path/to/your/mysite -w mysite.wsgi</div></pre></td></tr></table></figure></p>
+<p>uWSGI 指定了 Django 工程所在的路径和对应的 Python 虚拟环境，并调用 Django 项目的 wsgi.py 文件。每次指定参数不便于管理和迁移，可以把上述参数写进一个 uWSGI 的站点配置文件中：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># freeman_uwsgi.ini file</span></div><div class="line"><span class="section">[uwsgi]</span></div><div class="line"></div><div class="line"><span class="attr">project</span> = mysite</div><div class="line"><span class="attr">base</span> = /path/to/your/mysite</div><div class="line"></div><div class="line"><span class="comment"># Django-related settings</span></div><div class="line"><span class="comment"># the base directory (full path)</span></div><div class="line"><span class="attr">chdir</span>           = %(base)</div><div class="line"><span class="comment"># Django's wsgi file</span></div><div class="line"><span class="attr">module</span>          = %(project).wsgi:application</div><div class="line"><span class="comment"># the virtualenv (full path)</span></div><div class="line"><span class="attr">home</span>            = /path/to/your/virtualenv</div><div class="line"></div><div class="line"><span class="comment"># process-related settings</span></div><div class="line"><span class="comment"># master</span></div><div class="line"><span class="attr">master</span>          = <span class="literal">true</span></div><div class="line"><span class="comment"># maximum number of worker processes</span></div><div class="line"><span class="attr">processes</span>       = <span class="number">10</span></div><div class="line"><span class="comment"># the socket (use the full path to be safe</span></div><div class="line"><span class="attr">socket</span>          = %(base)/%(project).sock</div><div class="line"><span class="comment"># ... with appropriate permissions - may be needed</span></div><div class="line"><span class="attr">chmod-socket</span>    = <span class="number">664</span></div><div class="line"><span class="comment"># clear environment on exit</span></div><div class="line"><span class="attr">vacuum</span>          = <span class="literal">true</span></div><div class="line"><span class="comment"># autoreload py file</span></div><div class="line"><span class="attr">py-autoreload</span>   = <span class="number">3</span></div></pre></td></tr></table></figure></p>
+<p>uWSGI 启动时读取该 ini 文件<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">uwsgi --ini mysite_uwsgi.ini</div></pre></td></tr></table></figure></p>
+<h4 id="开启-emperor-模式"><a href="#开启-emperor-模式" class="headerlink" title="开启 emperor 模式"></a>开启 emperor 模式</h4><p>如果修改了 uWSGI 的站点配置文件，就必须得重启 uWSGI，这步可以由 <code>emperor</code> 模式自动完成。<code>emperor</code> 模式就是实时监控 uWSGI 的配置文件，当发现有改动时，自动重启服务。</p>
+<p>给 uWSGI 建立 <code>emperor</code> 管理的专有路径，把 Django 工程的 uWSGI 配置文件软链接到该路径下，启动 uWSGI 时，加上 `–emperor`` 参数：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo uwsgi --emperor /etc/uwsgi/vassals --uid www-data --gid www-data</div></pre></td></tr></table></figure></p>
+<h3 id="多环境配置"><a href="#多环境配置" class="headerlink" title="多环境配置"></a>多环境配置</h3><p>同一个 Django 工程，在本地开发和在线上部署的版本可能各自有一套配置，比如 settings.py 和 requirements.txt 等。如果把这些差异化的文件加进版本控制的忽略列表里，维护起来又很麻烦，Python 模块化的思想可以很好的运用在这个问题上。</p>
+<p>本地测试和线上部署的差异化配置分离出来，放在专门的 conf 目录下，比如新建 local.py 和 product.py。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">├── conf</div><div class="line">│   ├── __init__.py</div><div class="line">|   ├── base.py</div><div class="line">│   ├── local.py</div><div class="line">│   └── product.py</div><div class="line">│   └── test.py</div><div class="line">└── settings.py</div></pre></td></tr></table></figure></p>
+<p>在 base.py 中保留通用的配置，其余的文件保存不同环境的差异化配置。比如 local.py<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> mysite.conf.base <span class="keyword">import</span> *</div><div class="line"></div><div class="line">DEBUG = <span class="keyword">True</span></div><div class="line">INSTALLED_APPS += (</div><div class="line">    <span class="string">'some_apps'</span>, <span class="comment"># and other apps for local development</span></div><div class="line">)</div><div class="line">DATABASES = &#123;</div><div class="line">    <span class="string">'default'</span>: &#123;</div><div class="line">        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.sqlite3'</span>,</div><div class="line">        <span class="string">'NAME'</span>: <span class="string">'db.sqlite3'</span>,</div><div class="line">        <span class="string">'USER'</span>: <span class="string">''</span>,</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>而 product.py 则可能为<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> mysite.conf.base <span class="keyword">import</span> *</div><div class="line"></div><div class="line">DEBUG = <span class="keyword">False</span></div><div class="line">DATABASES = &#123;</div><div class="line">    <span class="string">'default'</span>: &#123;</div><div class="line">        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.mysql'</span>,</div><div class="line">        <span class="string">'NAME'</span>: <span class="string">'mysite'</span>,</div><div class="line">        <span class="string">'USER'</span>: <span class="string">'myuser'</span>,</div><div class="line">        <span class="string">'PASSWORD'</span>: <span class="string">'nopassword'</span>,</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>从 local.py 或 product.py 中导入的配置会覆盖 base.py 中已存在的对应配置，所以也可以把默认的配置写在 base.py 中。<br>在根目录下的 settings.py 中增加根据当前环境导入对应配置的逻辑：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> platform</div><div class="line"></div><div class="line"><span class="keyword">if</span> platform.node() == <span class="string">"localhost"</span>:</div><div class="line">    <span class="keyword">from</span> conf.local <span class="keyword">import</span> *</div><div class="line"><span class="keyword">else</span>:</div><div class="line">    <span class="keyword">from</span> conf.product <span class="keyword">import</span> *</div></pre></td></tr></table></figure></p>
+<p>pip 依赖也可以差异化分离，建立 requirements 路径，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">requirements</div><div class="line">├── base.txt</div><div class="line">├── __init__.py</div><div class="line">├── local.txt</div><div class="line">└── product.txt</div></pre></td></tr></table></figure></p>
+<p>如果 local.txt 想在 base.txt 的基础上新增若干 pip 包，可以像下面这样处理：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-r base.txt</div><div class="line">django-debug-toolbar==1.3</div></pre></td></tr></table></figure></p>
+<p>总体上说，Django 应用的单机部署工作到这儿就进行的差不多了。后续有新的改进再补充进来。</p>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+          
+            <a href="/tags/Django/" rel="tag"># Django</a>
+          
+            <a href="/tags/uWSGI/" rel="tag"># uWSGI</a>
+          
+            <a href="/tags/BestPractice/" rel="tag"># BestPractice</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/23/some-thoughts-on-loading-utf8-properties-file-in-spring/" rel="next" title="Spring 加载含中文 properties 文件的思考">
+                <i class="fa fa-chevron-left"></i> Spring 加载含中文 properties 文件的思考
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/06/using-chain-of-responsibility-pattern/" rel="prev" title="责任链模式的实际运用">
+                责任链模式的实际运用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一些题外话"><span class="nav-number">1.</span> <span class="nav-text">一些题外话</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Django-工程结构"><span class="nav-number">1.1.</span> <span class="nav-text">Django 工程结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#虚拟环境-virtualenv"><span class="nav-number">1.2.</span> <span class="nav-text">虚拟环境 virtualenv</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#导出-pip-列表"><span class="nav-number">1.3.</span> <span class="nav-text">导出 pip 列表</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署"><span class="nav-number">2.</span> <span class="nav-text">部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#uWSGI-Nginx"><span class="nav-number">2.1.</span> <span class="nav-text">uWSGI + Nginx</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#开启-emperor-模式"><span class="nav-number">2.2.</span> <span class="nav-text">开启 emperor 模式</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多环境配置"><span class="nav-number">3.</span> <span class="nav-text">多环境配置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2016/06/01/non-best-practice-of-django-deployment/';
+      var disqus_title = 'Django 部署的非最佳实践';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>
