@@ -87,16 +87,16 @@
 
 
 
-<meta name="description" content="Click 是 Flask 的团队 pallets 开发的优秀开源项目，它对命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就做个学习笔记。">
+<meta name="description" content="Click 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python Click 学习笔记">
 <meta property="og:url" content="http://isudox.com/2016/09/03/learning-python-package-click/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="Click 是 Flask 的团队 pallets 开发的优秀开源项目，它对命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就做个学习笔记。">
-<meta property="og:updated_time" content="2016-09-03T09:58:13.522Z">
+<meta property="og:description" content="Click 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。">
+<meta property="og:updated_time" content="2016-09-05T15:40:54.555Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python Click 学习笔记">
-<meta name="twitter:description" content="Click 是 Flask 的团队 pallets 开发的优秀开源项目，它对命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就做个学习笔记。">
+<meta name="twitter:description" content="Click 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。">
 
 
 
@@ -390,7 +390,7 @@
       
 
       
-        <p><a href="https://pypi.python.org/pypi/click" target="_blank" rel="external">Click</a> 是 Flask 的团队 pallets 开发的优秀开源项目，它对命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就做个学习笔记。</p>
+        <p><a href="https://pypi.python.org/pypi/click" target="_blank" rel="external">Click</a> 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。</p>
 <a id="more"></a>
 <p>国际惯例，先来一段 “Hello World” 程序（假定已经安装了 Click 包）。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># hello.py</span></div><div class="line"><span class="keyword">import</span> click</div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--count', default=1, help='Number of greetings.')</span></div><div class="line"><span class="meta">@click.option('--name', prompt='Your name',</span></div><div class="line">              help=<span class="string">'The person to greet.'</span>)</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(count, name)</span>:</span></div><div class="line">    <span class="string">"""Simple program that greets NAME for a total of COUNT times."""</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(count):</div><div class="line">        click.echo(<span class="string">'Hello %s!'</span> % name)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    hello()</div></pre></td></tr></table></figure>
@@ -405,10 +405,33 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.group()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">cli</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line"><span class="meta">@cli.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Initialized the database'</span>)</div><div class="line"></div><div class="line"><span class="meta">@cli.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dropdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Dropped the database'</span>)</div></pre></td></tr></table></figure>
 <p>命令行的参数是不可或缺的，Click 支持对 <code>command</code> 方法添加自定义的参数，由 <code>option()</code> 和 <code>argument()</code> 装饰器实现。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--count', default=1, help='number of greetings')</span></div><div class="line"><span class="meta">@click.argument('name')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(count, name)</span>:</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(count):</div><div class="line">        click.echo(<span class="string">'Hello %s!'</span> % name)</div></pre></td></tr></table></figure>
-<p>通过 Click 编写了简单的命令行方法后，还需要把 .py 文件转换成可以在控制台里运行的命令行工具。最简单的办法就是在文件末尾加上如下代码：</p>
+<h3 id="打包跨平台可执行程序"><a href="#打包跨平台可执行程序" class="headerlink" title="打包跨平台可执行程序"></a>打包跨平台可执行程序</h3><p>通过 Click 编写了简单的命令行方法后，还需要把 <code>.py</code> 文件转换成可以在控制台里运行的命令行程序。最简单的办法就是在文件末尾加上如下代码：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    command()</div></pre></td></tr></table></figure>
-<p>Click 支持使用 <code>setuptools</code> 来更好的实现命令行打包。</p>
-
+<p>Click 支持使用 <code>setuptools</code> 来更好的实现命令行程序打包，把源码文件打包成系统中的可执行程序，并且不限平台。一般我们会在源码根目录下创建 <code>setup.py</code> 脚本，先看一段简单的打包代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> setuptools <span class="keyword">import</span> setup</div><div class="line"></div><div class="line">setup(</div><div class="line">    name=<span class="string">'hello'</span>,</div><div class="line">    version=<span class="string">'0.1'</span>,</div><div class="line">    py_modules=[<span class="string">'hello'</span>],</div><div class="line">    install_requires=[</div><div class="line">        <span class="string">'Click'</span>,</div><div class="line">    ],</div><div class="line">    entry_points=<span class="string">'''</span></div><div class="line">        [console_scripts]</div><div class="line">        hello=hello:cli</div><div class="line">    ''',</div><div class="line">)</div></pre></td></tr></table></figure>
+<p>留意 <code>entry_points</code> 字段，在 <code>console_scripts</code> 下，每一行都是一个控制台脚本，等号左边的的是脚本的名称，右边的是 Click 命令的导入路径。</p>
+<h3 id="详解命令行参数"><a href="#详解命令行参数" class="headerlink" title="详解命令行参数"></a>详解命令行参数</h3><p>上面提到了自定义命令行参数的两个装饰器：<code>@click.option()</code> 和 <code>@click.argument()</code>，两者有些许区别，使用场景也有所不同。</p>
+<p>总体而言，<code>argument()</code> 装饰器比 <code>option()</code> 功能简单些，后者支持下面的特性：</p>
+<ul>
+<li>自动提示缺失的输入；</li>
+<li>option 参数可以从环境变量中获取，argument 参数则不行；</li>
+<li>option 参数在 help 输出中有完整的文档，argument 则没有；</li>
+</ul>
+<p>而 argument 参数可以接受可变个数的参数值，而 option 参数只能接收固定个数的参数值（默认是 1 个）。</p>
+<p>Click 可以设置不同的参数类型，简单类型如 <code>click.STRING</code>，<code>click.INT</code>，<code>click.FLOAT</code>，<code>click.BOOL</code>。</p>
+<p>命令行的参数名由 “-short_name” 和 “–long_name” 声明，如果参数名既没有以 “-“ 开头，也没有以 “–” 开头，那么这边变量名会成为被装饰方法的内部变量，而非方法参数。</p>
+<h4 id="Option-参数"><a href="#Option-参数" class="headerlink" title="Option 参数"></a>Option 参数</h4><p>option 最基础的用法就是简单值变量，option 接收一个变量值，下面是一段示例代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--n', default=1)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dots</span><span class="params">(n)</span>:</span></div><div class="line">    click.echo(<span class="string">'.'</span> * n)</div></pre></td></tr></table></figure>
+<p>如果在命令行后面跟随参数 <code>--n=2</code> 就会输出两个点，如果传参数，默认输出一个点。上面的代码中，参数类型没有显示给出，但解释器会认为是 <code>INT</code> 型，因为默认值 1 是 int 值。<br>有些时候需要传入多个值，可以理解为一个 list，option 只支持固定长度的参数值，即设置后必须传入，个数由 <code>nargs</code> 确定。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--pos', nargs=2, type=float)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">findme</span><span class="params">(pos)</span>:</span></div><div class="line">    click.echo(<span class="string">'%s / %s'</span> % pos)</div></pre></td></tr></table></figure>
+<p><code>findme --pos 2.0 3.0</code> 输出结果就是 2.0 / 3.0</p>
+<p>既然可以传入 list，那么 tuple 呢？Click 也是支持的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--item', type=(unicode, int))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">putitem</span><span class="params">(item)</span>:</span></div><div class="line">    click.echo(<span class="string">'name=%s id=%d'</span> % item)</div></pre></td></tr></table></figure>
+<p>这样就传入了一个 tuple 变量，<code>putitem --item peter 1338</code> 得到的输出就是 name=peter id=1338<br>上面没有设置 nargs，因为 nargs 会自动取 tuple 的长度。因此上面的代码实际上等同于：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--item', nargs=2, type=click.Tuple([unicode, int]))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">putitem</span><span class="params">(item)</span>:</span></div><div class="line">    click.echo(<span class="string">'name=%s id=%d'</span> % item)</div></pre></td></tr></table></figure>
+<p>option 还支持同一个参数多次使用，类似 <code>git commit -m aa -m bb</code> 中 <code>-m</code> 参数就传入了 2 次。option 通过 <code>multiple</code> 标识位来支持这一特性：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--message', '-m', multiple=True)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">commit</span><span class="params">(message)</span>:</span></div><div class="line">    click.echo(<span class="string">'\n'</span>.join(message))</div></pre></td></tr></table></figure>
+<h4 id="Argument-参数"><a href="#Argument-参数" class="headerlink" title="Argument 参数"></a>Argument 参数</h4>
       
     </div>
 
@@ -582,7 +605,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-count">29</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -669,7 +692,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数秒变-CLI"><span class="nav-number">1.</span> <span class="nav-text">函数秒变 CLI</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#函数秒变-CLI"><span class="nav-number">1.</span> <span class="nav-text">函数秒变 CLI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#打包跨平台可执行程序"><span class="nav-number">2.</span> <span class="nav-text">打包跨平台可执行程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#详解命令行参数"><span class="nav-number">3.</span> <span class="nav-text">详解命令行参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Option-参数"><span class="nav-number">3.1.</span> <span class="nav-text">Option 参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Argument-参数"><span class="nav-number">3.2.</span> <span class="nav-text">Argument 参数</span></a></li></ol></li></ol></div>
             
 
           </div>
