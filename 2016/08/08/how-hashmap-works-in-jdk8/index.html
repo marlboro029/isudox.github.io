@@ -95,7 +95,7 @@
 <meta property="og:description" content="Java 容器类中，HashMap 是一个绕不开的重点，无论是实际开发还是求职面试。由于对 JDK 6 下 HashMap 的讨论已经很多了，而且 JDK 8 对 HashMap 做了比较大的改进，本文仅对 JDK 8 中 HashMap 的实现和工作原理做一点粗浅的讨论。">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/hashmap-breakpoint.png">
 <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg">
-<meta property="og:updated_time" content="2016-08-24T14:05:47.000Z">
+<meta property="og:updated_time" content="2016-09-16T14:53:28.537Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JDK 8 中 HashMap 的工作原理">
 <meta name="twitter:description" content="Java 容器类中，HashMap 是一个绕不开的重点，无论是实际开发还是求职面试。由于对 JDK 6 下 HashMap 的讨论已经很多了，而且 JDK 8 对 HashMap 做了比较大的改进，本文仅对 JDK 8 中 HashMap 的实现和工作原理做一点粗浅的讨论。">
@@ -396,7 +396,7 @@
         <p>Java 容器类中，<code>HashMap</code> 是一个绕不开的重点，无论是实际开发还是求职面试。由于对 JDK 6 下 <code>HashMap</code> 的讨论已经很多了，而且 JDK 8 对 <code>HashMap</code> 做了比较大的改进，本文仅对 <strong>JDK 8</strong> 中 HashMap 的实现和工作原理做一点粗浅的讨论。</p>
 <a id="more"></a>
 <blockquote>
-<p>文中 Java 代码均基于 <strong>JDK 8</strong></p>
+<p>文中 Java 代码均基于 <strong>OpenJDK 8</strong></p>
 </blockquote>
 <h3 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h3><p>为了便于切入话题，先写一段最简单的 HashMap 样例代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashMapTest</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        HashMap&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">        map.put(<span class="string">"China"</span>, <span class="string">"Beijing"</span>);</div><div class="line">        map.put(<span class="string">"Japan"</span>, <span class="string">"Tokyo"</span>);</div><div class="line">        map.put(<span class="string">"Korea"</span>, <span class="string">"Seoul"</span>);</div><div class="line">        <span class="keyword">for</span> (String country : map.keySet()) &#123;  <span class="comment">// set a break point</span></div><div class="line">            String capital = map.get(country);</div><div class="line">            System.out.println(country + <span class="string">"--"</span> + capital);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -605,7 +605,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">33</span>
+              <span class="site-state-item-count">35</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://isudox.com/"/>
-  <updated>2016-09-08T15:43:24.346Z</updated>
+  <updated>2016-09-16T15:30:40.517Z</updated>
   <id>http://isudox.com/</id>
   
   <author>
@@ -16,11 +16,254 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Java 常用容器小结</title>
+    <link href="http://isudox.com/2016/09/13/java-collections-overview/"/>
+    <id>http://isudox.com/2016/09/13/java-collections-overview/</id>
+    <published>2016-09-13T12:15:58.000Z</published>
+    <updated>2016-09-16T15:30:40.517Z</updated>
+    
+    <content type="html"><![CDATA[<p>无论是什么编程语言，容器都是非常重要的概念，在 Java 的实际开发中更是无处不在，各种 List、Set、Map。很多时候就是随着编程的惯性用了 ArrayList 或者 HashMap，但是并没对其特性和适用场景作更多的思考。开发者对 Java 容器的讨论比较多，我自己从源码的角度做个粗浅的整理。</p>
+<a id="more"></a>
+<h2 id="Collection"><a href="#Collection" class="headerlink" title="Collection"></a>Collection</h2><p>java.util 包中的基于 Collection 接口的有 List、Set 和 Queue，下面这张图清楚的显示了 Collection 接口的向下实现和继承关系。</p>
+<p><img src="https://o70e8d1kb.qnssl.com/java-collection-hierarchy.png" alt=""></p>
+<p>Collection 接口继承了 Iterable 接口，表明所有 Collection 的实现都是可迭代的。Collection 提供最基础的接口方法，如 <code>add()</code>、<code>remove()</code>、<code>contains()</code>、<code>isEmpty()</code>、<code>hashCode()</code> 等。</p>
+<h3 id="List"><a href="#List" class="headerlink" title="List"></a>List</h3><blockquote>
+<p>An ordered collection (also known as a sequence). The user of this interface has precise control over where in the list each element is inserted. The user can access elements by their integer index (position in the list), and search for elements in the list.</p>
+</blockquote>
+<p>上面是 Java SE Docs 里对 List 的定义。也就是说，List 是一个有序的 Collection，即队列，List 的使用者通过 List 内元素所在的 index 访问元素，且不限制重复元素。</p>
+<h4 id="ArrayList"><a href="#ArrayList" class="headerlink" title="ArrayList"></a>ArrayList</h4><blockquote>
+<p>Resizable-array implementation of the List interface. Implements all optional list operations, and permits all elements, including null. In addition to implementing the List interface, this class provides methods to manipulate the size of the array that is used internally to store the list. (This class is roughly equivalent to Vector, except that it is unsynchronized.)</p>
+</blockquote>
+<p>ArrayList 是 List 里使用度非常高的一个实现。Doc 里有这么几个关键的说明：可动态扩容，允许插入 <code>null</code>，非同步。</p>
+<p>ArrayList 实例有一个容量（capacity），就是它所能存储的元素数量，默认是 10。当元素不断被添加进 ArrayList 后，它的 size 域接近 capacity 时，capacity 会自动增加。</p>
+<p>先来了解 ArrayList 的自动扩容机制。自动扩容是在执行 <code>add</code> 或 <code>addAll</code> 方法是触发的，这两个方法里会调用 <code>ensureCapacityInternal()</code> 方法来增大 capacity，看源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</div><div class="line">    ensureCapacityInternal(size + <span class="number">1</span>);  <span class="comment">// Increments modCount!!</span></div><div class="line">    elementData[size++] = e;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureCapacityInternal</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) &#123;</div><div class="line">        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ensureExplicitCapacity(minCapacity);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureExplicitCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    modCount++;</div><div class="line"></div><div class="line">    <span class="comment">// overflow-conscious code</span></div><div class="line">    <span class="keyword">if</span> (minCapacity - elementData.length &gt; <span class="number">0</span>)</div><div class="line">        grow(minCapacity);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">grow</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    <span class="comment">// overflow-conscious code</span></div><div class="line">    <span class="keyword">int</span> oldCapacity = elementData.length;</div><div class="line">    <span class="keyword">int</span> newCapacity = oldCapacity + (oldCapacity &gt;&gt; <span class="number">1</span>);</div><div class="line">    <span class="keyword">if</span> (newCapacity - minCapacity &lt; <span class="number">0</span>)</div><div class="line">        newCapacity = minCapacity;</div><div class="line">    <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>)</div><div class="line">        newCapacity = hugeCapacity(minCapacity);</div><div class="line">    <span class="comment">// minCapacity is usually close to size, so this is a win:</span></div><div class="line">    elementData = Arrays.copyOf(elementData, newCapacity);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>只有当新增元素后的 size 超过当前的容量时，才会触发扩容。扩容的操作由 <code>grow()</code> 通过 <code>Arrays.copyOf()</code> 完成。自动扩容省去了程序员操心 ArrayList 溢出问题，但也带来一个弊端，就是当需要添加大量元素，会频繁触发自动扩容，JDK 提供了 <code>ensureCapacity()</code> 方法手动的预先设置 capacity 去避免这种情况。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ensureCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> minExpand = (elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA)</div><div class="line">        <span class="comment">// any size if not default element table</span></div><div class="line">        ? <span class="number">0</span></div><div class="line">        <span class="comment">// larger than default for default empty table. It's already</span></div><div class="line">        <span class="comment">// supposed to be at default size.</span></div><div class="line">        : DEFAULT_CAPACITY;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (minCapacity &gt; minExpand) &#123;</div><div class="line">        ensureExplicitCapacity(minCapacity);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="Vector"><a href="#Vector" class="headerlink" title="Vector"></a>Vector</h4><blockquote>
+<p>The Vector class implements a growable array of objects. Like an array, it contains components that can be accessed using an integer index. However, the size of a Vector can grow or shrink as needed to accommodate adding and removing items after the Vector has been created.</p>
+</blockquote>
+<p>Vector 和 ArrayList 很类似，不同之处在于，Vector 是同步的，线程安全，自动扩容时，容量是增大 100%（ArrayList 是增大 50%）。</p>
+<h4 id="LinkedList"><a href="#LinkedList" class="headerlink" title="LinkedList"></a>LinkedList</h4><blockquote>
+<p>Doubly-linked list implementation of the List and Deque interfaces. Implements all optional list operations, and permits all elements (including null).</p>
+</blockquote>
+<p>LinkedList 是一个双向链表实现，对 LinkedList 内元素的索引都需要从它的头部或尾部遍历。因此 LinkedList 不能像 ArrayList 和 Vector 那样根据元素索引位置进行随机访问，只能通过 LinkedList 里逐个 Node 依次向下（上）迭代进行查找，访问效率相比会差一点。</p>
+<p>LinkedList 内元素是以 <code>Node&lt;E&gt;</code> 结构存储，Node 包含真实的存储元素 item，前一 Node 的引用 prev，后一 Node 的引用 next：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">E</span>&gt; </span>&#123;</div><div class="line">    E item;</div><div class="line">    Node&lt;E&gt; next;</div><div class="line">    Node&lt;E&gt; prev;</div><div class="line"></div><div class="line">    Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;</div><div class="line">        <span class="keyword">this</span>.item = element;</div><div class="line">        <span class="keyword">this</span>.next = next;</div><div class="line">        <span class="keyword">this</span>.prev = prev;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>双向链表的结构使得数据的插入删除变得非常简单高效：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> index, E element)</span> </span>&#123;</div><div class="line">    checkPositionIndex(index);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (index == size)</div><div class="line">        linkLast(element);</div><div class="line">    <span class="keyword">else</span></div><div class="line">        linkBefore(element, node(index));</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">linkBefore</span><span class="params">(E e, Node&lt;E&gt; succ)</span> </span>&#123;</div><div class="line">    <span class="comment">// assert succ != null;</span></div><div class="line">    <span class="keyword">final</span> Node&lt;E&gt; pred = succ.prev;</div><div class="line">    <span class="keyword">final</span> Node&lt;E&gt; newNode = <span class="keyword">new</span> Node&lt;&gt;(pred, e, succ);</div><div class="line">    succ.prev = newNode;</div><div class="line">    <span class="keyword">if</span> (pred == <span class="keyword">null</span>)</div><div class="line">        first = newNode;</div><div class="line">    <span class="keyword">else</span></div><div class="line">        pred.next = newNode;</div><div class="line">    size++;</div><div class="line">    modCount++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>插入时，只需要将新元素的 Node 插在 prev 和 next Node之间，并重新建立前后连接关系。同理，删除操作也是。</p>
+<h3 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h3><blockquote>
+<p>A collection that contains no duplicate elements. More formally, sets contain no pair of elements e1 and e2 such that e1.equals(e2), and at most one null element. As implied by its name, this interface models the mathematical set abstraction.</p>
+</blockquote>
+<p>Set 是不存在重复元素的集合类型。对于重复的定义就是，当 <code>e1.equals(e2)</code> 时，就意味着重复。Set 支持 <code>null</code>，最多也只能存在一个。</p>
+<h4 id="HashSet"><a href="#HashSet" class="headerlink" title="HashSet"></a>HashSet</h4><blockquote>
+<p>This class implements the Set interface, backed by a hash table (actually a HashMap instance). It makes no guarantees as to the iteration order of the set; in particular, it does not guarantee that the order will remain constant over time. This class permits the null element.</p>
+</blockquote>
+<p>凡是和 Hash 相关的都是查询效率很高的集合类型，HashSet 也是。HashSet 内部持有一个 HashMap 域来作为元素的实际存储，也就是说，HashSet 根据元素的 HashCode 来确定顺序，因此 HashSet 无法保证元素的存储顺序和插入顺序一致，甚至都不能保证顺序一直保持不变。参考 OpenJDK 里的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashSet</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractSet</span>&lt;<span class="title">E</span>&gt; <span class="keyword">implements</span> <span class="title">Set</span>&lt;<span class="title">E</span>&gt;, <span class="title">Cloneable</span>, <span class="title">Serializable</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> HashMap&lt;E, Object&gt; map;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEmpty</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.map.isEmpty();</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E var1)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.map.put(var1, PRESENT) == <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object var1)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.map.remove(var1) == PRESENT;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.map.clear();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="LinkedHashSet"><a href="#LinkedHashSet" class="headerlink" title="LinkedHashSet"></a>LinkedHashSet</h4><blockquote>
+<p>Hash table and linked list implementation of the Set interface, with predictable iteration order.</p>
+</blockquote>
+<p>LinkedHashSet 继承了 HashSet，不同的是，LinkedHashSet 内部持有一个双向链表，这个链表决定了其元素遍历的顺序，即元素插入的顺序。因此 LinkedHashSet 是有序的集合。</p>
+<h4 id="TreeSet"><a href="#TreeSet" class="headerlink" title="TreeSet"></a>TreeSet</h4><blockquote>
+<p>A NavigableSet implementation based on a TreeMap. The elements are ordered using their natural ordering, or by a Comparator provided at set creation time, depending on which constructor is used.</p>
+</blockquote>
+<p>TreeSet 继承 SortedSet（直接父类是 NavigableSet），是有序的集合。元素顺序可以保持自然排序，或者根据提供的比较器 Comparator 排序，因此 TreeSet 中任意两个元素的值都不同。TreeSet 的元素存储在 NavigableMap 中（父类是 SortedMap）。</p>
+<p>TreeSet 是非同步的，如果多线程并行访问 TreeSet，且至少有一个线程会修改它，就必须在外部进行同步。典型的办法是采用包装器去把非同步的对象装饰成同步的对象（Java 并发编程实战里讲得很详细），Collections 包提供了这样的方法：<br><code>SortedSet set = Collections.synchronizedSortedSet(new TreeSet(...));</code></p>
+<h2 id="Map"><a href="#Map" class="headerlink" title="Map"></a>Map</h2><p><img src="https://o70e8d1kb.qnssl.com/java-map-hierarchy.png" alt=""></p>
+<p>Map 存储的元素是 K-V 键值对，Map 的具体实现通常是由 key 映射到 value，而 Apache Commons 包的 BidiMap 集合，实现了 value 到 key 的反向映射，参考 <a href="http://stackoverflow.com/questions/1383797/java-hashmap-how-to-get-key-from-value" target="_blank" rel="external">StackOverflow</a>。</p>
+<h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><blockquote>
+<p>This implementation provides all of the optional map operations, and permits null values and the null key. (The HashMap class is roughly equivalent to Hashtable, except that it is unsynchronized and permits nulls.) This class makes no guarantees as to the order of the map; in particular, it does not guarantee that the order will remain constant over time.</p>
+</blockquote>
+<p>之前的<a href="/2016/08/08/how-hashmap-works-in-jdk8/">博客</a>对 JDK8 里的 HashMap 做了简单的介绍。HashMap 的 key 和 value 允许 null，且它是非同步的，这个 Hashtable 有别（HashMap 继承了 AbstractMap，Hashtable 继承了 Dictionary，两者都实现了 Map 接口）。HashMap 是无序的，因为它的元素通过 key 的哈希值决定其在 hash bucket 中的存储位置。</p>
+<h3 id="Hashtable"><a href="#Hashtable" class="headerlink" title="Hashtable"></a>Hashtable</h3><p>Hashtable 和 HashMap 类似，但它是同步的，且不支持 null。在单线程环境下，Hashtable 的性能要稍差于 HashMap。</p>
+<h3 id="TreeMap"><a href="#TreeMap" class="headerlink" title="TreeMap"></a>TreeMap</h3><blockquote>
+<p>A Red-Black tree based NavigableMap implementation. The map is sorted according to the natural ordering of its keys, or by a Comparator provided at map creation time, depending on which constructor is used.</p>
+</blockquote>
+<p>TreeMap 是基于红黑树的 NavigableMap（父类 SortedMap）实现，是有序集合，以元素 key 的自然顺序或者比较器作为排序依据。它和 TreeSet 除了元素结构的差异，在行为表现上很相似。</p>
+<h2 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h2><p>搬运前人总结的表格，总览几个常用集合的特点：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Collection class</th>
+<th style="text-align:center">Base class</th>
+<th style="text-align:center">Base interfaces</th>
+<th style="text-align:center">Duplicate elements?</th>
+<th style="text-align:center">Ordered?</th>
+<th style="text-align:center">Sorted?</th>
+<th style="text-align:center">Thread-safe?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">ArrayList<e></e></td>
+<td style="text-align:center">AbstractList<e></e></td>
+<td style="text-align:center">List<e></e></td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">LinkedList<e></e></td>
+<td style="text-align:center">AbstractSequentialList<e></e></td>
+<td style="text-align:center">List<e>; Deque<e></e></e></td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">Vector<e></e></td>
+<td style="text-align:center">AbstractList<e></e></td>
+<td style="text-align:center">List<e></e></td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">Y</td>
+</tr>
+<tr>
+<td style="text-align:center">HashSet<e></e></td>
+<td style="text-align:center">AbstractSet<e></e></td>
+<td style="text-align:center">Set<e></e></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">LinkedHashSet<e></e></td>
+<td style="text-align:center">HashSet<e></e></td>
+<td style="text-align:center">Set<e></e></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">TreeSet<e></e></td>
+<td style="text-align:center">AbstractSet<e></e></td>
+<td style="text-align:center">NavigableSet<e></e></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">HashMap<k, v=""></k,></td>
+<td style="text-align:center">AbstractMap<k, v=""></k,></td>
+<td style="text-align:center">Map<k, v=""></k,></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">LinkedHashMap<k, v=""></k,></td>
+<td style="text-align:center">HashMap<k, v=""></k,></td>
+<td style="text-align:center">Map<k, v=""></k,></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+</tr>
+<tr>
+<td style="text-align:center">Hashtable<k, v=""></k,></td>
+<td style="text-align:center">Dictionary<k, v=""></k,></td>
+<td style="text-align:center">Map<k, v=""></k,></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">Y</td>
+</tr>
+<tr>
+<td style="text-align:center">TreeMap<k, v=""></k,></td>
+<td style="text-align:center">AbstractMap<k, v=""></k,></td>
+<td style="text-align:center">NavigableMap<k, v=""></k,></td>
+<td style="text-align:center">N</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">Y</td>
+<td style="text-align:center">N</td>
+</tr>
+</tbody>
+</table>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;无论是什么编程语言，容器都是非常重要的概念，在 Java 的实际开发中更是无处不在，各种 List、Set、Map。很多时候就是随着编程的惯性用了 ArrayList 或者 HashMap，但是并没对其特性和适用场景作更多的思考。开发者对 Java 容器的讨论比较多，我自己从源码的角度做个粗浅的整理。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="Java" scheme="http://isudox.com/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>深入理解 Python 装饰器</title>
+    <link href="http://isudox.com/2016/09/09/python-decorator-guide/"/>
+    <id>http://isudox.com/2016/09/09/python-decorator-guide/</id>
+    <published>2016-09-09T14:42:36.000Z</published>
+    <updated>2016-09-10T04:36:06.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 <code>@decorator</code> 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。</p>
+<a id="more"></a>
+<h3 id="管窥装饰器"><a href="#管窥装饰器" class="headerlink" title="管窥装饰器"></a>管窥装饰器</h3><p>下面是一个很简单的 Python 方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me'</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>很简单，这会得到 “call me” 的文本输出。现在增加一个时间标记，告知是什么时间呼叫的我，可以这么改：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me'</span>)</div><div class="line">    print(<span class="string">'at '</span>, time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time()))))</div><div class="line">          </div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>这么做有一个麻烦的地方，就是在 <code>call()</code> 方法内部做了改动。在很多场景下，我们不希望去改变方法本身的行为，因为这个方法可能在很多地方都被调用了，如果在方法内部做了修改，那么对每个调用都会产生影响，但我们只希望在某些调用时才去改变它的行为。比较常见的实用场景如用户登录拦截。</p>
+<p>不改变函数本身，那么该如何对 <code>call()</code> 加上时间标记呢？这就到装饰器大显身手的时候了。装饰器可以把被装饰的方法包裹起来，被装饰者本身的行为不会变，装饰器只是在它之外添加了额外的功能。下面这张图解释的很形象：</p>
+<p><img src="https://o70e8d1kb.qnssl.com/qxf2-gun-decorator1.jpg" alt=""></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(func)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        func()</div><div class="line">        print(<span class="string">'at'</span>,</div><div class="line">              time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"></div><div class="line">call = mark_time(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>上面就实现了简朴的装饰器，Python 内置了对装饰器的语法支持，可以更便捷的实现装饰功能，就是上面提到的 <code>@decorator</code>，这相当于是 <code>func = decorator(func)</code> 的作用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(func)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        func()</div><div class="line">        print(<span class="string">'at'</span>,</div><div class="line">              time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"><span class="meta">@mark_time</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>可以看出，<code>@mark_time</code> 的作用等同于 <code>call = mark_time(call)</code>，得到一个可调用的函数名。</p>
+<p>如果需要多个装饰器来实现功能，只需要按顺序对方法进行装饰，装饰的顺序是从下到上：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@f1(arg)</span></div><div class="line"><span class="meta">@f2</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line">foo()</div></pre></td></tr></table></figure>
+<p>等效于执行 <code>f1(arg)(f2(foo))()</code></p>
+<h3 id="认识函数"><a href="#认识函数" class="headerlink" title="认识函数"></a>认识函数</h3><p>了解装饰器的基础用法只是皮毛，深入理解装饰器前，得先理解函数究竟是什么。</p>
+<p>首先明确一点，在 Python 中，函数 function 也是一种对象 Object。这就意味着：</p>
+<ul>
+<li>函数可以被指派为参数（作为传入或返回值）；</li>
+<li>函数可以被定义在函数体中；</li>
+</ul>
+<p>因此，函数的返回值可以是另一个函数。手写一段示例代码来印证这一点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_drink</span><span class="params">(choice=<span class="string">'tea'</span>)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">serve_tea</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">'Green tea'</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">serve_coffee</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">'Coffee latte'</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> choice == <span class="string">'tea'</span>:</div><div class="line">        <span class="keyword">return</span> serve_tea</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> serve_coffee</div><div class="line"></div><div class="line">my_drink = get_drink()</div><div class="line"></div><div class="line">print(my_drink)  <span class="comment"># &lt;function get_drink.&lt;locals&gt;.serve_tea at 0x7f313f307f28&gt;</span></div><div class="line"></div><div class="line">print(my_drink())  <span class="comment"># Green tea</span></div><div class="line"></div><div class="line">print(get_drink(<span class="string">'coffee'</span>)())  <span class="comment"># Coffee latte</span></div></pre></td></tr></table></figure>
+<p>这样之前写的装饰器函数返回的 <code>wrapper</code> 就不难明白了。装饰器的本质就是实现了在被装饰的方法执行之前/之后，执行装饰的动作。</p>
+<h3 id="带参装饰器"><a href="#带参装饰器" class="headerlink" title="带参装饰器"></a>带参装饰器</h3><p>假设有这么个需求，在前面的 <code>call()</code> 方法之前加上主语，实现 “{who} calls me at {time}”，可以考虑给装饰器函数本身传递一个入参 {who}。<br>已有的装饰器是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">call = mark_time(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>增加入参的装饰器是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">call = mark_time(<span class="string">'sudoz'</span>)(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>拆开来看上面的代码：先执行 <code>mark_time(&#39;sudoz&#39;)</code> 返回一个回调函数 wrapper_1（假设是这个函数名），然后执行 <code>wrapper_1(call)</code>，得到另一个回调函数 wrapper_2，<code>call()</code> 实际上运行的是 <code>wrapper_2()</code>。这么拆解开来，就很好实现带参的装饰器方法了，就是相比不带参的装饰器外面多套一层以返回 wrapper_1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(who)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper_1</span><span class="params">(func)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper_2</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            print(<span class="string">'%s'</span> % who)</div><div class="line">            func()</div><div class="line">            print(<span class="string">'at'</span>,</div><div class="line">                  time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line">        <span class="keyword">return</span> wrapper_2</div><div class="line">    <span class="keyword">return</span> wrapper_1</div><div class="line"></div><div class="line"><span class="meta">@mark_time('sudoz')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<h3 id="functools-进阶"><a href="#functools-进阶" class="headerlink" title="functools 进阶"></a>functools 进阶</h3><p>装饰器在执行时，有一个隐蔽的小动作可能会被忽略：它把被装饰的函数的 <code>__name__</code> 属性给置换成回调函数的属性了。测试下上面代码里被装饰后的 <code>call</code> 的 <code>__name__</code> 属性，不再是 “call” 而是 “wrapper_2”。Python 2.5 版本新增的 <code>functools.wraps()</code> 解决了这个问题，它会把被装饰方法的名称，模块复制到装饰器内。而<code>functools.wraps()</code> 本身也是一个装饰器。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> functools</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foobar</span><span class="params">(func)</span>:</span></div><div class="line"><span class="meta">    @functools.wraps(func)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        print(<span class="string">'foo'</span>)</div><div class="line">        <span class="keyword">return</span> func(args)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@foobar</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_hello</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">    print(<span class="string">'Hello %s'</span> % args[<span class="number">0</span>])</div><div class="line"></div><div class="line"></div><div class="line">print(say_hello.__name__)  <span class="comment"># Output: bar</span></div><div class="line"></div><div class="line">say_hello(<span class="string">'sudoz'</span>)  <span class="comment"># Output: Hello sudoz</span></div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 &lt;code&gt;@decorator&lt;/code&gt; 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="Python" scheme="http://isudox.com/tags/Python/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Python Click 学习笔记</title>
     <link href="http://isudox.com/2016/09/03/learning-python-package-click/"/>
     <id>http://isudox.com/2016/09/03/learning-python-package-click/</id>
     <published>2016-09-02T17:22:37.000Z</published>
-    <updated>2016-09-08T15:43:24.346Z</updated>
+    <updated>2016-09-09T15:51:19.000Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://pypi.python.org/pypi/click" target="_blank" rel="external">Click</a> 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。</p>
 <a id="more"></a>
@@ -102,7 +345,7 @@
 <p>如果参数值只是想做为文件名而已呢，很简单，将 <code>type</code> 指定为 <code>click.Path()</code>：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.argument('f', type=click.Path(exists=True))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">touch</span><span class="params">(f)</span>:</span></div><div class="line">    click.echo(click.format_filename(f))</div></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ touch hello.txt</div><div class="line">hello.txt</div><div class="line"></div><div class="line">$ touch missing.txt</div><div class="line">Usage: touch [OPTIONS] F</div><div class="line"></div><div class="line">Error: Invalid value for &quot;f&quot;: Path &quot;missing.txt&quot; does not exist.</div></pre></td></tr></table></figure>
-<h3 id="命令组"><a href="#命令组" class="headerlink" title="命令组"></a>命令组</h3><h3 id="示例程序"><a href="#示例程序" class="headerlink" title="示例程序"></a>示例程序</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># demo.py</span></div></pre></td></tr></table></figure>
+<h3 id="命令组"><a href="#命令组" class="headerlink" title="命令组"></a>命令组</h3><h3 id="仿-Hexo-示例程序"><a href="#仿-Hexo-示例程序" class="headerlink" title="仿 Hexo 示例程序"></a>仿 Hexo 示例程序</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># hexo.py</span></div></pre></td></tr></table></figure>
 ]]></content>
     
     <summary type="html">
@@ -123,7 +366,7 @@
     <link href="http://isudox.com/2016/08/29/running-flask-with-gunicorn-in-application-factory/"/>
     <id>http://isudox.com/2016/08/29/running-flask-with-gunicorn-in-application-factory/</id>
     <published>2016-08-29T05:45:50.000Z</published>
-    <updated>2016-09-05T14:37:24.599Z</updated>
+    <updated>2016-09-05T14:37:24.000Z</updated>
     
     <content type="html"><![CDATA[<p>之前用 uWsgi 部署过 Django 应用，但当时的开发和部署都还手生，有很多不合理的地方，最近写的一个 Flask 应用，用了另一个 wsgi 容器 —— <a href="http://gunicorn.org/" target="_blank" rel="external">Gunicorn</a>，并且利用工厂模式对不同开发环境进行了隔离。工厂模式下的 Flask 应用在用 Gunicorn 部署时，需要做一点针对性的改动。</p>
 <a id="more"></a>
@@ -183,12 +426,12 @@
     <link href="http://isudox.com/2016/08/08/how-hashmap-works-in-jdk8/"/>
     <id>http://isudox.com/2016/08/08/how-hashmap-works-in-jdk8/</id>
     <published>2016-08-08T09:31:32.000Z</published>
-    <updated>2016-08-24T14:05:47.000Z</updated>
+    <updated>2016-09-16T14:53:28.537Z</updated>
     
     <content type="html"><![CDATA[<p>Java 容器类中，<code>HashMap</code> 是一个绕不开的重点，无论是实际开发还是求职面试。由于对 JDK 6 下 <code>HashMap</code> 的讨论已经很多了，而且 JDK 8 对 <code>HashMap</code> 做了比较大的改进，本文仅对 <strong>JDK 8</strong> 中 HashMap 的实现和工作原理做一点粗浅的讨论。</p>
 <a id="more"></a>
 <blockquote>
-<p>文中 Java 代码均基于 <strong>JDK 8</strong></p>
+<p>文中 Java 代码均基于 <strong>OpenJDK 8</strong></p>
 </blockquote>
 <h3 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h3><p>为了便于切入话题，先写一段最简单的 HashMap 样例代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashMapTest</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        HashMap&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">        map.put(<span class="string">"China"</span>, <span class="string">"Beijing"</span>);</div><div class="line">        map.put(<span class="string">"Japan"</span>, <span class="string">"Tokyo"</span>);</div><div class="line">        map.put(<span class="string">"Korea"</span>, <span class="string">"Seoul"</span>);</div><div class="line">        <span class="keyword">for</span> (String country : map.keySet()) &#123;  <span class="comment">// set a break point</span></div><div class="line">            String capital = map.get(country);</div><div class="line">            System.out.println(country + <span class="string">"--"</span> + capital);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -996,9 +1239,9 @@
       <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
     
     
-      <category term="Java" scheme="http://isudox.com/tags/Java/"/>
-    
       <category term="Frontend" scheme="http://isudox.com/tags/Frontend/"/>
+    
+      <category term="Java" scheme="http://isudox.com/tags/Java/"/>
     
       <category term="Spring" scheme="http://isudox.com/tags/Spring/"/>
     
@@ -1547,9 +1790,9 @@
       <category term="DevOps" scheme="http://isudox.com/categories/DevOps/"/>
     
     
-      <category term="Python" scheme="http://isudox.com/tags/Python/"/>
-    
       <category term="Nginx" scheme="http://isudox.com/tags/Nginx/"/>
+    
+      <category term="Python" scheme="http://isudox.com/tags/Python/"/>
     
       <category term="Django" scheme="http://isudox.com/tags/Django/"/>
     
@@ -1836,84 +2079,6 @@
       <category term="Algorithm" scheme="http://isudox.com/tags/Algorithm/"/>
     
       <category term="LeetCode" scheme="http://isudox.com/tags/LeetCode/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>[译] IntelliJ IDEA 快捷键操作</title>
-    <link href="http://isudox.com/2016/05/17/intellij-idea-keymap-zh/"/>
-    <id>http://isudox.com/2016/05/17/intellij-idea-keymap-zh/</id>
-    <published>2016-05-17T08:02:15.000Z</published>
-    <updated>2016-07-26T09:13:39.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>捷克公司 JetBrains 推出的一系列 IDE 用着都很顺手，尤其是针对 Java 开发的 IDEA。不多说，欲善其事，先利其器。IDEA 有着相当完善的键盘操作，为了避免时不时去翻看手册，索性把官方的默认 Keymap 翻译成中文。</p>
-<a id="more"></a>
-<h2 id="编辑"><a href="#编辑" class="headerlink" title="编辑"></a>编辑</h2><p>Ctrl + Space: 基本代码补全（类、方法或变量名）<br>Ctrl + Shift + Space: 智能代码补全（根据类型过滤待选的方法和变量列表）<br>Ctrl + Shift + Enter: 补全语句<br>Ctrl + P: 参数信息（在方法内调用参数）<br>Ctrl + Q: 快速查看文档<br>Shift + F1: 外部文档<br>Ctrl + F1: 显示光标所在处的错误或警告信息<br>Alt + Insert: 生成代码（Getters, Setters, Constructors, hashCode/equals, toString）<br>Ctrl + O: 重写父类方法<br>Ctrl + I: 实现接口方法<br>Ctrl + Alt + T: 包裹代码（if..else, try..catch, for, synchronized, etc.）<br>Ctrl + /: 注释/取消注释当前行<br>Ctrl + Shift + /: 注释/取消注释代码块<br>Ctrl + W: 层次递增地选中代码块<br>Ctrl + Shift + W: 对当前选中的代码块层次递减的回到之前的选中状态（Ctrl + W 的逆过程）<br>Alt + Q: 上下文信息<br>Alt + Enter: 显示意图动作和快速修复<br>Ctrl + Alt + L: 格式化代码<br>Ctrl + Alt + O: 优化 imports<br>Ctrl + Alt + I: 自动缩进行<br>Tab / Shift + Tab: 缩进/回退当前选中的行<br>Ctrl + X or Shift + Delete: 剪切当前行或选中的代码块到剪贴板<br>Ctrl + C or Ctrl + Insert: 复制当前行或选中的代码块到剪贴板<br>Ctrl + V or Shift + Insert: 从剪贴板黏贴<br>Ctrl + Shift + V: 从当前 buffers 中黏贴<br>Ctrl + D: 复制当前行或选中的代码段到后一位置<br>Ctrl + Y: 删除光标所在行<br>Ctrl + Shift + J: 智能行拼接<br>Ctrl + Enter: 智能行分拆<br>Shift + Enter: 新增一行<br>Ctrl + Shift + U: 变更光标所在单词或选中代码段的大小写<br>Ctrl + Shift + ] / [: 向上/向下选中代码直到代码块的结束/开始位置<br>Ctrl + Delete: 向后删除到单词尾<br>Ctrl + Backspace: 向前删除到单词头<br>Ctrl + NumPad+/-: 展开/并拢代码块<br>Ctrl + Shift + NumPad+: 展开全部代码<br>Ctrl + Shift + NumPad-: 收拢全部代码<br>Ctrl + F4: 关闭当前 tab<br>Alt + Shift + Inert: 开启/关闭列选择模式</p>
-<h2 id="查找-替换"><a href="#查找-替换" class="headerlink" title="查找/替换"></a>查找/替换</h2><p>Double Shift: 全局查找文件<br>Ctrl + F: 当前文件内查找<br>F3: 查找下一个<br>Shift + F3: 查找上一个<br>Ctrl + R: 替换<br>Ctrl + Shift + F: 指定路径内查找<br>Ctrl + Shift + R: 制定路径内替换<br>Ctrl + Shift + S: 按结构搜索<br>Ctrl + Shift + M: 按结构替换</p>
-<h2 id="使用搜索"><a href="#使用搜索" class="headerlink" title="使用搜索"></a>使用搜索</h2><p>Alt + F7 / Ctrl + F7: 查找当前文件内的使用情况<br>Ctrl + Shift + F7: 高亮当前文件内的使用情况<br>Ctrl + Alt + F7: 显示使用情况</p>
-<h2 id="编译及运行"><a href="#编译及运行" class="headerlink" title="编译及运行"></a>编译及运行</h2><p>Ctrl + F9: Make project<br>Ctrl + Shift + F9: 编译选中的文件，包或模块<br>Alt + Shift + F10: 选择配置并运行<br>Alt + Shift + F9: 选择配置并调试<br>Shift + F10: 运行<br>Shift + F9: 调试<br>Ctrl + Shift + F10: 运行当前编辑的上下文配置    </p>
-<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>F8: 单步执行（不对子函数进行单步执行）<br>F7: 单步执行（对子函数继续单步执行）<br>Shift + F7: 智能单步执行（对子函数继续单步执行）<br>Shift + F8: 单步执行进子函数内部时，跳出子函数<br>Alt + F9: 运行到鼠标位置<br>Alt + F8: 计算变量值<br>F9: 继续执行程序<br>Ctrl + F8: 创建/取消断点<br>Ctrl + Shift + F8: 浏览断点</p>
-<h2 id="导航"><a href="#导航" class="headerlink" title="导航"></a>导航</h2><p>Ctrl + N: 跳转到 class<br>Ctrl + Shift + N: 跳转到文件<br>Ctrl + Alt + Shift + N: 跳转到变量<br>Alt + Right/Left: 跳转到后/前一个编辑 tab<br>F12: 跳转到上一个工具窗口<br>Esc: 跳转到编辑器（从工具窗口）<br>Shift + Esc: 隐藏活动窗口或最近一个活动窗口<br>Ctrl + Shift + F4: 关闭活动的 run/messages/find/… 标签<br>Ctrl + G: 跳转到指定行<br>Ctrl + E: 打开最近文件列表<br>Ctrl + Alt + Left/Right: 跳转至前一次/后一次浏览的位置<br>Ctrl + Shift + Backspace: 跳转到上一次编辑的位置<br>Alt + F1: 在任意视图中选择当前文件或符号<br>Ctrl + B or Ctrl + Click: 跳转至声明<br>Ctrl + Alt + B: 跳转至实现<br>Ctrl + Shift + I: 快速查阅定义<br>Ctrl + Shift + B: 跳转至类型声明<br>Ctrl + U: 跳转至父类的方法/父类的类<br>Alt + Up/Down: 跳转到前一个/后一个方法<br>Ctrl + ] / [: 跳转到代码块的结束/开始位置<br>Ctrl + F12: 弹出类结构视图<br>Ctrl + H: 显示类继承关系<br>Ctrl + Shift + H: 显示方法继承关系<br>Ctrl + Alt + H: 显示调用关系<br>F2 / Shift + F2: 下一个/前一个高亮的错误<br>F4 / Ctrl + Enter: 编辑/浏览源码<br>Alt + Home: 显示导航栏<br>F11: 设置/取消书签<br>Ctrl + F11: 设置/取消书签（带助记符）<br>Ctrl + #[0-9]: 跳转到指定书签<br>Shift + F11: 显示全部书签</p>
-<h2 id="重构"><a href="#重构" class="headerlink" title="重构"></a>重构</h2><p>F5: 复制<br>F6: 移动<br>Alt + Delete: 安全删除<br>Shift + F6: 重命名<br>Ctrl + F6: 更改签名<br>Ctrl + Alt + N: 内联<br>Ctrl + Alt + M: 抽取方法<br>Ctrl + Alt + V: 抽取变量<br>Ctrl + Alt + F: 抽取域<br>Ctrl + Alt + C: 抽取常量<br>Ctrl + Alt + P: 抽取参数 </p>
-<h2 id="版本控制-本地历史"><a href="#版本控制-本地历史" class="headerlink" title="版本控制/本地历史"></a>版本控制/本地历史</h2><p>Ctrl + K: 提交到 VCS<br>Ctrl + T: 从 VCS 更新工程<br>Alt + Shift + C: 查看最近改动<br>Alt + BackQuote (`): VCS 快速浏览</p>
-<h2 id="动态模板"><a href="#动态模板" class="headerlink" title="动态模板"></a>动态模板</h2><p>Ctrl + Alt + J: 用动态模板包裹<br>Ctrl + J: 插入动态模板</p>
-<h2 id="通用"><a href="#通用" class="headerlink" title="通用"></a>通用</h2><p>Alt + #[0-9]: 打开对应的工具窗口<br>Ctrl + S: 保存全部文件<br>Ctrl + Alt + Y: 同步工程<br>Ctrl + Shift + F12: 最大化/常规化编辑器窗口<br>Alt + Shift + F: 添加到 Favorites<br>Alt + Shift + I: 根据配置检查当前文件<br>Ctrl + BackQuote (`): 快速切换当前 scheme<br>Ctrl + Alt + S: 打开设置对话框<br>Ctrl + Alt + Shift + S: 打开项目结构对话框<br>Ctrl + Shift + A: 查找动作指令<br>Ctrl + Tab: 在编辑标签和工具窗口之间切换</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;捷克公司 JetBrains 推出的一系列 IDE 用着都很顺手，尤其是针对 Java 开发的 IDEA。不多说，欲善其事，先利其器。IDEA 有着相当完善的键盘操作，为了避免时不时去翻看手册，索性把官方的默认 Keymap 翻译成中文。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Translation" scheme="http://isudox.com/categories/Translation/"/>
-    
-    
-      <category term="Java" scheme="http://isudox.com/tags/Java/"/>
-    
-      <category term="JetBrains" scheme="http://isudox.com/tags/JetBrains/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Spring MVC 拦截器使用小结</title>
-    <link href="http://isudox.com/2016/05/10/summary-of-spring-mvc-interceptor/"/>
-    <id>http://isudox.com/2016/05/10/summary-of-spring-mvc-interceptor/</id>
-    <published>2016-05-10T08:38:39.000Z</published>
-    <updated>2016-08-29T09:13:56.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>之前用 Django 开发的时候，Django 内置的 middleware 提供了 login_required() 装饰器作登录拦截。强大的 Spring MVC 也支持拦截器，可以通过不算复杂的配置非常灵活的控制请求拦截策略。拦截器普遍用在用户登录验证上，也应用在其他需要对一些信息进行验证的场景下。</p>
-<a id="more"></a>
-<h2 id="实现拦截"><a href="#实现拦截" class="headerlink" title="实现拦截"></a>实现拦截</h2><h3 id="请求流程"><a href="#请求流程" class="headerlink" title="请求流程"></a>请求流程</h3><p>Spring MVC 请求的生命周期<br><img src="https://o70e8d1kb.qnssl.com/summary-of-spring-mvc-interceptor-1.png" alt=""></p>
-<p>图示给出了一次请求从发送到处理到接收响应的整个过程，非常标准的 M-V-C。</p>
-<h3 id="接口实现"><a href="#接口实现" class="headerlink" title="接口实现"></a>接口实现</h3><p>Spring MVC 拦截器由 <code>HandlerInterceptor</code> 实现。<code>HandlerInterceptor</code> 接口包含三个方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HandlerInterceptor</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest req, HttpServletResponse resp, Object handler)</span> <span class="keyword">throws</span> Exception</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">postHandle</span><span class="params">(HttpServletRequest req, HttpServletResponse resp, Object handler, ModelAndView modelAndView)</span> <span class="keyword">throws</span> Exception</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">afterCompletion</span><span class="params">(HttpServletRequest req, HttpServletResponse resp, Object handler, Exception ex)</span> <span class="keyword">throws</span> Exception</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>从这三个方法名就能看出各自执行的事件节点：分别在请求处理之前、请求处理之后但在渲染视图之前、请求完成之后。</p>
-<p><code>preHandle()</code> 在请求进到 Controller 前就对请求进行预处理。如果处理结果返回 true 则请求放行并继续往下执行，进到 Controller 或 下一个拦截器中；如果处理结果为 false 则中断处理请求，直接返回响应。</p>
-<p><code>postHandle()</code> 只有当 <code>preHandle()</code> 返回 true 时才会执行，也就是在请求进入到 Controller 之后再执行。它可以对 <code>ModelAndView</code> 进行处理，再返回给前端进行渲染。</p>
-<p><code>afterCompletion()</code> 在请求被完整处理完成后执行，也就是在渲染视图后。</p>
-<p>拦截器的关键就是在请求处理之前将其拦截，所以最重要的方法就是 <code>preHandle()</code>，它是必须要实现的，而 <code>postHandle()</code> 和 <code>afterCompletion()</code> 的实现可以为空。Spring MVC servlet.handler 包里内置的 <code>HandlerInterceptorAdapter</code> 适配器实现 <code>HandlerInterceptor</code> 接口的 <code>preHandle()</code> 方法。通常可以直接继承该适配器。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExampleInterceptor</span> <span class="keyword">extends</span> <span class="title">HandlerInterceptorAdapter</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest req, HttpServletResponse resp, Object obj)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="comment">// hanle the request...</span></div><div class="line">        <span class="keyword">if</span> (OK) &#123;</div><div class="line">            System.out.println(req.GetRuestURI());</div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            resp.sendRedirect(<span class="string">"http://isudox.com"</span>);</div><div class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="拦截配置"><a href="#拦截配置" class="headerlink" title="拦截配置"></a>拦截配置</h3><p>Spring MVC 配置文件通过 <code>mvc:interceptors</code> 标签声明并配置拦截器链，拦截的顺序由声明的顺序确定。其中，<code>mvc:mapping</code> 标签指定要拦截的 URL 以及忽略的 URL，支持通配符；<code>bean</code> 标签指定处理该 URL 的拦截器。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></div><div class="line">	<span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xmlns:mvc</span>=<span class="string">"http://www.springframework.org/schema/mvc"</span></div><div class="line">	<span class="attr">xmlns:context</span>=<span class="string">"http://www.springframework.org/schema/context"</span></div><div class="line">	<span class="attr">xsi:schemaLocation</span>=<span class="string">"</span></div><div class="line">        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd</div><div class="line">        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd</div><div class="line">        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">mvc:interceptors</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.i18n.LocaleChangeInterceptor"</span> /&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">mvc:interceptor</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mapping</span> <span class="attr">path</span>=<span class="string">"/**"</span>/&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">exclude-mapping</span> <span class="attr">path</span>=<span class="string">"/admin/**"</span>/&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.web.servlet.theme.ThemeChangeInterceptor"</span> /&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">mvc:interceptor</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">mvc:interceptor</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">mapping</span> <span class="attr">path</span>=<span class="string">"/secure/*"</span>/&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.example.SecurityInterceptor"</span> /&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">mvc:interceptor</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">mvc:interceptors</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<p>或者也可以通过 Java 代码来配置拦截器：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="meta">@EnableWebMvc</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebConfig</span> <span class="keyword">extends</span> <span class="title">WebMvcConfigurerAdapter</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> </span>&#123;</div><div class="line">        registry.addInterceptor(<span class="keyword">new</span> LocaleInterceptor());</div><div class="line">        registry.addInterceptor(<span class="keyword">new</span> ThemeInterceptor()).addPathPatterns(<span class="string">"/**"</span>).excludePathPatterns(<span class="string">"/admin/**"</span>);</div><div class="line">        registry.addInterceptor(<span class="keyword">new</span> SecurityInterceptor()).addPathPatterns(<span class="string">"/secure/*"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<h2 id="Ajax请求"><a href="#Ajax请求" class="headerlink" title="Ajax请求"></a>Ajax请求</h2><p>对于拦截 Ajax 请求的场景，有些细节处理需要注意。拦截器通常需要获取请求来源页面的 URL，使其能在处理完成后能返回之前的页面，比如从某个页面跳转到登录页，登录后再跳转回之前浏览的页面。但如果是 Ajax 请求，比如在页面上点击一个按钮发起请求，改变局部页面元素或行为，这时候拦截器所需要的来源页 URL 被记录在请求头的 <code>referer</code> 中。</p>
-<p>首先判断一个请求是否为 Ajax。Ajax 请求的头部会带上 <code>X-Requested-With:XMLHttpRequest</code>。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isAsyncRequest</span><span class="params">(HttpServletResponse request)</span> </span>&#123;</div><div class="line">    String header = request.getHeader(<span class="string">"X-Requested-With"</span>);</div><div class="line">    <span class="keyword">return</span> header != <span class="keyword">null</span> &amp;&amp; <span class="string">"XMLHttpRequest"</span>.equalsIgnoreCase(header);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>获取 referer 信息</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest req, HttpServletResponse resp, Object obj)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    String referer = req.getHeader(<span class="string">"Referer"</span>);</div><div class="line">    JSONObject jsonObject = <span class="keyword">new</span> JSONObject();</div><div class="line">    jsonObject.put(<span class="string">"requestURI"</span>, URLEncoder.encode(referer, <span class="string">"UTF-8"</span>));</div><div class="line">    resp.getWriter().write(JSONObject.toJSONString(jsonObject));</div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;之前用 Django 开发的时候，Django 内置的 middleware 提供了 login_required() 装饰器作登录拦截。强大的 Spring MVC 也支持拦截器，可以通过不算复杂的配置非常灵活的控制请求拦截策略。拦截器普遍用在用户登录验证上，也应用在其他需要对一些信息进行验证的场景下。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Java" scheme="http://isudox.com/tags/Java/"/>
-    
-      <category term="Spring" scheme="http://isudox.com/tags/Spring/"/>
     
   </entry>
   

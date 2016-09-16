@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo,VPS,Git," />
+  <meta name="keywords" content="Python," />
 
 
 
@@ -87,22 +87,18 @@
 
 
 
-<meta name="description" content="进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。
-Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？
-需要有这么多为什么吗？因为好玩，这就够了。具">
+<meta name="description" content="前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 @decorator 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo 小站轻松部署方案">
-<meta property="og:url" content="http://isudox.com/2015/09/03/hexo-your-blog/index.html">
+<meta property="og:title" content="深入理解 Python 装饰器">
+<meta property="og:url" content="http://isudox.com/2016/09/09/python-decorator-guide/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。
-Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？
-需要有这么多为什么吗？因为好玩，这就够了。具">
-<meta property="og:updated_time" content="2016-08-29T07:59:34.000Z">
+<meta property="og:description" content="前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 @decorator 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/qxf2-gun-decorator1.jpg">
+<meta property="og:updated_time" content="2016-09-10T04:36:06.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo 小站轻松部署方案">
-<meta name="twitter:description" content="进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。
-Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？
-需要有这么多为什么吗？因为好玩，这就够了。具">
+<meta name="twitter:title" content="深入理解 Python 装饰器">
+<meta name="twitter:description" content="前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 @decorator 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。">
+<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/qxf2-gun-decorator1.jpg">
 
 
 
@@ -131,7 +127,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
 
 
 
-  <title> Hexo 小站轻松部署方案 | I sudo X </title>
+  <title> 深入理解 Python 装饰器 | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -321,7 +317,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
             
             
               
-                Hexo 小站轻松部署方案
+                深入理解 Python 装饰器
               
             
           </h1>
@@ -333,8 +329,8 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-09-03T00:19:38+08:00" content="2015-09-03">
-              2015-09-03
+            <time itemprop="dateCreated" datetime="2016-09-09T22:42:36+08:00" content="2016-09-09">
+              2016-09-09
             </time>
           </span>
 
@@ -363,8 +359,8 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2015/09/03/hexo-your-blog/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/09/03/hexo-your-blog/" itemprop="commentsCount"></span>
+                <a href="/2016/09/09/python-decorator-guide/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/09/python-decorator-guide/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -374,7 +370,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
 
           
           
-             <span id="/2015/09/03/hexo-your-blog/" class="leancloud_visitors" data-flag-title="Hexo 小站轻松部署方案">
+             <span id="/2016/09/09/python-decorator-guide/" class="leancloud_visitors" data-flag-title="深入理解 Python 装饰器">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -396,46 +392,39 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
       
 
       
-        <p>进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。</p>
-<p>Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？</p>
-<p>需要有这么多为什么吗？因为好玩，这就够了。具体好玩的元素有很多，在下面的记录中会有所提及，更多的还需要自己去发现。</p>
+        <p>前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 <code>@decorator</code> 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。</p>
 <a id="more"></a>
-<h3 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h3><ul>
-<li>选择自己搭建独立 Blog 的理由很简单，既然是自己的东西，就不需要放在别人口袋里；</li>
-<li>选择静态 Blog 是因为无需数据库，支持 Markdown，文本文件便于 Git 管理；</li>
+<h3 id="管窥装饰器"><a href="#管窥装饰器" class="headerlink" title="管窥装饰器"></a>管窥装饰器</h3><p>下面是一个很简单的 Python 方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me'</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>很简单，这会得到 “call me” 的文本输出。现在增加一个时间标记，告知是什么时间呼叫的我，可以这么改：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me'</span>)</div><div class="line">    print(<span class="string">'at '</span>, time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time()))))</div><div class="line">          </div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>这么做有一个麻烦的地方，就是在 <code>call()</code> 方法内部做了改动。在很多场景下，我们不希望去改变方法本身的行为，因为这个方法可能在很多地方都被调用了，如果在方法内部做了修改，那么对每个调用都会产生影响，但我们只希望在某些调用时才去改变它的行为。比较常见的实用场景如用户登录拦截。</p>
+<p>不改变函数本身，那么该如何对 <code>call()</code> 加上时间标记呢？这就到装饰器大显身手的时候了。装饰器可以把被装饰的方法包裹起来，被装饰者本身的行为不会变，装饰器只是在它之外添加了额外的功能。下面这张图解释的很形象：</p>
+<p><img src="https://o70e8d1kb.qnssl.com/qxf2-gun-decorator1.jpg" alt=""></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(func)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        func()</div><div class="line">        print(<span class="string">'at'</span>,</div><div class="line">              time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"></div><div class="line">call = mark_time(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>上面就实现了简朴的装饰器，Python 内置了对装饰器的语法支持，可以更便捷的实现装饰功能，就是上面提到的 <code>@decorator</code>，这相当于是 <code>func = decorator(func)</code> 的作用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(func)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        func()</div><div class="line">        print(<span class="string">'at'</span>,</div><div class="line">              time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"><span class="meta">@mark_time</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>可以看出，<code>@mark_time</code> 的作用等同于 <code>call = mark_time(call)</code>，得到一个可调用的函数名。</p>
+<p>如果需要多个装饰器来实现功能，只需要按顺序对方法进行装饰，装饰的顺序是从下到上：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@f1(arg)</span></div><div class="line"><span class="meta">@f2</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line">foo()</div></pre></td></tr></table></figure>
+<p>等效于执行 <code>f1(arg)(f2(foo))()</code></p>
+<h3 id="认识函数"><a href="#认识函数" class="headerlink" title="认识函数"></a>认识函数</h3><p>了解装饰器的基础用法只是皮毛，深入理解装饰器前，得先理解函数究竟是什么。</p>
+<p>首先明确一点，在 Python 中，函数 function 也是一种对象 Object。这就意味着：</p>
+<ul>
+<li>函数可以被指派为参数（作为传入或返回值）；</li>
+<li>函数可以被定义在函数体中；</li>
 </ul>
-<p>静态 Blog 程序尽管小众，也还是有不少选择的，按语言不同门派各异，也是一江湖。比如 Ruby 系 <a href="http://jekyllrb.com" target="_blank" rel="external">Jekyll</a>，Node.js 系 <a href="http://hexo.io" target="_blank" rel="external">Hexo</a>，Python 系 <a href="http://blog.getpelican.com" target="_blank" rel="external">Pelican</a>。</p>
-<p>什么？竟然没有世界上最好的语言！好吧，<a href="http://wordpress.org" target="_blank" rel="external">WordPress</a> 正在冲你露大白牙……</p>
-<p>Jekyll、Hexo 和 Pelican 各有拥趸，各执一词。我不辩优劣，选 Hexo 只是因为平时用 JS 更多罢了。如果对语言有信仰，那就闭上眼睛遵从信仰吧。</p>
-<h3 id="How"><a href="#How" class="headerlink" title="How"></a>How</h3><p>Google 一下关键字 Hexo + Blog，或者直接查看 Hexo 官方<a href="http://hexo.io/docs" target="_blank" rel="external">文档</a>，都可以对 Hexo 的搭建过程有较为清晰的认知。我设想的方案是搭建一个由 GitHub 托管，并且能在 VPS 上实时发布部署的 Blog 程序，因此基本框架就是 Hexo + GitHub + VPS。</p>
-<h3 id="Let’s-Hexo"><a href="#Let’s-Hexo" class="headerlink" title="Let’s Hexo"></a>Let’s Hexo</h3><h4 id="GitHub"><a href="#GitHub" class="headerlink" title="GitHub"></a>GitHub</h4><p>网上已有的 Hexo 方案基本都是将 Hexo 生成的静态文件提交至 GitHub Pages，通过 GitHub Pages 实现 Blog 的撰写及更新。但有一不足，如果换一台电脑写，难道还要将 Hexo 源文件拷贝过来再生成静态博客？肯定不能这么做，对此我的建议很简单：在 GitHub 上的以 {username}.github.io 命名的仓库里建立两个分支：一是 master 分支，保存 Hexo 生成的静态文件；另一是 source 分支，保存 Hexo 的源文件。</p>
-<h4 id="VPS"><a href="#VPS" class="headerlink" title="VPS"></a>VPS</h4><p>首先得买一台可靠的 VPS，我选用的美帝 <a href="https://www.linode.com/?r=285e75ec2001be00899a5a81796260d2e5962a5b" target="_blank" rel="external">Linode</a>。我在 VPS 上测试过两种方案，方案一是在 VPS 上也创建 Hexo 环境，同时新建一个 Git 裸仓库作为私有 Git 服务器，本地提交 Hexo 的源文件至 VPS 上的 Git 服务器，然后 VPS 上的 Hexo 程序生成静态文件并发布部署到 Web 目录下；方案二则是本地提交 Hexo 生成文件到 Git 裸仓库，VPS 直接将其部署到 Web 目录下。前者徒增 VPS 的压力，后者使得 Git 日志冗余，各有长短。两种方案我都测试通过，最后采用方案二。<br>GitHub 提供 GitHub Pages 服务，原意是用来给开发者发布器在 GitHub 上项目的文档及说明，当然也可以作为开发者的个人站点使用。如果是创建 {username}.github.io 仓库，GitHub 会将其 master 分支下的内容作为站点文件发布；如果是创建其他自定义名称的仓库，GitHub 将以 gh-page 分支作为站点文件。</p>
-<p>创建新用户 git，在服务器上创建 git server 请参考 git <a href="https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server" target="_blank" rel="external">官方文档</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo adduser git</div><div class="line">$ git init --bare &lt;your_repo&gt;.git</div><div class="line">$ touch &lt;your_repo&gt;.git/hook/post-receive</div><div class="line">$ chmod +x post-receive</div><div class="line">$ <span class="built_in">cd</span> &lt;path_to_your_blog&gt;</div><div class="line">$ git <span class="built_in">clone</span> &lt;your_repo&gt;.git</div></pre></td></tr></table></figure></p>
-<p>其中<code>post-receive</code>为 Git Hook，Git 通过该脚本实现本地提交改动后自动发布更新<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#!/bin/bash -l</span></div><div class="line"></div><div class="line">GIT_REPO=/home/git/isudox-hexo.git</div><div class="line">GIT_TEMP=/home/git/repo/isudox-hexo</div><div class="line">WWW_HEXO=/home/git/www/isudox-hexo</div><div class="line"></div><div class="line">rm -rf <span class="variable">$&#123;GIT_TEMP&#125;</span></div><div class="line">git <span class="built_in">clone</span> <span class="variable">$GIT_REPO</span> <span class="variable">$GIT_TEMP</span></div><div class="line">rm -rf <span class="variable">$&#123;WWW_HEXO&#125;</span>/*</div><div class="line">cp -rf <span class="variable">$&#123;GIT_TEMP&#125;</span>/* <span class="variable">$&#123;WWW_HEXO&#125;</span></div></pre></td></tr></table></figure></p>
-<p>原理很简单，VPS 上的 Git 仓库一旦接收到 <code>push</code>，便会触发 <code>post-receive</code> 脚本，进入 Blog 根目录，执行更新发布任务。</p>
-<p>如果是方案一，<code>post-receive</code> 也是类似的操作，只是多了一步 <code>hexo generate</code> 生成静态文件的操作，因为提交到 Git 仓库的是 Hexo 源文件而不是生成文件。</p>
-<h4 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h4><p>本地环境需要 Node.js 和 git，系统可以是 Linux | Mac | Win 任一，Node.js与Git 和这些操作系统都能友好相处。我的本地环境是 Arch Linux，因此配置起来可谓轻松愉快——</p>
-<p>安装 Node.js、git<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo pacman -S git nodejs</div></pre></td></tr></table></figure></p>
-<p>安装 Hexo<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo npm install -g hexo-cli</div></pre></td></tr></table></figure></p>
-<p>创建本地 Git 仓库并提交至远端 Git 仓库的 master 分支<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="comment"># isudox.github.io &gt;&gt; README.md</span></div><div class="line">git init</div><div class="line">git add README.md</div><div class="line">git commit -m <span class="string">"first commit"</span></div><div class="line">git remote add origin git@github.com:isudox/isudox.github.io.git</div><div class="line">git push -u origin master</div></pre></td></tr></table></figure></p>
-<p>新建 Hexo 源文件分支 <code>source</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git checkout -b <span class="built_in">source</span></div></pre></td></tr></table></figure>
-<p>在本地 Git 仓库下创建 Hexo Blog，并安装必要的 npm 包</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ hexo init</div><div class="line">$ npm install</div><div class="line">$ npm install hexo-deployer-git --save</div></pre></td></tr></table></figure>
-<p>执行完上述命令后，属于你的 Hexo Blog 就已经诞生了，接下来可以修改配置文件 <code>_config.yml</code>，可以在 <code>themes/</code> 路径下添加主题，可以撰写新文章……总之，你拥有了 Hexo 的全部魔力。</p>
-<p>因为本地的Hexo项目的提交涉及三处：</p>
-<ol>
-<li>Github 仓库的 source 分支；</li>
-<li>Github 仓库的 master 分支；</li>
-<li>VPS 上的私有 Git 仓库 master 分支；</li>
-</ol>
-<p>因此需要更改 <code>_config</code> 文件中 <code>deploy</code> 字段的属性</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">    type: git</div><div class="line">    repo:</div><div class="line">        github: git@github.com:&lt;username&gt;/&lt;username&gt;.github.io.git,master</div><div class="line">        vpsgit: git@vps_ip:&lt;your_repo&gt;.git,master</div></pre></td></tr></table></figure>
-<p>注意 <code>.yml</code> 的 <code>:</code> 后面必须跟一个空格，这是格式规定，否则配置无效。</p>
-<p>提交 GitHub source 分支时，确人当前分支为 source，然后执行 <code>git push origin source</code>；<br>提交 GitHub master 分支和 VPS 私有 Git 库时，执行 <code>hexo deploy</code> 发布即可；</p>
-<p>好了，回到本地的 Hexo 项目根目录下，再敲最后一行命令，让我们看看会发生什么<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate --deploy</div></pre></td></tr></table></figure></p>
-<p>打开 <a href="http://{username}.github.io" target="_blank" rel="external">http://{username}.github.io</a> 或者你自己绑定的域名……</p>
-<p>Duang    ^<strong>__</strong>^</p>
+<p>因此，函数的返回值可以是另一个函数。手写一段示例代码来印证这一点：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_drink</span><span class="params">(choice=<span class="string">'tea'</span>)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">serve_tea</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">'Green tea'</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">serve_coffee</span><span class="params">()</span>:</span></div><div class="line">        <span class="keyword">return</span> <span class="string">'Coffee latte'</span></div><div class="line"></div><div class="line">    <span class="keyword">if</span> choice == <span class="string">'tea'</span>:</div><div class="line">        <span class="keyword">return</span> serve_tea</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        <span class="keyword">return</span> serve_coffee</div><div class="line"></div><div class="line">my_drink = get_drink()</div><div class="line"></div><div class="line">print(my_drink)  <span class="comment"># &lt;function get_drink.&lt;locals&gt;.serve_tea at 0x7f313f307f28&gt;</span></div><div class="line"></div><div class="line">print(my_drink())  <span class="comment"># Green tea</span></div><div class="line"></div><div class="line">print(get_drink(<span class="string">'coffee'</span>)())  <span class="comment"># Coffee latte</span></div></pre></td></tr></table></figure>
+<p>这样之前写的装饰器函数返回的 <code>wrapper</code> 就不难明白了。装饰器的本质就是实现了在被装饰的方法执行之前/之后，执行装饰的动作。</p>
+<h3 id="带参装饰器"><a href="#带参装饰器" class="headerlink" title="带参装饰器"></a>带参装饰器</h3><p>假设有这么个需求，在前面的 <code>call()</code> 方法之前加上主语，实现 “{who} calls me at {time}”，可以考虑给装饰器函数本身传递一个入参 {who}。<br>已有的装饰器是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">call = mark_time(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>增加入参的装饰器是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">call = mark_time(<span class="string">'sudoz'</span>)(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
+<p>拆开来看上面的代码：先执行 <code>mark_time(&#39;sudoz&#39;)</code> 返回一个回调函数 wrapper_1（假设是这个函数名），然后执行 <code>wrapper_1(call)</code>，得到另一个回调函数 wrapper_2，<code>call()</code> 实际上运行的是 <code>wrapper_2()</code>。这么拆解开来，就很好实现带参的装饰器方法了，就是相比不带参的装饰器外面多套一层以返回 wrapper_1：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(who)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper_1</span><span class="params">(func)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper_2</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            print(<span class="string">'%s'</span> % who)</div><div class="line">            func()</div><div class="line">            print(<span class="string">'at'</span>,</div><div class="line">                  time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line">        <span class="keyword">return</span> wrapper_2</div><div class="line">    <span class="keyword">return</span> wrapper_1</div><div class="line"></div><div class="line"><span class="meta">@mark_time('sudoz')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<h3 id="functools-进阶"><a href="#functools-进阶" class="headerlink" title="functools 进阶"></a>functools 进阶</h3><p>装饰器在执行时，有一个隐蔽的小动作可能会被忽略：它把被装饰的函数的 <code>__name__</code> 属性给置换成回调函数的属性了。测试下上面代码里被装饰后的 <code>call</code> 的 <code>__name__</code> 属性，不再是 “call” 而是 “wrapper_2”。Python 2.5 版本新增的 <code>functools.wraps()</code> 解决了这个问题，它会把被装饰方法的名称，模块复制到装饰器内。而<code>functools.wraps()</code> 本身也是一个装饰器。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> functools</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foobar</span><span class="params">(func)</span>:</span></div><div class="line"><span class="meta">    @functools.wraps(func)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        print(<span class="string">'foo'</span>)</div><div class="line">        <span class="keyword">return</span> func(args)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@foobar</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_hello</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">    print(<span class="string">'Hello %s'</span> % args[<span class="number">0</span>])</div><div class="line"></div><div class="line"></div><div class="line">print(say_hello.__name__)  <span class="comment"># Output: bar</span></div><div class="line"></div><div class="line">say_hello(<span class="string">'sudoz'</span>)  <span class="comment"># Output: Hello sudoz</span></div></pre></td></tr></table></figure>
 
       
     </div>
@@ -476,11 +465,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
       
         <div class="post-tags">
           
-            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
-          
-            <a href="/tags/VPS/" rel="tag"># VPS</a>
-          
-            <a href="/tags/Git/" rel="tag"># Git</a>
+            <a href="/tags/Python/" rel="tag"># Python</a>
           
         </div>
       
@@ -489,14 +474,18 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2016/09/03/learning-python-package-click/" rel="next" title="Python Click 学习笔记">
+                <i class="fa fa-chevron-left"></i> Python Click 学习笔记
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/09/26/begin-arch-linux/" rel="prev" title="开启 Arch 之旅">
-                开启 Arch 之旅 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/09/13/java-collections-overview/" rel="prev" title="Java 常用容器小结">
+                Java 常用容器小结 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -701,7 +690,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Why"><span class="nav-number">1.</span> <span class="nav-text">Why</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#How"><span class="nav-number">2.</span> <span class="nav-text">How</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Let’s-Hexo"><span class="nav-number">3.</span> <span class="nav-text">Let’s Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GitHub"><span class="nav-number">3.1.</span> <span class="nav-text">GitHub</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VPS"><span class="nav-number">3.2.</span> <span class="nav-text">VPS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Local"><span class="nav-number">3.3.</span> <span class="nav-text">Local</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#管窥装饰器"><span class="nav-number">1.</span> <span class="nav-text">管窥装饰器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#认识函数"><span class="nav-number">2.</span> <span class="nav-text">认识函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#带参装饰器"><span class="nav-number">3.</span> <span class="nav-text">带参装饰器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#functools-进阶"><span class="nav-number">4.</span> <span class="nav-text">functools 进阶</span></a></li></ol></div>
             
 
           </div>
@@ -1029,8 +1018,8 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
 
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
-      var disqus_identifier = '2015/09/03/hexo-your-blog/';
-      var disqus_title = 'Hexo 小站轻松部署方案';
+      var disqus_identifier = '2016/09/09/python-decorator-guide/';
+      var disqus_title = '深入理解 Python 装饰器';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
