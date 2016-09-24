@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://isudox.com/"/>
-  <updated>2016-09-16T15:30:40.517Z</updated>
+  <updated>2016-09-24T15:55:52.080Z</updated>
   <id>http://isudox.com/</id>
   
   <author>
@@ -16,11 +16,104 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>关于跨域：JSONP 和 CORS</title>
+    <link href="http://isudox.com/2016/09/24/cross-site-jsonp-and-cors/"/>
+    <id>http://isudox.com/2016/09/24/cross-site-jsonp-and-cors/</id>
+    <published>2016-09-24T15:55:52.000Z</published>
+    <updated>2016-09-24T15:55:52.080Z</updated>
+    
+    <content type="html"><![CDATA[<p>Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 <a href="https://en.wikipedia.org/wiki/JSONP" target="_blank" rel="external">JSONP</a>(JSON with Padding) 和 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="external">CORS</a>(Cross-Origin Resource Sharing)。</p>
+<a id="more"></a>
+<p>首先理清一个经常会被混淆的概念，AJAX(Asynchronous JavaScript and XML) 和跨域请求是两个不同的概念，AJAX 是异步请求和解析处理 XML 文档的方式，它在服务器端没有提供支持（CORS 是一种解决方案）的前提下，也是无法跨域的。</p>
+<h3 id="跨域请求"><a href="#跨域请求" class="headerlink" title="跨域请求"></a>跨域请求</h3><p>跨域请求，顾名思义，就是从 A 地址向非同源的 B 地址发起了请求。参考 MDN 上对同源的定义:</p>
+<blockquote>
+<p>如果两个页面拥有相同的协议（protocol），端口（如果指定）和主机，那么这两个页面就属于同一个源（origin）。</p>
+</blockquote>
+<p>MDN 给了同源检测的示例，如果是相对 <a href="http://store.company.com/dir/page.html，那么" target="_blank" rel="external">http://store.company.com/dir/page.html，那么</a></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">URL</th>
+<th style="text-align:center">结果</th>
+<th style="text-align:center">原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><a href="http://store.company.com/dir2/other.html" target="_blank" rel="external">http://store.company.com/dir2/other.html</a></td>
+<td style="text-align:center">成功</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="http://store.company.com/dir/inner/another.html" target="_blank" rel="external">http://store.company.com/dir/inner/another.html</a></td>
+<td style="text-align:center">成功</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://store.company.com/secure.html" target="_blank" rel="external">https://store.company.com/secure.html</a></td>
+<td style="text-align:center">失败</td>
+<td style="text-align:center">协议不同</td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="http://store.company.com:81/dir/etc.html" target="_blank" rel="external">http://store.company.com:81/dir/etc.html</a></td>
+<td style="text-align:center">失败</td>
+<td style="text-align:center">端口不同</td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="http://news.company.com/dir/other.html" target="_blank" rel="external">http://news.company.com/dir/other.html</a></td>
+<td style="text-align:center">失败</td>
+<td style="text-align:center">主机名不同</td>
+</tr>
+</tbody>
+</table>
+<p>严格的说，浏览器并不是拒绝所有的跨域请求，否则如果想从百度搜索结果页跳转到其他页面就是个伪命题，实际上拒绝的是跨域的读操作。浏览器的同源限制策略是这样执行的：</p>
+<ul>
+<li>通常浏览器允许进行跨域写操作（Cross-origin writes），如链接，重定向；</li>
+<li>通常浏览器允许跨域资源嵌入（Cross-origin embedding），如 <code>img</code>、<code>script</code> 标签；</li>
+<li>通常浏览器不允许跨域读操作（Cross-origin reads）。</li>
+</ul>
+<p>对于跨域资源的嵌入，实际开发中用的非常频繁，从外部引入 js、css、img 这些静态文件，都是被浏览器接受的。</p>
+<p>下面对浏览器的同源策略做个测试，探探究竟。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// cross-origin request</span></div><div class="line"><span class="keyword">var</span> url = <span class="string">"http://search.jd.com/Search?keyword=python&amp;enc=utf-8&amp;wq=python"</span>;</div><div class="line"><span class="keyword">var</span> request = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">request.open(<span class="string">"GET"</span>, url);</div><div class="line">request.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure>
+<p>浏览器控制台会出现错误信息（信息中的 Origin 为 null 是因为我是用浏览器直接打开 html，而不是通过 http server 访问 html）：</p>
+<blockquote>
+<p>XMLHttpRequest cannot load <a href="http://search.jd.com/Search?keyword=python&amp;enc=utf-8&amp;wq=python" target="_blank" rel="external">http://search.jd.com/Search?keyword=python&amp;enc=utf-8&amp;wq=python</a>. No ‘Access-Control-Allow-Origin’ header is present on the requested resource. Origin ‘null’ is therefore not allowed access.</p>
+</blockquote>
+<p>该请求来源的 Origin 不在可允许范围内，这种情况就是跨域请求被拒。下面是一个简单的本地 http server：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// local http server writtern by Node.js</span></div><div class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</div><div class="line"><span class="keyword">var</span> port = <span class="number">8080</span>; </div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleRequest</span>(<span class="params">request, response</span>)</span>&#123;</div><div class="line">    response.end(<span class="string">'Hello'</span>);</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'request url: '</span> + request.url);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> server = http.createServer(handleRequest);</div><div class="line">server.listen(PORT, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"Server listening on: http://localhost:%s"</span>, port);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p><code>node simple-server.js</code> 运行，把请求的 URL 改成 http：//localhost:8080，可以看到命令行终端输出日志，这就表明，请求实际上是从浏览器发出了，服务器也接收到了请求，但是浏览器在读取跨域返回的数据时被拒绝了。这就印证了 MDN 文档上说明的，浏览器不允许跨域读操作。</p>
+<h3 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h3><p>JSONP 并不在 HTML 的标准里，而是开发者为了实现跨域请求而创造的一个 trick。在 HTML 中，可以通过 “src”、”img” 标签引入非同源的静态资源，这就给 JSONP 的实现提供了可能。</p>
+<p>JSONP 的实现很简单，需要客户端和服务端配合。客户端在 HTML 中动态生成 <code>script</code> 标签，在 “src” 中引入请求的 URL + 回调函数，这样请求服务器返回的数据会交由回调函数处理，这样就实现了跨域读请求；服务端在接收到客户端请求后，首先取得客户端要回调的函数名，再生成 JavaScript 代码段返回给浏览器，浏览器在获取到返回结果后直接调用回调函数完成任务。</p>
+<p>手写一段简陋的 JS 代码演示下 JSONP 的整个流程：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleCallback</span>(<span class="params">result</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(result.code);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> jsonp = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</div><div class="line">jsonp.type = <span class="string">'text/javascript'</span>;</div><div class="line">jsonp.src = <span class="string">'http://localhost:8080?callback=handleCallback'</span>;</div><div class="line"><span class="built_in">document</span>.document.getElementById(<span class="string">'demo'</span>).appendChild(jsonp);</div></pre></td></tr></table></figure>
+<h3 id="CORS"><a href="#CORS" class="headerlink" title="CORS"></a>CORS</h3><p>参考：</p>
+<ul>
+<li>Mozilla Developer Network</li>
+<li>阮一峰的网络日志</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 &lt;a href=&quot;https://en.wikipedia.org/wiki/JSONP&quot;&gt;JSONP&lt;/a&gt;(JSON with Padding) 和 &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS&quot;&gt;CORS&lt;/a&gt;(Cross-Origin Resource Sharing)。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="JavaScript" scheme="http://isudox.com/tags/JavaScript/"/>
+    
+      <category term="Frontend" scheme="http://isudox.com/tags/Frontend/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Java 常用容器小结</title>
     <link href="http://isudox.com/2016/09/13/java-collections-overview/"/>
     <id>http://isudox.com/2016/09/13/java-collections-overview/</id>
     <published>2016-09-13T12:15:58.000Z</published>
-    <updated>2016-09-16T15:30:40.517Z</updated>
+    <updated>2016-09-23T13:08:16.665Z</updated>
     
     <content type="html"><![CDATA[<p>无论是什么编程语言，容器都是非常重要的概念，在 Java 的实际开发中更是无处不在，各种 List、Set、Map。很多时候就是随着编程的惯性用了 ArrayList 或者 HashMap，但是并没对其特性和适用场景作更多的思考。开发者对 Java 容器的讨论比较多，我自己从源码的角度做个粗浅的整理。</p>
 <a id="more"></a>
@@ -208,7 +301,7 @@
     <link href="http://isudox.com/2016/09/09/python-decorator-guide/"/>
     <id>http://isudox.com/2016/09/09/python-decorator-guide/</id>
     <published>2016-09-09T14:42:36.000Z</published>
-    <updated>2016-09-10T04:36:06.000Z</updated>
+    <updated>2016-09-23T13:08:16.665Z</updated>
     
     <content type="html"><![CDATA[<p>前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 <code>@decorator</code> 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。</p>
 <a id="more"></a>
@@ -241,6 +334,15 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">call = mark_time(<span class="string">'sudoz'</span>)(call)</div><div class="line">call()</div></pre></td></tr></table></figure>
 <p>拆开来看上面的代码：先执行 <code>mark_time(&#39;sudoz&#39;)</code> 返回一个回调函数 wrapper_1（假设是这个函数名），然后执行 <code>wrapper_1(call)</code>，得到另一个回调函数 wrapper_2，<code>call()</code> 实际上运行的是 <code>wrapper_2()</code>。这么拆解开来，就很好实现带参的装饰器方法了，就是相比不带参的装饰器外面多套一层以返回 wrapper_1：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> time</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">mark_time</span><span class="params">(who)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper_1</span><span class="params">(func)</span>:</span></div><div class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper_2</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">            print(<span class="string">'%s'</span> % who)</div><div class="line">            func()</div><div class="line">            print(<span class="string">'at'</span>,</div><div class="line">                  time.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>, time.localtime(time.time())))</div><div class="line">        <span class="keyword">return</span> wrapper_2</div><div class="line">    <span class="keyword">return</span> wrapper_1</div><div class="line"></div><div class="line"><span class="meta">@mark_time('sudoz')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">'call me '</span>)</div><div class="line"></div><div class="line">call()</div></pre></td></tr></table></figure>
+<h3 id="内置装饰器"><a href="#内置装饰器" class="headerlink" title="内置装饰器"></a>内置装饰器</h3><p>Python 类有 3 个内置的装饰器：<code>@staticmethod</code>，<code>@classmethod</code>，<code>property</code>——</p>
+<ul>
+<li><code>@staticmethod</code> 装饰的方法是类的静态方法，即无需通过类的实例去调用，因此方法的参数中没有类实例 <code>self</code>；</li>
+<li><code>@classmethod</code> 装饰的方法是类方法，方法的第一个参数是类对象 <code>cls</code>，可以在方法内调用类对象本身；</li>
+<li><code>@property</code> 装饰的方法是类的属性，装饰器内部定义了 <code>getter</code> 和 <code>setter</code> 方法，这种方式和 Java 里的 <code>getXXX</code>、<code>setXXX</code> 非常相像；</li>
+</ul>
+<p>代码演示下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Demo</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, name, city)</span>:</span></div><div class="line">        self._name = name</div><div class="line">        self._city = city</div><div class="line"></div><div class="line"><span class="meta">    @staticmethod</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">test_static_method</span><span class="params">()</span>:</span></div><div class="line">        print(<span class="string">'nothing to do.'</span>)</div><div class="line"></div><div class="line"><span class="meta">    @classmethod</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">test_class_method</span><span class="params">(cls)</span>:</span></div><div class="line">        print(cls.__name__)</div><div class="line"></div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">name</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self._name</div><div class="line"></div><div class="line"><span class="meta">    @name.setter</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">name</span><span class="params">(self, name)</span>:</span></div><div class="line">        self._name = name</div><div class="line"></div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">city</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> self._city</div><div class="line"></div><div class="line"></div><div class="line">demo = Demo(<span class="string">'sudoz'</span>, <span class="string">'beijing'</span>)</div><div class="line">Demo.test_static_method()  <span class="comment"># nothing to do</span></div><div class="line">demo.test_static_method()  <span class="comment"># nothing to do</span></div><div class="line">demo.test_class_method()   <span class="comment"># Demo</span></div><div class="line">print(demo.name)           <span class="comment"># sudoz beijing</span></div><div class="line">demo.name = <span class="string">'anonymous'</span></div><div class="line">print(demo.name)           <span class="comment"># anonymous</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">    demo.city = <span class="string">'hangzhou'</span></div><div class="line">    print(demo.city)</div><div class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</div><div class="line">    print(e)              <span class="comment"># can't set attribute</span></div></pre></td></tr></table></figure>
+<p>注意上面的代码，如果被 <code>@property</code> 装饰的属性没有设置 <code>setter</code> 方法，那么该属性就是类的只读属性，不能被修改，因此上面试图修改 city 属性，抛出异常。</p>
 <h3 id="functools-进阶"><a href="#functools-进阶" class="headerlink" title="functools 进阶"></a>functools 进阶</h3><p>装饰器在执行时，有一个隐蔽的小动作可能会被忽略：它把被装饰的函数的 <code>__name__</code> 属性给置换成回调函数的属性了。测试下上面代码里被装饰后的 <code>call</code> 的 <code>__name__</code> 属性，不再是 “call” 而是 “wrapper_2”。Python 2.5 版本新增的 <code>functools.wraps()</code> 解决了这个问题，它会把被装饰方法的名称，模块复制到装饰器内。而<code>functools.wraps()</code> 本身也是一个装饰器。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> functools</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">foobar</span><span class="params">(func)</span>:</span></div><div class="line"><span class="meta">    @functools.wraps(func)</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">        print(<span class="string">'foo'</span>)</div><div class="line">        <span class="keyword">return</span> func(args)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> wrapper</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@foobar</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">say_hello</span><span class="params">(*args, **kwargs)</span>:</span></div><div class="line">    print(<span class="string">'Hello %s'</span> % args[<span class="number">0</span>])</div><div class="line"></div><div class="line"></div><div class="line">print(say_hello.__name__)  <span class="comment"># Output: bar</span></div><div class="line"></div><div class="line">say_hello(<span class="string">'sudoz'</span>)  <span class="comment"># Output: Hello sudoz</span></div></pre></td></tr></table></figure>
 ]]></content>
@@ -1239,9 +1341,9 @@
       <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
     
     
-      <category term="Frontend" scheme="http://isudox.com/tags/Frontend/"/>
-    
       <category term="Java" scheme="http://isudox.com/tags/Java/"/>
+    
+      <category term="Frontend" scheme="http://isudox.com/tags/Frontend/"/>
     
       <category term="Spring" scheme="http://isudox.com/tags/Spring/"/>
     
@@ -1790,9 +1892,9 @@
       <category term="DevOps" scheme="http://isudox.com/categories/DevOps/"/>
     
     
-      <category term="Nginx" scheme="http://isudox.com/tags/Nginx/"/>
-    
       <category term="Python" scheme="http://isudox.com/tags/Python/"/>
+    
+      <category term="Nginx" scheme="http://isudox.com/tags/Nginx/"/>
     
       <category term="Django" scheme="http://isudox.com/tags/Django/"/>
     
@@ -1833,252 +1935,6 @@
       <category term="Java" scheme="http://isudox.com/tags/Java/"/>
     
       <category term="Spring" scheme="http://isudox.com/tags/Spring/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 探险第二弹</title>
-    <link href="http://isudox.com/2016/05/17/leetcode-tour-2/"/>
-    <id>http://isudox.com/2016/05/17/leetcode-tour-2/</id>
-    <published>2016-05-17T13:14:04.000Z</published>
-    <updated>2016-07-26T09:13:39.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>接着上篇 <a href="/2015/11/23/leetcode-1st-week/">LeetCode 探险第一弹</a>，本篇记录第 6 到 10 题。</p>
-<a id="more"></a>
-<h3 id="ZigZag-Conversion"><a href="#ZigZag-Conversion" class="headerlink" title="ZigZag Conversion"></a>ZigZag Conversion</h3><p>第 6 题 <a href="https://leetcode.com/problems/zigzag-conversion/" target="_blank" rel="external">ZigZag Conversion</a></p>
-<blockquote>
-<p>字符串 <code>&quot;PAYPALISHIRING&quot;</code> 是由如下排列的字符串通过 ZigZag 形式读取所得。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">P   A   H   N</div><div class="line">A P L S I I G</div><div class="line">Y   I   R</div></pre></td></tr></table></figure></p>
-<p>如果按行读取则为 <code>&quot;PAHNAPLSIIGYIR&quot;</code><br>请编写代码将给定行数的 zigzag 形式字符串转换为行形式的字符串：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">string convert(string text, int nRows);</div></pre></td></tr></table></figure></p>
-<p>比如 <code>convert(&quot;PAYPALISHIRING&quot;, 3)</code> 得到 <code>&quot;PAHNAPLSIIGYIR&quot;</code></p>
-</blockquote>
-<p>这道 ZigZag 题很好玩，让我想起小时候做过的奥数题。从 ZigZag 型字符串中找规律，可以看到第一行和最后一行很容易挑出来，因为其字符的步进是固定的，即 2*(nRows-1)。然而中间的行的规律就不那么规则了，其步进间距是跳跃的，如果继续按 2*(nRows-1) 步进查找的话，会漏掉步进间距小于该值的字符。但是仔细观察除掉首行和末行的 ZigZag 排列字符串，可以发现它仍然是 ZigZag 字符串，只不过行数再减小，与之相应的步进间距也在变化，但始终符合 2*(nRows-1) 的规律。找到这个特性后，在步进查找时把中间行组成的 ZigZag 字符串的步进间距也作查询，就不会漏掉了。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ZigZagConversion.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">convert</span><span class="params">(String s, <span class="keyword">int</span> numRows)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> len = s.length();</div><div class="line">        <span class="keyword">if</span> (len &lt;= <span class="number">2</span> || numRows == <span class="number">1</span>) &#123;</div><div class="line">            <span class="keyword">return</span> s;</div><div class="line">        &#125;</div><div class="line">        String result = <span class="string">""</span>;</div><div class="line">        <span class="keyword">int</span> step = <span class="number">2</span> * (numRows - <span class="number">1</span>);</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> currRow = <span class="number">0</span>; currRow &lt; numRows; currRow++) &#123;</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> currIndex = currRow; currIndex &lt; len; currIndex += <span class="number">2</span> * (numRows - <span class="number">1</span>)) &#123;</div><div class="line">                result += s.charAt(currIndex);</div><div class="line">                <span class="keyword">if</span> (currRow != <span class="number">0</span> &amp;&amp; currRow != numRows - <span class="number">1</span> &amp;&amp; currIndex + <span class="number">2</span> * (numRows - currRow - <span class="number">1</span>) &lt; len) &#123;</div><div class="line">                    result += s.charAt(currIndex + <span class="number">2</span> * (numRows - currRow - <span class="number">1</span>));</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>OJ 测试结果：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">1158 / 1158</td>
-<td style="text-align:center">42 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="Reverse-Integer"><a href="#Reverse-Integer" class="headerlink" title="Reverse Integer"></a>Reverse Integer</h3><p>第 7 题 <a href="https://leetcode.com/problems/reverse-integer/" target="_blank" rel="external">Reverse Integer</a></p>
-<blockquote>
-<p>翻转整型数的数位，例如：<br>x = 123，返回 321；x = -123，返回 -321；</p>
-</blockquote>
-<p>题目解法很简单，但是有几个注意点要留心：</p>
-<ul>
-<li>如果数字末尾为 0，则翻转过来后的数字应该去掉头部的 0。比如 100 -&gt; 1；</li>
-<li>如果数字是负数，则翻转后的结果也得是负数；</li>
-<li>入参肯定是在 int 范围内，但翻转后得到的数字就不一定了。所以要考虑到溢出的情况，比如 1999999999 -&gt; 9999999991；</li>
-</ul>
-<p>假定如果翻转后的结果超出范围，则返回 0。先单细胞的思考下，不考虑优化，简单粗暴的先把问题解开。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ReverseInteger.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">reverse</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">        <span class="keyword">boolean</span> isNeg = <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">long</span> result = <span class="number">0L</span>;</div><div class="line">        <span class="keyword">if</span> (x &lt; <span class="number">0</span>) &#123;</div><div class="line">            isNeg = <span class="keyword">true</span>;</div><div class="line">            x = <span class="number">0</span> - x;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">while</span> (x != <span class="number">0</span>) &#123;</div><div class="line">            result = result * <span class="number">10</span> + x % <span class="number">10</span>;</div><div class="line">            x /= <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (result &gt; Integer.MAX_VALUE) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (isNeg) &#123;</div><div class="line">            result = -result;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> Math.toIntExact(result);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>自测了几个用例后自信满满的提交了代码，LeetCode 抛出了运行时错误，出现错误的用例为 <code>-2147483648</code>，然后我就发现了自己愚蠢的错误：不止是在翻转结束时会发生溢出，在负数转正数的时候也会发生，当且仅当入参为 <code>-2147483648</code> 时！打个补丁吧，这方法真是太蠢了！</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ReverseInteger.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">reverse</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">        <span class="keyword">boolean</span> isNeg = <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">long</span> result = <span class="number">0L</span>;</div><div class="line">        <span class="keyword">if</span> (x == -<span class="number">2147483648</span>) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (x &lt; <span class="number">0</span>) &#123;</div><div class="line">            isNeg = <span class="keyword">true</span>;</div><div class="line">            x = -x;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">while</span> (x != <span class="number">0</span>) &#123;</div><div class="line">            result = result * <span class="number">10</span> + x % <span class="number">10</span>;</div><div class="line">            x /= <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (result &gt; Integer.MAX_VALUE) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (isNeg) &#123;</div><div class="line">            result = -result;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> Math.toIntExact(result);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>OJ 测试结果：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">1032 / 1032</td>
-<td style="text-align:center">2 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="String-to-Integer-atoi"><a href="#String-to-Integer-atoi" class="headerlink" title="String to Integer (atoi)"></a>String to Integer (atoi)</h3><p>第 8 题是经典到无以复加的<a href="https://leetcode.com/problems/string-to-integer-atoi/" target="_blank" rel="external">字符串数转整型数</a>！也就是实现 C 语言里的 atoi 函数。</p>
-<blockquote>
-<p>提示：仔细考虑所有可能的传参，题目没有指定输入类型。</p>
-</blockquote>
-<p>提示说的很明白了，把所有可能出现异常情况的传参都想到，我现在能想到的有如下情况：</p>
-<ul>
-<li>正常的 int 范围内的字符串数；</li>
-<li>超出 int 范围的大数字符串；</li>
-<li>字符串中包含非数字字符，包括空格符，字母、标点等；</li>
-<li>首字符是 <code>&quot;+&quot;</code>, <code>&quot;-&quot;</code>;</li>
-</ul>
-<p>仔细考虑可能出现的情况：<br>1) 正常的 int 型数值字符串，很好处理，依次取字符转换为 int 型并做数值相加；<br>2) 首字符为 <code>&quot;+&quot;</code>, <code>&quot;-&quot;</code> 时，截取去掉正负号的子字符串，再进行如上处理；<br>3) 若首字符为空格，则去掉该空格，比如 “   123” 转换结果应该为 123；<br>4) 若字符串中出现非数字，则舍弃该位以及后面的字符；<br>5) 弱字符串转换结果超出了整型数值范围，则取整型数的边界值，比如 “-999999999” 转换结果是 -2147483648</p>
-<p>再充分考虑到可能情况后，递归调用可以简化处理步骤，下面是我的解法，多说一句，LeetCode 上这道题的描述实在是太简略了，不少特殊情况的处理规则都是我提交代码试错的出来的，比如上面罗列出来的规则 3, 4 和 5。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">myAtoi</span><span class="params">(String str)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (str == <span class="keyword">null</span> || Objects.equals(str, <span class="string">""</span>))</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        <span class="keyword">if</span> (str.charAt(<span class="number">0</span>) == <span class="string">'-'</span>)</div><div class="line">            <span class="keyword">return</span> subAtoi(str.substring(<span class="number">1</span>), <span class="keyword">true</span>);</div><div class="line">        <span class="keyword">if</span> (str.charAt(<span class="number">0</span>) == <span class="string">'+'</span>)</div><div class="line">            <span class="keyword">return</span> subAtoi(str.substring(<span class="number">1</span>), <span class="keyword">false</span>);</div><div class="line">        <span class="keyword">if</span> (str.charAt(<span class="number">0</span>) == <span class="string">' '</span>)</div><div class="line">            <span class="keyword">return</span> myAtoi(str.substring(<span class="number">1</span>));</div><div class="line">        <span class="keyword">return</span> subAtoi(str, <span class="keyword">false</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">subAtoi</span><span class="params">(String str, <span class="keyword">boolean</span> neg)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (str == <span class="keyword">null</span> || str.equals(<span class="string">""</span>)) &#123;</div><div class="line">            System.out.println(<span class="string">"a"</span>);</div><div class="line">            <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.length(); i++) &#123;</div><div class="line">            <span class="keyword">if</span> (!Character.isDigit(str.charAt(i)))</div><div class="line">                <span class="keyword">return</span> res;</div><div class="line">            <span class="keyword">int</span> digit = Character.getNumericValue(str.charAt(i));</div><div class="line">            <span class="keyword">if</span> (neg) &#123;</div><div class="line">                <span class="keyword">if</span> (i == <span class="number">9</span>) &#123;</div><div class="line">                    <span class="keyword">int</span> diff = res - Integer.MIN_VALUE / <span class="number">10</span>;</div><div class="line">                    <span class="keyword">if</span> (diff &lt; <span class="number">0</span> || (diff == <span class="number">0</span> &amp;&amp; digit &gt; <span class="number">8</span>))</div><div class="line">                        <span class="keyword">return</span> Integer.MIN_VALUE;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">if</span> (i &gt;= <span class="number">10</span>)</div><div class="line">                    <span class="keyword">return</span> Integer.MIN_VALUE;</div><div class="line">                res = <span class="number">10</span> * res - digit;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">if</span> (i == <span class="number">9</span>) &#123;</div><div class="line">                    <span class="keyword">int</span> diff = res - Integer.MAX_VALUE / <span class="number">10</span>;</div><div class="line">                    <span class="keyword">if</span> (diff &gt; <span class="number">0</span> || (diff == <span class="number">0</span> &amp;&amp; digit &gt; <span class="number">7</span>))</div><div class="line">                        <span class="keyword">return</span> Integer.MAX_VALUE;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">if</span> (i &gt;= <span class="number">10</span>)</div><div class="line">                    <span class="keyword">return</span> Integer.MAX_VALUE;</div><div class="line">                res = digit + <span class="number">10</span> * res;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>OJ 测试结果：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">1047 / 1047</td>
-<td style="text-align:center">8 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="Palindrome-Number"><a href="#Palindrome-Number" class="headerlink" title="Palindrome Number"></a>Palindrome Number</h3><p>第 9 题 <a href="https://leetcode.com/problems/palindrome-number/" target="_blank" rel="external">Palindrome Number</a></p>
-<blockquote>
-<p>判断一个整型数是否为回文数，不要使用额外的存储空间。</p>
-</blockquote>
-<p>题目不难，无非就是判断该整数是否是轴对称，因为负整数有符号，所以不是回文数。因此主流程只需要对正整数的情况进行处理。<br>那么现在的问题就简化成，如何判断一个正整数是否轴对称。如果把正整数转换为字符串，通过栈 FILO 的特性翻转字符串肯定是可以判断其是否对称，但是这样做的话，申请了额外的存储空间。那如果直接翻转正整数呢，会存在两种特殊情况，一是超出整型数的范围，二是末位是 0 的数。但实际上，这两种情况都无需考虑，这里有一个关于假设的小伎俩：假定整数是回文数，那么翻转该整数得到的数就是相同的整数，就必然不存在超出整型数范围或末位为 0 的情况；反之，如果不是回文，那翻转过来的结果无论是溢出整型范围还是位数减少，都和原整数不相同，也就不是回文。所以这道题可以直接通过除十取余的方法来解决。Java 代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// PalindromeNumber.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPalindrome</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (x &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">int</span> y = <span class="number">0</span>;</div><div class="line">        <span class="keyword">int</span> bak = x;</div><div class="line">        <span class="keyword">while</span> (x &gt; <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">int</span> temp = x;</div><div class="line">            x = temp / <span class="number">10</span>;</div><div class="line">            y = y * <span class="number">10</span> + temp % <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> y == bak;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>OJ 测试结果：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">11506 / 11506</td>
-<td style="text-align:center">11 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<p>但这种耍小聪明的方法并不优雅，因为它没有直接处理上面提到的两种特殊情况。校验是否轴对称，其实本质上就是校验首位数和末位数是否相等，那么可以依次比较整数的首位和末位，如果校验通过，则将整数去掉首位和末位，再次比较。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// PalindromeNumber.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPalindrome</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (x &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">if</span> (x == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</div><div class="line">        <span class="keyword">int</span> temp = x;</div><div class="line">        <span class="keyword">while</span> (temp &gt; <span class="number">0</span>) &#123;</div><div class="line">            temp /= <span class="number">10</span>;</div><div class="line">            count++;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = count; i &gt; <span class="number">0</span>; i -= <span class="number">2</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (x / <span class="keyword">this</span>.pow(<span class="number">10</span>, i - <span class="number">1</span>) != x % <span class="number">10</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">            x = (x % <span class="keyword">this</span>.pow(<span class="number">10</span>, i - <span class="number">1</span>)) / <span class="number">10</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">pow</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> z = <span class="number">1</span>;</div><div class="line">        <span class="keyword">for</span> (; y &gt; <span class="number">0</span>; y--) z *= x;</div><div class="line">        <span class="keyword">return</span> z;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">11506 / 11506</td>
-<td style="text-align:center">14 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// PalindromeNumber.java v1.2</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isPalindrome</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line"><span class="keyword">if</span> (x &lt; <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">int</span> digits = <span class="number">0</span>;</div><div class="line">        <span class="keyword">int</span> temp = x;</div><div class="line">        <span class="keyword">while</span> (temp &gt; <span class="number">0</span>) &#123;</div><div class="line">            temp /= <span class="number">10</span>;</div><div class="line">            digits++;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> j = digits;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; j &gt; i; i++, j--) &#123;</div><div class="line">            <span class="keyword">if</span> (digit(x, digits, j) != digit(x, digits, i)) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">pow</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> z = <span class="number">1</span>;</div><div class="line">        <span class="keyword">for</span> (; y &gt; <span class="number">0</span>; y--) z *= x;</div><div class="line">        <span class="keyword">return</span> z;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">digit</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> x / pow(<span class="number">10</span>, j - <span class="number">1</span>) % <span class="number">10</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">11506 / 11506</td>
-<td style="text-align:center">15 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<p>哎，越来越慢，讲道理，还是把整数转换为字符串去处理是最简单的……</p>
-<p>所以，用 Python 来做的话，代码简直不能更简洁，因为 Python 直接支持翻转</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># palindrome_number.py</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">isPalindrome</span><span class="params">(self, x)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        :type x: int</div><div class="line">        :rtype: bool</div><div class="line">        """</div><div class="line">        <span class="keyword">return</span> x &gt;=<span class="number">0</span> <span class="keyword">and</span> str(x) == str(x)[::<span class="number">-1</span>]</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">11506 / 11506</td>
-<td style="text-align:center">272 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<p>Python 处理速度虽然比 Java 有数量级的差距，但是，编程的过程真是轻松太多了，真的就只用了一行代码解决战斗！在这里必须要喊一句口号——</p>
-<blockquote>
-<p><strong>人生苦短，我用 Python！</strong></p>
-</blockquote>
-<hr>
-<h3 id="Regular-Expression-Matching"><a href="#Regular-Expression-Matching" class="headerlink" title="Regular Expression Matching"></a>Regular Expression Matching</h3><p>第 10 题 <a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="external">Regular Expression Matching</a></p>
-<blockquote>
-<p>实现正则表达式，使得支持 <code>&#39;.&#39;</code> 和 <code>&#39;*&#39;</code> 符。其中，<code>&#39;.&#39;</code> 匹配任意单个字符，<code>&#39;*&#39;</code> 匹配该符号前之前的零个或任意多个字符。</p>
-</blockquote>
-<p>这道题难道不是很简单吗，就算是用笨重的 Java 写，一行代码也能解决，你看——<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// RegularExpressionMatching.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isMatch</span><span class="params">(String s, String p)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> java.util.regex.Pattern.compile(p).matcher(s).matches();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>开个玩笑，这种作弊行为当然不算数。LeetCode 上这道题的难度为 Hard 级，肯定是要求用自己的方式实现 <code>&#39;.&#39;</code> 和 <code>&#39;*&#39;</code> 符的正则匹配，因为这两个符号分别的组合可以形成多种匹配形式，所以逐条分析：</p>
-<ul>
-<li>正则式 p 不包含 <code>&#39;.&#39;</code> 和 <code>&#39;*&#39;</code> 符，字符串长度（判明空串）后再依次比较字符；</li>
-<li>正则式 p 仅包含 <code>&#39;.&#39;</code> 符，因为它只能表示一个任意字符，因此首先比较长度，长度一致再比较 <code>&#39;.&#39;</code> 符以外位置的字符是否相同；</li>
-<li>正则式 p 仅包含 <code>&#39;*&#39;</code> 符，记录 <code>&#39;*&#39;</code> 符前面的字符（<code>&#39;*&#39;</code> 符不会在首位），这里有一点需要注意，当 <code>&#39;*&#39;</code> 符在第二位时，可能会匹配 0 个它之前的字符，所以还得判断正则式第三位开始的子串正则式的匹配情况；当 <code>&#39;*&#39;</code> 符不在第二位时，就按部就班的从第一个字符开始依次比较；</li>
-<li>正则式 p 同时包含 <code>&#39;.&#39;</code> 和 <code>&#39;*&#39;</code> 符，复杂度最高，同时考虑情况 2 和 3；</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// RegularExpressionMatching.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isMatch</span><span class="params">(String s, String p)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> lenS = s.length(), lenP = p.length();</div><div class="line">        <span class="keyword">if</span> (lenP == <span class="number">0</span>) <span class="keyword">return</span> lenS == <span class="number">0</span>;</div><div class="line">        <span class="keyword">if</span> (lenP == <span class="number">1</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (p.charAt(<span class="number">0</span>) == <span class="string">'.'</span>) <span class="keyword">return</span> lenS == <span class="number">1</span>;</div><div class="line">            <span class="keyword">return</span> lenS == <span class="number">1</span> &amp;&amp; s.charAt(<span class="number">0</span>) == p.charAt(<span class="number">0</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (p.charAt(<span class="number">1</span>) == <span class="string">'*'</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (isMatch(s, p.substring(<span class="number">2</span>))) <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">            <span class="keyword">if</span>(s.length() &gt; <span class="number">0</span> &amp;&amp; (p.charAt(<span class="number">0</span>) == <span class="string">'.'</span> || s.charAt(<span class="number">0</span>) == p.charAt(<span class="number">0</span>))) &#123;</div><div class="line">                <span class="keyword">return</span> isMatch(s.substring(<span class="number">1</span>), p);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">if</span>(lenS &gt; <span class="number">0</span> &amp;&amp; (p.charAt(<span class="number">0</span>) == <span class="string">'.'</span> || s.charAt(<span class="number">0</span>) == p.charAt(<span class="number">0</span>))) &#123;</div><div class="line">                <span class="keyword">return</span> isMatch(s.substring(<span class="number">1</span>), p.substring(<span class="number">1</span>));</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>大致讲解下上面的思路：<br>1) 先判断空串的情况，当正则式 p 为空串时，当且仅当字符串 s 也是空串时才能匹配；<br>2) 当正则式 p 长度为 1 时，当 p 为 <code>&#39;.&#39;</code> 且 s 长度也为 1 时匹配，当 p 不为 <code>&#39;.&#39;</code> 时，只有当 s 长度为 1 且 s 和 p 相同时匹配；<br>3) 当正则式 p 长度大于 1 且第二个字符为 <code>&#39;*&#39;</code> 时，情况就比较多变了。由于 <code>&#39;*&#39;</code> 可以匹配任意多个字符，所以如果取p <code>&#39;*&#39;</code> 后的子串能匹配 s，则 p 也能匹配上 s；如果 s 的长度非 0 且 p 首字符是 <code>&#39;.&#39;</code> 或者 s 和 p 的首字符相同，则 s 去掉首位的子字符串如果能和 p 匹配，意味着 s 和 p 匹配。因此，这里要用到递归调用。<br>4) 当正则式 p 长度大于 1 且第二个字符非 <code>&#39;*&#39;</code> 时，只有当 s 长度大于 0 且 s 和 p 首字符相同或者 p 的首字符为 <code>&#39;.&#39;</code> 时才匹配；</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">445 / 445</td>
-<td style="text-align:center">116 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<p>自己的实现不如 Java 内置的正则匹配算法效率高，类 Pattern 的完成上述测试用例匹配的时间是 87 ms。</p>
-<p>下一篇：<a href="/2016/06/15/leetcode-tour-3/">LeetCode 探险第三弹</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;接着上篇 &lt;a href=&quot;/2015/11/23/leetcode-1st-week/&quot;&gt;LeetCode 探险第一弹&lt;/a&gt;，本篇记录第 6 到 10 题。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Algorithm" scheme="http://isudox.com/tags/Algorithm/"/>
-    
-      <category term="LeetCode" scheme="http://isudox.com/tags/LeetCode/"/>
     
   </entry>
   

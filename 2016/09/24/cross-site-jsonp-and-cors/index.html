@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Java,Memory," />
+  <meta name="keywords" content="JavaScript,Frontend," />
 
 
 
@@ -87,19 +87,16 @@
 
 
 
-<meta name="description" content="在之前写的一篇博客中(String, StringBuilder, StringBuffer 区别)，提到了 String 对象在内存中的存储问题，当时只是一笔带过，在本篇里，对这个问题做一点深入的探讨。">
+<meta name="description" content="Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 JSONP(JSON with Padding) 和 CORS(Cross-Origin Resource Sharing)。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java String 的内存模型">
-<meta property="og:url" content="http://isudox.com/2016/06/22/memory-model-of-string-in-java-language/index.html">
+<meta property="og:title" content="关于跨域：JSONP 和 CORS">
+<meta property="og:url" content="http://isudox.com/2016/09/24/cross-site-jsonp-and-cors/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="在之前写的一篇博客中(String, StringBuilder, StringBuffer 区别)，提到了 String 对象在内存中的存储问题，当时只是一笔带过，在本篇里，对这个问题做一点深入的探讨。">
-<meta property="og:image" content="https://o70e8d1kb.qnssl.com/stacknheap.png">
-<meta property="og:image" content="https://o70e8d1kb.qnssl.com/String-Constant-Pool.png">
-<meta property="og:updated_time" content="2016-07-26T09:13:39.000Z">
+<meta property="og:description" content="Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 JSONP(JSON with Padding) 和 CORS(Cross-Origin Resource Sharing)。">
+<meta property="og:updated_time" content="2016-09-24T15:55:52.080Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java String 的内存模型">
-<meta name="twitter:description" content="在之前写的一篇博客中(String, StringBuilder, StringBuffer 区别)，提到了 String 对象在内存中的存储问题，当时只是一笔带过，在本篇里，对这个问题做一点深入的探讨。">
-<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/stacknheap.png">
+<meta name="twitter:title" content="关于跨域：JSONP 和 CORS">
+<meta name="twitter:description" content="Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 JSONP(JSON with Padding) 和 CORS(Cross-Origin Resource Sharing)。">
 
 
 
@@ -128,7 +125,7 @@
 
 
 
-  <title> Java String 的内存模型 | I sudo X </title>
+  <title> 关于跨域：JSONP 和 CORS | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -318,7 +315,7 @@
             
             
               
-                Java String 的内存模型
+                关于跨域：JSONP 和 CORS
               
             
           </h1>
@@ -330,8 +327,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-22T13:00:53+08:00" content="2016-06-22">
-              2016-06-22
+            <time itemprop="dateCreated" datetime="2016-09-24T23:55:52+08:00" content="2016-09-24">
+              2016-09-24
             </time>
           </span>
 
@@ -360,8 +357,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/06/22/memory-model-of-string-in-java-language/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/06/22/memory-model-of-string-in-java-language/" itemprop="commentsCount"></span>
+                <a href="/2016/09/24/cross-site-jsonp-and-cors/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/24/cross-site-jsonp-and-cors/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -371,7 +368,7 @@
 
           
           
-             <span id="/2016/06/22/memory-model-of-string-in-java-language/" class="leancloud_visitors" data-flag-title="Java String 的内存模型">
+             <span id="/2016/09/24/cross-site-jsonp-and-cors/" class="leancloud_visitors" data-flag-title="关于跨域：JSONP 和 CORS">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -393,23 +390,75 @@
       
 
       
-        <p>在之前写的一篇博客中(<a href="/2016/02/17/difference-between-string-stringbuilder-stringbuffer/">String, StringBuilder, StringBuffer 区别</a>)，提到了 String 对象在内存中的存储问题，当时只是一笔带过，在本篇里，对这个问题做一点深入的探讨。</p>
+        <p>Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 <a href="https://en.wikipedia.org/wiki/JSONP" target="_blank" rel="external">JSONP</a>(JSON with Padding) 和 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="external">CORS</a>(Cross-Origin Resource Sharing)。</p>
 <a id="more"></a>
-<h4 id="字符串比较"><a href="#字符串比较" class="headerlink" title="字符串比较"></a>字符串比较</h4><p>字符串几乎是 Java 语言里使用频率最高的类型了，尽管程序的各个角落都在使用字符串，但未必对它有完整、正确的认识。创建字符串变量通常有下面两种途径：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">String s1 = <span class="string">"hello,world!"</span>; <span class="comment">// 通过字面值</span></div><div class="line">String s2 = <span class="keyword">new</span> String(<span class="string">"hello,world!"</span>); <span class="comment">// 通过 new 关键字</span></div></pre></td></tr></table></figure></p>
-<p>字符串 s1 和 s2 看起来似乎是一样的，那真的一样吗，上代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Debug</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        String s1 = <span class="string">"hello,world!"</span>;</div><div class="line">        String s2 = <span class="keyword">new</span> String(<span class="string">"hello,world!"</span>);</div><div class="line">        System.out.println(s1 == s2); <span class="comment">// false</span></div><div class="line">        System.out.println(Objects.equals(s1, s2)); <span class="comment">// true</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>值都是 “hello,world!” 的字符串，然而两种比较的方式所得到的结果却不相同。字符串 s1 是通过字面值创建，字符串 s2 是通过关键字 new 创建，在分析这两种创建字符串方式的区别之前，先比较下 <code>==</code> 操作符和 <code>equals()</code> 方法在进行字符串比较时的差异。</p>
-<p><code>==</code> 操作符比较的是两个对象的引用是否指向同一内存地址，如果内存地址相同，则返回 true；<code>equals()</code> 比较的只是两个字符串对象的引用指向的内存地址所存储的字面值，而忽略内存地址是否相同。这样再去看上面的代码，从输出结果逆推，s1 和 s2 的引用的值都是 “hello,world!”，因此调用 <code>equals()</code> 比较返回 true 不难理解，那 s1 和 s2 内存地址不同，又该怎么解释，下面就进入正题，探讨 Java 里 String 在内存中的存储模型。</p>
-<h4 id="内存模型"><a href="#内存模型" class="headerlink" title="内存模型"></a>内存模型</h4><p>内存有栈和堆这两个概念：</p>
+<p>首先理清一个经常会被混淆的概念，AJAX(Asynchronous JavaScript and XML) 和跨域请求是两个不同的概念，AJAX 是异步请求和解析处理 XML 文档的方式，它在服务器端没有提供支持（CORS 是一种解决方案）的前提下，也是无法跨域的。</p>
+<h3 id="跨域请求"><a href="#跨域请求" class="headerlink" title="跨域请求"></a>跨域请求</h3><p>跨域请求，顾名思义，就是从 A 地址向非同源的 B 地址发起了请求。参考 MDN 上对同源的定义:</p>
+<blockquote>
+<p>如果两个页面拥有相同的协议（protocol），端口（如果指定）和主机，那么这两个页面就属于同一个源（origin）。</p>
+</blockquote>
+<p>MDN 给了同源检测的示例，如果是相对 <a href="http://store.company.com/dir/page.html，那么" target="_blank" rel="external">http://store.company.com/dir/page.html，那么</a></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">URL</th>
+<th style="text-align:center">结果</th>
+<th style="text-align:center">原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><a href="http://store.company.com/dir2/other.html" target="_blank" rel="external">http://store.company.com/dir2/other.html</a></td>
+<td style="text-align:center">成功</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="http://store.company.com/dir/inner/another.html" target="_blank" rel="external">http://store.company.com/dir/inner/another.html</a></td>
+<td style="text-align:center">成功</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="https://store.company.com/secure.html" target="_blank" rel="external">https://store.company.com/secure.html</a></td>
+<td style="text-align:center">失败</td>
+<td style="text-align:center">协议不同</td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="http://store.company.com:81/dir/etc.html" target="_blank" rel="external">http://store.company.com:81/dir/etc.html</a></td>
+<td style="text-align:center">失败</td>
+<td style="text-align:center">端口不同</td>
+</tr>
+<tr>
+<td style="text-align:center"><a href="http://news.company.com/dir/other.html" target="_blank" rel="external">http://news.company.com/dir/other.html</a></td>
+<td style="text-align:center">失败</td>
+<td style="text-align:center">主机名不同</td>
+</tr>
+</tbody>
+</table>
+<p>严格的说，浏览器并不是拒绝所有的跨域请求，否则如果想从百度搜索结果页跳转到其他页面就是个伪命题，实际上拒绝的是跨域的读操作。浏览器的同源限制策略是这样执行的：</p>
 <ul>
-<li>栈 <a href="https://en.wikipedia.org/wiki/Stack-based_memory_allocation" target="_blank" rel="external">statck</a>: 栈区是内存中遵循先进后出（LIFO）原则的一块存储区域。在现代计算机系统中，每个线程在内存中都保有自己的一段栈空间。栈区存储基本类型，int, short, long, byte, float, double, boolean, char（注意，不包括 String，String 不是基本类型），以及对象的引用，比如 <code>int a = 1;</code> a 和 1 都存储在栈区，<code>Date date = new Date();</code> date 存储在栈区， new Date() 的对象则存储在堆区。线程中方法的调用也记录在栈区中，使得方法的结果能返回到正确的位置。栈区内存由系统自动分配并释放；</li>
-<li>堆 <a href="https://en.wikipedia.org/wiki/Memory_management#HEAP" target="_blank" rel="external">heap</a>: 堆区存放由用户通过 new 操作创建的对象。系统不会自动释放堆区内存，比如 C++ 中执行 <code>new</code> 分配内存，执行 <code>delete</code> 释放被占用的内存。Java 因为 GC 机制，由 JVM 承担了手动释放内存的操作。</li>
+<li>通常浏览器允许进行跨域写操作（Cross-origin writes），如链接，重定向；</li>
+<li>通常浏览器允许跨域资源嵌入（Cross-origin embedding），如 <code>img</code>、<code>script</code> 标签；</li>
+<li>通常浏览器不允许跨域读操作（Cross-origin reads）。</li>
 </ul>
-<p>栈因为严格遵循 LIFO， 其存取速度明显快于堆区。但栈区的数据和生命周期是在编译时就确定的，而堆区则可以在运行时动态分配内存空间。</p>
-<p>下图展示了堆区和栈区存储内容的差异，图片来自 vikashazrati.files.wordpress.com<br><img src="https://o70e8d1kb.qnssl.com/stacknheap.png" alt=""></p>
-<p>用接近系统底层的 C++ 语言程序简单演示下堆区和栈区分配内存的示例<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// example.cpp</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">foo</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">char</span> *pBuffer; <span class="comment">// 没有分配空间，除了指针本身，它被分配在了栈区</span></div><div class="line">    <span class="keyword">bool</span> b = <span class="literal">true</span>; <span class="comment">// 分配在栈区</span></div><div class="line">    <span class="keyword">if</span>(b)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">// 在栈区分配 500 byte 空间</span></div><div class="line">        <span class="keyword">char</span> buffer[<span class="number">500</span>];</div><div class="line">        <span class="comment">// 在堆区分配 500 byte 空间</span></div><div class="line">        pBuffer = <span class="keyword">new</span> <span class="keyword">char</span>[<span class="number">500</span>];</div><div class="line">    &#125; <span class="comment">// buffer 的内存被释放, pBuffer 的还存在</span></div><div class="line">&#125; <span class="comment">// 如果没有执行 delete[] pBuffer，就会发生内存泄漏;</span></div></pre></td></tr></table></figure></p>
-<p>通过字面值和 <code>new</code> 关键字创建字符串对象引用 s1、s2 和字符串 “hello,world!” 分别都存储在内存什么地方，一个个分析。<br>字符串 “hello,world!” 在堆区申请空间存储，因为字符串是常量具有不可变性，它被存储在堆区的一块名叫 “String Constant Pool” 的字符串常量池中，字符串常量池中的字符串只存在一份，即如果常量池中已存在 “hello,world!”，那么 s1 不会在常量池中申请新的空间，而是直接把引用指向已存在的字符串内存地址。另外，s1 是字符串 “hello,world!” 的引用，存储在栈区。前面讲到，由关键字 <code>new</code> 创建的对象被分配在了堆区，但和字面值赋值不同的是，<code>new</code> 出来的对象不只是在分配在堆区的字符串常量池，在 <code>new</code> 一个新的 String 对象时，首先会在堆区创建该 String 对象，并让栈区的对象引用指向它，然后在常量池中查询是否已存在相同内容的字符串，如果有，就将堆区的空间和常量池中的空间通过 <code>String.inter()</code> 关联起来，如果没有，则在常量池中申请空间存放该字符串对象，再做关联。参考下面的代码和实例图。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">String s1 = <span class="string">"abc"</span>; </div><div class="line">String s2 = <span class="string">"xyz"</span>;</div><div class="line">String s3 = <span class="string">"123"</span>;</div><div class="line">String s4 = <span class="string">"A"</span>;</div><div class="line"></div><div class="line">String s5 = <span class="keyword">new</span> String(<span class="string">"abc"</span>);</div><div class="line"><span class="keyword">char</span>[] c = &#123;<span class="string">'J'</span>, <span class="string">'A'</span>, <span class="string">'V'</span>, <span class="string">'A'</span>&#125;;</div><div class="line">String s6 = <span class="keyword">new</span> String(c);</div><div class="line">String s7 = <span class="keyword">new</span> String(<span class="keyword">new</span> StringBuffer());</div></pre></td></tr></table></figure></p>
-<p><img src="https://o70e8d1kb.qnssl.com/String-Constant-Pool.png" alt=""></p>
-<h4 id="测试结果"><a href="#测试结果" class="headerlink" title="测试结果"></a>测试结果</h4><p>梳理了那么多理论，还是要用实践来印证。测试下面的代码，看看结果如何——<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestString</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="comment">// 由字面值创建字符串</span></div><div class="line">        String s1 = <span class="string">"hello,world!"</span>;</div><div class="line">        String s2 = <span class="string">"hello,world!"</span>;</div><div class="line">        System.out.println(s1 == s2);</div><div class="line">        System.out.println(Objects.equals(s1, s2));</div><div class="line">        <span class="comment">// 由 new 关键字创建字符串</span></div><div class="line">        String s3 = <span class="keyword">new</span> String(<span class="string">"hello,world!"</span>);</div><div class="line">        String s4 = <span class="keyword">new</span> String(<span class="string">"hello,world!"</span>);</div><div class="line">        System.out.println(s3 == s4);</div><div class="line">        System.out.println(Objects.equals(s3, s4));</div><div class="line"></div><div class="line">        System.out.println(s1 == s3);</div><div class="line">        System.out.println(s1 == s3.intern());</div><div class="line"></div><div class="line">        String s5 = <span class="string">"hello,"</span>;</div><div class="line">        String s6 = <span class="string">"world!"</span>;</div><div class="line">        System.out.println(s1 == s5 + s6);</div><div class="line">        System.out.println(s1 == <span class="string">"hello,"</span> + <span class="string">"world!"</span>);</div><div class="line">        System.out.println(s3 == s5 + s6);</div><div class="line">        System.out.println(s1 == (s5 + s6).intern());</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">// output: true true false true false true false true false true</span></div></pre></td></tr></table></figure></p>
+<p>对于跨域资源的嵌入，实际开发中用的非常频繁，从外部引入 js、css、img 这些静态文件，都是被浏览器接受的。</p>
+<p>下面对浏览器的同源策略做个测试，探探究竟。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// cross-origin request</span></div><div class="line"><span class="keyword">var</span> url = <span class="string">"http://search.jd.com/Search?keyword=python&amp;enc=utf-8&amp;wq=python"</span>;</div><div class="line"><span class="keyword">var</span> request = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">request.open(<span class="string">"GET"</span>, url);</div><div class="line">request.send(<span class="literal">null</span>);</div></pre></td></tr></table></figure>
+<p>浏览器控制台会出现错误信息（信息中的 Origin 为 null 是因为我是用浏览器直接打开 html，而不是通过 http server 访问 html）：</p>
+<blockquote>
+<p>XMLHttpRequest cannot load <a href="http://search.jd.com/Search?keyword=python&amp;enc=utf-8&amp;wq=python" target="_blank" rel="external">http://search.jd.com/Search?keyword=python&amp;enc=utf-8&amp;wq=python</a>. No ‘Access-Control-Allow-Origin’ header is present on the requested resource. Origin ‘null’ is therefore not allowed access.</p>
+</blockquote>
+<p>该请求来源的 Origin 不在可允许范围内，这种情况就是跨域请求被拒。下面是一个简单的本地 http server：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// local http server writtern by Node.js</span></div><div class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</div><div class="line"><span class="keyword">var</span> port = <span class="number">8080</span>; </div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleRequest</span>(<span class="params">request, response</span>)</span>&#123;</div><div class="line">    response.end(<span class="string">'Hello'</span>);</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'request url: '</span> + request.url);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> server = http.createServer(handleRequest);</div><div class="line">server.listen(PORT, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"Server listening on: http://localhost:%s"</span>, port);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p><code>node simple-server.js</code> 运行，把请求的 URL 改成 http：//localhost:8080，可以看到命令行终端输出日志，这就表明，请求实际上是从浏览器发出了，服务器也接收到了请求，但是浏览器在读取跨域返回的数据时被拒绝了。这就印证了 MDN 文档上说明的，浏览器不允许跨域读操作。</p>
+<h3 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h3><p>JSONP 并不在 HTML 的标准里，而是开发者为了实现跨域请求而创造的一个 trick。在 HTML 中，可以通过 “src”、”img” 标签引入非同源的静态资源，这就给 JSONP 的实现提供了可能。</p>
+<p>JSONP 的实现很简单，需要客户端和服务端配合。客户端在 HTML 中动态生成 <code>script</code> 标签，在 “src” 中引入请求的 URL + 回调函数，这样请求服务器返回的数据会交由回调函数处理，这样就实现了跨域读请求；服务端在接收到客户端请求后，首先取得客户端要回调的函数名，再生成 JavaScript 代码段返回给浏览器，浏览器在获取到返回结果后直接调用回调函数完成任务。</p>
+<p>手写一段简陋的 JS 代码演示下 JSONP 的整个流程：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleCallback</span>(<span class="params">result</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(result.code);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> jsonp = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</div><div class="line">jsonp.type = <span class="string">'text/javascript'</span>;</div><div class="line">jsonp.src = <span class="string">'http://localhost:8080?callback=handleCallback'</span>;</div><div class="line"><span class="built_in">document</span>.document.getElementById(<span class="string">'demo'</span>).appendChild(jsonp);</div></pre></td></tr></table></figure>
+<h3 id="CORS"><a href="#CORS" class="headerlink" title="CORS"></a>CORS</h3><p>参考：</p>
+<ul>
+<li>Mozilla Developer Network</li>
+<li>阮一峰的网络日志</li>
+</ul>
 
       
     </div>
@@ -450,9 +499,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Java/" rel="tag"># Java</a>
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
           
-            <a href="/tags/Memory/" rel="tag"># Memory</a>
+            <a href="/tags/Frontend/" rel="tag"># Frontend</a>
           
         </div>
       
@@ -461,8 +510,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/06/15/leetcode-tour-3/" rel="next" title="LeetCode 探险第三弹">
-                <i class="fa fa-chevron-left"></i> LeetCode 探险第三弹
+              <a href="/2016/09/13/java-collections-overview/" rel="next" title="Java 常用容器小结">
+                <i class="fa fa-chevron-left"></i> Java 常用容器小结
               </a>
             
           </div>
@@ -470,10 +519,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/07/04/leetcode-tour-4/" rel="prev" title="LeetCode 探险第四弹">
-                LeetCode 探险第四弹 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -677,7 +722,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#字符串比较"><span class="nav-number">1.</span> <span class="nav-text">字符串比较</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#内存模型"><span class="nav-number">2.</span> <span class="nav-text">内存模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#测试结果"><span class="nav-number">3.</span> <span class="nav-text">测试结果</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#跨域请求"><span class="nav-number">1.</span> <span class="nav-text">跨域请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JSONP"><span class="nav-number">2.</span> <span class="nav-text">JSONP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CORS"><span class="nav-number">3.</span> <span class="nav-text">CORS</span></a></li></ol></div>
             
 
           </div>
@@ -1005,8 +1050,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
-      var disqus_identifier = '2016/06/22/memory-model-of-string-in-java-language/';
-      var disqus_title = 'Java String 的内存模型';
+      var disqus_identifier = '2016/09/24/cross-site-jsonp-and-cors/';
+      var disqus_title = '关于跨域：JSONP 和 CORS';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
