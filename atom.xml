@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://isudox.com/"/>
-  <updated>2016-09-24T15:55:52.080Z</updated>
+  <updated>2016-09-24T18:28:24.388Z</updated>
   <id>http://isudox.com/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>关于跨域：JSONP 和 CORS</title>
+    <title>跨域请求之 JSONP 和 CORS</title>
     <link href="http://isudox.com/2016/09/24/cross-site-jsonp-and-cors/"/>
     <id>http://isudox.com/2016/09/24/cross-site-jsonp-and-cors/</id>
     <published>2016-09-24T15:55:52.000Z</published>
-    <updated>2016-09-24T15:55:52.080Z</updated>
+    <updated>2016-09-24T18:28:24.388Z</updated>
     
     <content type="html"><![CDATA[<p>Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 <a href="https://en.wikipedia.org/wiki/JSONP" target="_blank" rel="external">JSONP</a>(JSON with Padding) 和 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="external">CORS</a>(Cross-Origin Resource Sharing)。</p>
 <a id="more"></a>
@@ -81,12 +81,53 @@
 </blockquote>
 <p>该请求来源的 Origin 不在可允许范围内，这种情况就是跨域请求被拒。下面是一个简单的本地 http server：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// local http server writtern by Node.js</span></div><div class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</div><div class="line"><span class="keyword">var</span> port = <span class="number">8080</span>; </div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleRequest</span>(<span class="params">request, response</span>)</span>&#123;</div><div class="line">    response.end(<span class="string">'Hello'</span>);</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'request url: '</span> + request.url);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> server = http.createServer(handleRequest);</div><div class="line">server.listen(PORT, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">"Server listening on: http://localhost:%s"</span>, port);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
-<p><code>node simple-server.js</code> 运行，把请求的 URL 改成 http：//localhost:8080，可以看到命令行终端输出日志，这就表明，请求实际上是从浏览器发出了，服务器也接收到了请求，但是浏览器在读取跨域返回的数据时被拒绝了。这就印证了 MDN 文档上说明的，浏览器不允许跨域读操作。</p>
+<p><code>node simple-server.js</code> 运行，把请求的 URL 改成 <a href="http://localhost:8080，可以看到命令行终端输出日志，这就表明，请求实际上是从浏览器发出了，服务器也接收到了请求，但是浏览器在读取跨域返回的数据时被拒绝了。这就印证了" target="_blank" rel="external">http://localhost:8080，可以看到命令行终端输出日志，这就表明，请求实际上是从浏览器发出了，服务器也接收到了请求，但是浏览器在读取跨域返回的数据时被拒绝了。这就印证了</a> MDN 文档上说明的，浏览器不允许跨域读操作。</p>
 <h3 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h3><p>JSONP 并不在 HTML 的标准里，而是开发者为了实现跨域请求而创造的一个 trick。在 HTML 中，可以通过 “src”、”img” 标签引入非同源的静态资源，这就给 JSONP 的实现提供了可能。</p>
 <p>JSONP 的实现很简单，需要客户端和服务端配合。客户端在 HTML 中动态生成 <code>script</code> 标签，在 “src” 中引入请求的 URL + 回调函数，这样请求服务器返回的数据会交由回调函数处理，这样就实现了跨域读请求；服务端在接收到客户端请求后，首先取得客户端要回调的函数名，再生成 JavaScript 代码段返回给浏览器，浏览器在获取到返回结果后直接调用回调函数完成任务。</p>
 <p>手写一段简陋的 JS 代码演示下 JSONP 的整个流程：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleCallback</span>(<span class="params">result</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(result.code);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> jsonp = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</div><div class="line">jsonp.type = <span class="string">'text/javascript'</span>;</div><div class="line">jsonp.src = <span class="string">'http://localhost:8080?callback=handleCallback'</span>;</div><div class="line"><span class="built_in">document</span>.document.getElementById(<span class="string">'demo'</span>).appendChild(jsonp);</div></pre></td></tr></table></figure>
-<h3 id="CORS"><a href="#CORS" class="headerlink" title="CORS"></a>CORS</h3><p>参考：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">handleCallback</span>(<span class="params">result</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(result.message);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> jsonp = <span class="built_in">document</span>.createElement(<span class="string">'script'</span>);</div><div class="line"><span class="keyword">var</span> ele = <span class="built_in">document</span>.getElementById(<span class="string">'demo'</span>);</div><div class="line">jsonp.type = <span class="string">'text/javascript'</span>;</div><div class="line">jsonp.src = <span class="string">'http://localhost:8080?callback=handleCallback'</span>;</div><div class="line">ele.appendChild(jsonp);</div><div class="line">ele.removeChild(jsonp);</div></pre></td></tr></table></figure>
+<p>JSONP 只支持 GET 请求，而且需要服务器端来配合，如果服务器端返回一段恶意代码，客户端也会毅然决然的执行……JSONP 是一个伟大的创造，但还不够好。</p>
+<h3 id="CORS"><a href="#CORS" class="headerlink" title="CORS"></a>CORS</h3><p>CORS 是W3C 推荐的一种新的官方方案，能是服务器支持 XMLHttpRequest 的跨域请求。CORS 实现起来非常方便，只需要增加一些 HTTP 头，让服务器能声明允许的访问来源。</p>
+<p>浏览器对 CORS 的使用场景做了区分，有简单请求和非简单请求之分。MDN 对简单请求的定义条件是：</p>
+<ul>
+<li>只使用 GET, HEAD 或者 POST 请求方法。如果使用 POST 向服务器端传送数据，则数据类型(Content-Type)只能是 application/x-www-form-urlencoded, multipart/form-data 或 text/plain中的一种；</li>
+<li>不会使用自定义请求头；</li>
+</ul>
+<p>浏览器（支持 CORS）对简单的跨域请求，会在请求头里加上 <code>Origin</code> 字段，向服务器说明请求源信息，包括协议、域名和端口，由服务器判断请求源是否在允许的域中。</p>
+<p>编写一个简单请求，跨域获取信息：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> url = <span class="string">"https://ipinfo.io/54.169.237.109/json?token=iplocation.net"</span>;</div><div class="line">$.ajax(&#123;</div><div class="line">    url: url</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>查看请求头信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">Accept:*/*</div><div class="line">Accept-Encoding:gzip, deflate, sdch, br</div><div class="line">Accept-Language:zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4</div><div class="line">Cache-Control:max-age=0</div><div class="line">Connection:keep-alive</div><div class="line">DNT:1</div><div class="line">Host:ipinfo.io</div><div class="line">Origin:https://isudox.com</div><div class="line">Referer:https://isudox.com/test.html</div><div class="line">User-Agent:Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/52.0.2743.116 Chrome/52.0.2743.116 Safari/537.36</div></pre></td></tr></table></figure>
+<p>浏览器自动给请求头添加了 <code>Origin</code> 字段，请求的服务端如果允许来自该 <code>Origin</code> 来源的请求，就会在响应头中添加 <code>Access-Control-Allow-Origin</code> 字段，参考上面请求的响应头：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Access-Control-Allow-Origin:*</div><div class="line">Connection:keep-alive</div><div class="line">Content-Encoding:gzip</div><div class="line">Content-Length:231</div><div class="line">Content-Type:application/json; charset=utf-8</div><div class="line">Server:nginx/1.8.1</div><div class="line">X-Content-Type-Options:nosniff</div></pre></td></tr></table></figure>
+<p><code>Access-Control-Allow-Origin</code> 字段表明服务器接受来自任何请求源的跨域请求。因此，通过客户端的 <code>Origin</code> 和 服务端的 <code>Access-Control-Allow-Origin</code> 实现了跨域的 XMLHttpRequest 请求。</p>
+<p>MDN 对非简单请求的定义条件为</p>
+<ul>
+<li>以 GET、HEAD、或者 POST 以外的方法发起，或者是请求数据为 application/x-www-form-urlencoded, multipart/form-data 或者 text/plain 以外的数据类型；</li>
+<li>使用自定义请求头（比如添加诸如 X-PINGOTHER）</li>
+</ul>
+<p>非简单请求会先向服务器发送一个 <code>OPTIONS</code> 的“预请求”（preflight），来确认该跨域请求是否能被服务端允许，如果允许，则继续发送费简单请求，否则，XMLHttpRequest 的 onerror 回调函数会捕获到错误信息。</p>
+<p>编写一个非简单请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> url = <span class="string">'http://aruner.net/resources/access-control-with-post-preflight/'</span>;</div><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">xhr.open(<span class="string">'POST'</span>, url, <span class="literal">true</span>);</div><div class="line">xhr.setRequestHeader(<span class="string">'X-PINGOTHER'</span>, <span class="string">'pingpong'</span>);</div><div class="line">xhr.setRequestHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/xml'</span>);</div><div class="line">xhr.send();</div></pre></td></tr></table></figure>
+<p>预请求的请求头：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">OPTIONS /resources/post-here/ HTTP/1.1</div><div class="line">Host: bar.com</div><div class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</div><div class="line">Connection: keep-alive</div><div class="line">Origin: http://foo.example</div><div class="line">Access-Control-Request-Method: POST</div><div class="line">Access-Control-Request-Headers: X-PINGOTHER</div></pre></td></tr></table></figure>
+<p>预请求由 <code>OPTIONS</code> 请求发出，<code>Access-Control-Request-Method</code> 字段标识跨域请求的方式，<code>Access-Control-Request-Headers</code> 字段标识跨域请求的自定义请求头名称，再加上 <code>Origin</code> 字段，服务端就能判断还没正式发过来的跨域请求是否是安全可允许的。</p>
+<p>如果服务端允许该跨域请求，其响应头类似如下形式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">Date: Mon, 01 Dec 2008 01:15:39 GMT</div><div class="line">Server: Apache/2.0.61 (Unix)</div><div class="line">Access-Control-Allow-Origin: http://foo.com</div><div class="line">Access-Control-Allow-Methods: POST, GET, OPTIONS</div><div class="line">Access-Control-Allow-Headers: X-PINGOTHER</div><div class="line">Access-Control-Max-Age: 1728000</div><div class="line">Vary: Accept-Encoding, Origin</div><div class="line">Content-Encoding: gzip</div><div class="line">Content-Length: 0</div><div class="line">Keep-Alive: timeout=2, max=100</div><div class="line">Connection: Keep-Alive</div><div class="line">Content-Type: text/plain</div></pre></td></tr></table></figure>
+<p>其中，响应头中的 <code>Access-Control-*</code> 字段的具体含义如下：</p>
+<ul>
+<li><code>Access-Control-Allow-Origin</code> 标识可接受的跨域请求源；</li>
+<li><code>Access-Control-Allow-Methods</code> 标识可接受的跨域请求方法；</li>
+<li><code>Access-Control-Allow-Headers</code> 标识可接受的跨域请求自定义头；</li>
+<li><code>Access-Control-Max-Age</code> 标识本次预请求的有效时间（秒），期间内无需再发送预请求；</li>
+</ul>
+<p>如果拒绝该跨域请求，错误信息也会被 <code>onerror</code> 回调捕获。</p>
+<p>XMLHttpRequest 请求可以发送凭证请求（HTTP Cookies 和验证信息），通常不会跨域发送凭证信息，但也有一些情况需要打通不同的登录态，可以把 XMLHttpRequest 的 <code>withCredentials</code> 设置为 <code>true</code>，这样浏览器就能跨域发送凭证信息。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">xhr.withCredentials = <span class="literal">true</span>;</div></pre></td></tr></table></figure>
+<p>服务端返回的响应头中的 <code>Access-Control-Allow-Credentials</code> 字段存在且为 <code>true</code> 时，浏览器才会将响应结果传递给客户端程序。另外，<code>Access-Control-Allow-Origin</code> 必须指定请求源的域名，否则响应失败。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">HTTP/1.1 200 OK</div><div class="line">Access-Control-Allow-Origin: http://foo.com</div><div class="line">Access-Control-Allow-Credentials: true</div><div class="line">Set-Cookie: pageAccess=3; expires=Wed, 31-Dec-2008 01:34:53 GMT</div><div class="line">Keep-Alive: timeout=2, max=100</div><div class="line">Connection: Keep-Alive</div><div class="line">Content-Type: text/plain</div></pre></td></tr></table></figure>
+<hr>
+<p>参考：</p>
 <ul>
 <li>Mozilla Developer Network</li>
 <li>阮一峰的网络日志</li>
