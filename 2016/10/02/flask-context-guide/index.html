@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="isudox, sudoz" />
+  <meta name="keywords" content="Python,Flask," />
 
 
 
@@ -87,12 +87,16 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="I sudo X">
-<meta property="og:url" content="http://isudox.com/archives/2015/11/index.html">
+<meta name="description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 current_app、request 都是 Context。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解 Flask Context">
+<meta property="og:url" content="http://isudox.com/2016/10/02/flask-context-guide/index.html">
 <meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 current_app、request 都是 Context。">
+<meta property="og:updated_time" content="2016-10-02T15:50:27.935Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="I sudo X">
+<meta name="twitter:title" content="深入理解 Flask Context">
+<meta name="twitter:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 current_app、request 都是 Context。">
 
 
 
@@ -121,7 +125,7 @@
 
 
 
-  <title> 归档 | I sudo X </title>
+  <title> 深入理解 Flask Context | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -161,7 +165,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
       <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
     <div class="headband"></div>
 
@@ -291,70 +295,245 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-<!--
-    <span class="archive-page-counter">
-      
-      
-       
-      
-      OK! 目前共计 38 篇日志。 继续努力。
-    </span>
--->
-    <span class="archive-page-counter">
-      <h2 style:"font-family: Helvetica;">Timeline</h2>
-    </span>
-
+  <div id="posts" class="posts-expand">
     
 
-      
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入理解 Flask Context
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-02T20:11:40+08:00" content="2016-10-02">
+              2016-10-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/02/flask-context-guide/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/10/02/flask-context-guide/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="深入理解 Flask Context">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
+        <p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context。</p>
+<a id="more"></a>
+<p>Flask 提供了 4 个 Context：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Context</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">flask.current_app</td>
+<td style="text-align:center">Application Context</td>
+<td style="text-align:center">当前 app 的实例对象</td>
+</tr>
+<tr>
+<td style="text-align:center">flask.g</td>
+<td style="text-align:center">Application Context</td>
+<td style="text-align:center">处理请求时用作临时存储的对象</td>
+</tr>
+<tr>
+<td style="text-align:center">flask.request</td>
+<td style="text-align:center">Request Context</td>
+<td style="text-align:center">封装了 HTTP 请求中的内容</td>
+</tr>
+<tr>
+<td style="text-align:center">flask.session</td>
+<td style="text-align:center">Request Context</td>
+<td style="text-align:center">存储了用户回话</td>
+</tr>
+</tbody>
+</table>
+<p>这些 Context 定义在 Flask 源码（0.11）的 <code>global.py</code> 中，截取部分源码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> werkzeug.local <span class="keyword">import</span> LocalStack, LocalProxy</div><div class="line"></div><div class="line">_request_ctx_stack = LocalStack()</div><div class="line">_app_ctx_stack = LocalStack()</div></pre></td></tr></table></figure>
+<p><code>_request_ctx_stack</code> 和 <code>_app_ctx_stack</code> 分别是 Flask 存储 request context 和 application context 的全局栈，由 Werkzeug 库的 <code>LocalStack</code> 和 <code>LocalProxy</code> 创建实例。</p>
+<hr>
+<p>参考资料：</p>
+<ul>
+<li>Flask Docs</li>
+<li>Python Web 开发实战（董伟明）</li>
+</ul>
+
+      
+    </div>
+
+<!--
+    <div>
+      
         
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2015">2015</h2>
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
         </div>
       
       
+    </div>
+  </div>
+
 
       
+    </div>
+-->
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
 
-      <h1 class="post-title">
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/Flask/" rel="tag"># Flask</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/29/dive-into-flask-source-code/" rel="next" title="Flask 源码浅读">
+                <i class="fa fa-chevron-left"></i> Flask 源码浅读
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
         
-            <a class="post-title-link" href="/2015/11/23/leetcode-1st-week/" itemprop="url">
-              
-                <span itemprop="name">LeetCode 探险第一弹</span>
-              
-            </a>
-        
-      </h1>
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2015-11-23T20:50:27+08:00"
-              content="2015-11-23" >
-          11-23
-        </time>
-      </div>
 
-    </header>
+      
+    </div>
+
   </article>
 
 
 
-    
-
-  </section>
-
-  
-
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -362,6 +541,17 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -381,8 +571,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
@@ -488,6 +687,20 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+
+          </div>
+        </section>
       
 
     </div>
@@ -791,7 +1004,9 @@
   
 
   
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
 
 
   
@@ -809,8 +1024,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
-      var disqus_identifier = 'archives/2015/11/index.html';
-      var disqus_title = '';
+      var disqus_identifier = '2016/10/02/flask-context-guide/';
+      var disqus_title = '深入理解 Flask Context';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
@@ -822,6 +1037,8 @@
 
       run_disqus_script('count.js');
 
+      
+        run_disqus_script('embed.js');
       
 
     </script>

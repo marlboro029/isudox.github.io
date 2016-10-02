@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="isudox, sudoz" />
+  <meta name="keywords" content="Python,Flask," />
 
 
 
@@ -87,12 +87,16 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="I sudo X">
-<meta property="og:url" content="http://isudox.com/archives/2015/11/index.html">
+<meta name="description" content="Flask 是非常 Pythonic 的开源项目，非常值得深入学习，最新的稳定版是 0.11，由许多模块组成，相比 0.3 版的单文件工程，源码的阅读难度上也有所增加（0.3 还没有引入 Blueprint），本文就从 Flask 0.3 版的源码展开。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask 源码浅读">
+<meta property="og:url" content="http://isudox.com/2016/09/29/dive-into-flask-source-code/index.html">
 <meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="Flask 是非常 Pythonic 的开源项目，非常值得深入学习，最新的稳定版是 0.11，由许多模块组成，相比 0.3 版的单文件工程，源码的阅读难度上也有所增加（0.3 还没有引入 Blueprint），本文就从 Flask 0.3 版的源码展开。">
+<meta property="og:updated_time" content="2016-09-30T14:23:21.929Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="I sudo X">
+<meta name="twitter:title" content="Flask 源码浅读">
+<meta name="twitter:description" content="Flask 是非常 Pythonic 的开源项目，非常值得深入学习，最新的稳定版是 0.11，由许多模块组成，相比 0.3 版的单文件工程，源码的阅读难度上也有所增加（0.3 还没有引入 Blueprint），本文就从 Flask 0.3 版的源码展开。">
 
 
 
@@ -121,7 +125,7 @@
 
 
 
-  <title> 归档 | I sudo X </title>
+  <title> Flask 源码浅读 | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -161,7 +165,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
       <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
     <div class="headband"></div>
 
@@ -291,70 +295,216 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-<!--
-    <span class="archive-page-counter">
-      
-      
-       
-      
-      OK! 目前共计 38 篇日志。 继续努力。
-    </span>
--->
-    <span class="archive-page-counter">
-      <h2 style:"font-family: Helvetica;">Timeline</h2>
-    </span>
-
+  <div id="posts" class="posts-expand">
     
 
-      
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Flask 源码浅读
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-29T15:40:04+08:00" content="2016-09-29">
+              2016-09-29
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/29/dive-into-flask-source-code/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/29/dive-into-flask-source-code/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/29/dive-into-flask-source-code/" class="leancloud_visitors" data-flag-title="Flask 源码浅读">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
+        <p>Flask 是非常 Pythonic 的开源项目，非常值得深入学习，最新的稳定版是 0.11，由许多模块组成，相比 0.3 版的单文件工程，源码的阅读难度上也有所增加（0.3 还没有引入 Blueprint），本文就从 Flask 0.3 版的源码展开。</p>
+<a id="more"></a>
+<p>###</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line"><span class="meta">@app.route('/')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_world</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">'Hello, World!'</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run()</div></pre></td></tr></table></figure>
+<hr>
+<p>参考：</p>
+<ul>
+<li><a href="http://flask.pocoo.org/docs/0.11/" target="_blank" rel="external">Flask Docs</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface" target="_blank" rel="external">Web Server Gateway Interface</a></li>
+</ul>
+
+      
+    </div>
+
+<!--
+    <div>
+      
         
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2015">2015</h2>
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
         </div>
       
       
+    </div>
+  </div>
+
 
       
+    </div>
+-->
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
 
-      <h1 class="post-title">
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/Flask/" rel="tag"># Flask</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/24/cross-site-jsonp-and-cors/" rel="next" title="跨域请求之 JSONP 和 CORS">
+                <i class="fa fa-chevron-left"></i> 跨域请求之 JSONP 和 CORS
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/02/flask-context-guide/" rel="prev" title="深入理解 Flask Context">
+                深入理解 Flask Context <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
         
-            <a class="post-title-link" href="/2015/11/23/leetcode-1st-week/" itemprop="url">
-              
-                <span itemprop="name">LeetCode 探险第一弹</span>
-              
-            </a>
-        
-      </h1>
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2015-11-23T20:50:27+08:00"
-              content="2015-11-23" >
-          11-23
-        </time>
-      </div>
 
-    </header>
+      
+    </div>
+
   </article>
 
 
 
-    
-
-  </section>
-
-  
-
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -362,6 +512,17 @@
 
 
           
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
 
         </div>
         
@@ -381,8 +542,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
@@ -488,6 +658,20 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+
+          </div>
+        </section>
       
 
     </div>
@@ -791,7 +975,9 @@
   
 
   
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
 
 
   
@@ -809,8 +995,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
-      var disqus_identifier = 'archives/2015/11/index.html';
-      var disqus_title = '';
+      var disqus_identifier = '2016/09/29/dive-into-flask-source-code/';
+      var disqus_title = 'Flask 源码浅读';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
@@ -822,6 +1008,8 @@
 
       run_disqus_script('count.js');
 
+      
+        run_disqus_script('embed.js');
       
 
     </script>
