@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Python,Flask," />
+  <meta name="keywords" content="Flask,Python," />
 
 
 
@@ -87,16 +87,16 @@
 
 
 
-<meta name="description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 current_app、request 都是 Context。">
+<meta name="description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 current_app、request 都是 Context，可以在不同方法中调用，并且实现通信及交">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深入理解 Flask Context">
+<meta property="og:title" content="读源码认识 Flask Context">
 <meta property="og:url" content="http://isudox.com/2016/10/02/flask-context-guide/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 current_app、request 都是 Context。">
-<meta property="og:updated_time" content="2016-10-02T15:50:27.935Z">
+<meta property="og:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 current_app、request 都是 Context，可以在不同方法中调用，并且实现通信及交">
+<meta property="og:updated_time" content="2016-10-03T13:01:13.999Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="深入理解 Flask Context">
-<meta name="twitter:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 current_app、request 都是 Context。">
+<meta name="twitter:title" content="读源码认识 Flask Context">
+<meta name="twitter:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 current_app、request 都是 Context，可以在不同方法中调用，并且实现通信及交">
 
 
 
@@ -125,7 +125,7 @@
 
 
 
-  <title> 深入理解 Flask Context | I sudo X </title>
+  <title> 读源码认识 Flask Context | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -315,7 +315,7 @@
             
             
               
-                深入理解 Flask Context
+                读源码认识 Flask Context
               
             
           </h1>
@@ -368,7 +368,7 @@
 
           
           
-             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="深入理解 Flask Context">
+             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="读源码认识 Flask Context">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -390,9 +390,9 @@
       
 
       
-        <p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context。</p>
+        <p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context，可以在不同方法中调用，并且实现通信及交互。</p>
 <a id="more"></a>
-<p>Flask 提供了 4 个 Context：</p>
+<h3 id="Context-的实现"><a href="#Context-的实现" class="headerlink" title="Context 的实现"></a>Context 的实现</h3><p>Flask 提供了 4 个 Context：</p>
 <table>
 <thead>
 <tr>
@@ -424,9 +424,56 @@
 </tr>
 </tbody>
 </table>
-<p>这些 Context 定义在 Flask 源码（0.11）的 <code>global.py</code> 中，截取部分源码如下：</p>
+<p>这些 Context 分为 Application Context 和 Request Context 两类：</p>
+<ul>
+<li>Application Context: 是提供给由 <code>app = Flask(__name__)</code> 所创建的 Flask app 的 Context；</li>
+<li>Request Context: 是客户端发起 HTTP 请求时，Flask 对象为 HTTP 请求对象所创建的 Context；</li>
+</ul>
+<p>这些 Context 定义在 Flask 源码（v0.11）的 <code>global.py</code> 中，截取部分源码如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> werkzeug.local <span class="keyword">import</span> LocalStack, LocalProxy</div><div class="line"></div><div class="line">_request_ctx_stack = LocalStack()</div><div class="line">_app_ctx_stack = LocalStack()</div></pre></td></tr></table></figure>
-<p><code>_request_ctx_stack</code> 和 <code>_app_ctx_stack</code> 分别是 Flask 存储 request context 和 application context 的全局栈，由 Werkzeug 库的 <code>LocalStack</code> 和 <code>LocalProxy</code> 创建实例。</p>
+<p><code>_request_ctx_stack</code> 和 <code>_app_ctx_stack</code> 分别是 Flask 保存 request context 和 application context 的全局栈，由 Werkzeug 库的 <code>LocalStack</code> 和 <code>LocalProxy</code> 创建实例。</p>
+<h4 id="LocalStack-和-LocalProxy"><a href="#LocalStack-和-LocalProxy" class="headerlink" title="LocalStack 和 LocalProxy"></a>LocalStack 和 LocalProxy</h4><p>在认识 LocalStack 之前，先来了解 <code>local.py</code> 中的 Local 类，Local 类内由 <code>__slots__</code> 确定了唯二两个属性：<code>__storage__</code> 和 <code>__ident_func__</code>，其中，<code>__ident_func__</code> 属性是获取当前线程标识符的方法调用，<code>__storage__</code> 属性是字典，其 key 就是当前线程的标识符。参看源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># werkzeug.local.Local</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Local</span><span class="params">(object)</span>:</span></div><div class="line">    __slots__ = (<span class="string">'__storage__'</span>, <span class="string">'__ident_func__'</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        object.__setattr__(self, <span class="string">'__storage__'</span>, &#123;&#125;)</div><div class="line">        object.__setattr__(self, <span class="string">'__ident_func__'</span>, get_ident)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="keyword">return</span> self.__storage__[self.__ident_func__()][name]</div><div class="line">        <span class="keyword">except</span> KeyError:</div><div class="line">            <span class="keyword">raise</span> AttributeError(name)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__setattr__</span><span class="params">(self, name, value)</span>:</span></div><div class="line">        ident = self.__ident_func__()</div><div class="line">        storage = self.__storage__</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            storage[ident][name] = value</div><div class="line">        <span class="keyword">except</span> KeyError:</div><div class="line">            storage[ident] = &#123;name: value&#125;</div></pre></td></tr></table></figure>
+<p>LocalStack 类内置的 <code>_local</code> 是 Local 类的实例，总体作用和 Local 类似。不同之处在于，LocalStack “自作主张”的在 <code>__storage__</code> 的 value 内维护一个名为 “stack” 的栈， 可以通过 <code>push</code>、<code>pop</code> 和 <code>top</code> 将对象入栈、出栈和取得栈顶元素。源码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># werkzeug.local.LocalStack</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LocalStack</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">        self._local = Local()</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">push</span><span class="params">(self, obj)</span>:</span></div><div class="line">        rv = getattr(self._local, <span class="string">'stack'</span>, <span class="keyword">None</span>)</div><div class="line">        <span class="keyword">if</span> rv <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            self._local.stack = rv = []</div><div class="line">        rv.append(obj)</div><div class="line">        <span class="keyword">return</span> rv</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pop</span><span class="params">(self)</span>:</span></div><div class="line">        stack = getattr(self._local, <span class="string">'stack'</span>, <span class="keyword">None</span>)</div><div class="line">        <span class="keyword">if</span> stack <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            <span class="keyword">return</span> <span class="keyword">None</span></div><div class="line">        <span class="keyword">elif</span> len(stack) == <span class="number">1</span>:</div><div class="line">            release_local(self._local)</div><div class="line">            <span class="keyword">return</span> stack[<span class="number">-1</span>]</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            <span class="keyword">return</span> stack.pop()</div><div class="line"></div><div class="line"><span class="meta">    @property</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">top</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="keyword">return</span> self._local.stack[<span class="number">-1</span>]</div><div class="line">        <span class="keyword">except</span> (AttributeError, IndexError):</div><div class="line">            <span class="keyword">return</span> <span class="keyword">None</span></div></pre></td></tr></table></figure>
+<p>LocalStack 的使用非常简单，简单的示例如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; ls = LocalStack()</div><div class="line">&gt;&gt;&gt; ls.push(42)</div><div class="line">&gt;&gt;&gt; ls.top</div><div class="line">42</div><div class="line">&gt;&gt;&gt; ls.push(23)</div><div class="line">&gt;&gt;&gt; ls.top</div><div class="line">23</div><div class="line">&gt;&gt;&gt; ls.pop()</div><div class="line">23</div><div class="line">&gt;&gt;&gt; ls.top</div><div class="line">42</div></pre></td></tr></table></figure>
+<p>LocalProxy 类是 werkzeug local 的代理，LocalProxy 类的构造函数必须传入一个可调用的参数（方法），通过调用得到的结果就是 LocalStack 实例化的栈的栈顶元素。<code>__local</code> 就是被代理的对象，对 LocalProxy 对象的操作都会作用于实际被代理的对象上。参考源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># werkzeug.local.LocalProxy</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LocalProxy</span><span class="params">(object)</span>:</span></div><div class="line">    __slots__ = (<span class="string">'__local'</span>, <span class="string">'__dict__'</span>, <span class="string">'__name__'</span>)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, local, name=None)</span>:</span></div><div class="line">        object.__setattr__(self, <span class="string">'_LocalProxy__local'</span>, local)</div><div class="line">        object.__setattr__(self, <span class="string">'__name__'</span>, name)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_get_current_object</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> hasattr(self.__local, <span class="string">'__release_local__'</span>):</div><div class="line">            <span class="keyword">return</span> self.__local()</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="keyword">return</span> getattr(self.__local, self.__name__)</div><div class="line">        <span class="keyword">except</span> AttributeError:</div><div class="line">            <span class="keyword">raise</span> RuntimeError(<span class="string">'no object bound to %s'</span> % self.__name__)</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__getattr__</span><span class="params">(self, name)</span>:</span></div><div class="line">        <span class="keyword">if</span> name == <span class="string">'__members__'</span>:</div><div class="line">            <span class="keyword">return</span> dir(self._get_current_object())</div><div class="line">        <span class="keyword">return</span> getattr(self._get_current_object(), name)</div></pre></td></tr></table></figure>
+<h4 id="request-和-session"><a href="#request-和-session" class="headerlink" title="request 和 session"></a>request 和 session</h4><p>Flask 对 <code>request</code> 的定义如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_lookup_req_object</span><span class="params">(name)</span>:</span></div><div class="line">    top = _request_ctx_stack.top</div><div class="line">    <span class="keyword">if</span> top <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        <span class="keyword">raise</span> RuntimeError(_request_ctx_err_msg)</div><div class="line">    <span class="keyword">return</span> getattr(top, name)</div><div class="line">request = LocalProxy(partial(_lookup_req_object, <span class="string">'request'</span>))</div></pre></td></tr></table></figure>
+<p>由偏函数 <code>partial()</code> 将属性名 “request” 传入 <code>_lookup_req_object()</code> 得到可调用的方法，该方法的执行结果就是 LocalProxy 代理的 <code>_request_ctx_stack</code> 栈顶元素 <code>RequestContext</code> 实例。</p>
+<p><code>RequestContext</code> 包含了 Request 的所有相关信息，它在请求开始时被创建并被推入到 <code>_request_ctx_stack</code> 栈中，在请求结束后出栈。<br>参考源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.ctx.RequestContext</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestContext</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, app, environ, request=None)</span>:</span></div><div class="line">        self.app = app</div><div class="line">        <span class="keyword">if</span> request <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            request = app.request_class(environ)</div><div class="line">        self.request = request</div><div class="line">        self.session = <span class="keyword">None</span></div><div class="line">        self._implicit_app_ctx_stack = []</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">push</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="string">"""部分省略"""</span></div><div class="line">        app_ctx = _app_ctx_stack.top</div><div class="line">        <span class="keyword">if</span> app_ctx <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">or</span> app_ctx.app != self.app:</div><div class="line">            app_ctx = self.app.app_context()</div><div class="line">            app_ctx.push()</div><div class="line">            self._implicit_app_ctx_stack.append(app_ctx)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            self._implicit_app_ctx_stack.append(<span class="keyword">None</span>)</div><div class="line">        </div><div class="line">        _request_ctx_stack.push(self)</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pop</span><span class="params">(self, exc=_sentinel)</span>:</span></div><div class="line">        <span class="string">"""省略"""</span></div></pre></td></tr></table></figure>
+<p>这里需要留意 <code>push()</code> 方法，它首先会找出 <code>_app_ctx_stack</code> 栈顶元素 <code>AppContext</code>，如果栈顶元素为空，或者当前 app 不是栈顶 Context 所属的 app（AppContext 对应所属的 Flask app，这种情况存在于 Flask 应用包含多个 app 时），则将当前的 <code>AppContext</code> 入栈到当前 app 的 <code>_app_ctx_stack</code> 中，之后再将 <code>RequestContext</code> 入栈到 <code>_request_ctx_stack</code> 栈中。这就完成了 Request Context 和 Application Context 的关联。</p>
+<p>RequestContext 中 <code>session</code> 初始化为 <code>None</code>，当 RequestContext 入栈时，<code>session</code> 被赋值：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.ctx.RequestContext</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestContext</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="string">"""部分省略"""</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, app, environ, request=None)</span>:</span></div><div class="line">        self.session = <span class="keyword">None</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">push</span><span class="params">(self)</span>:</span></div><div class="line">        self.session = self.app.open_session(self.request)</div><div class="line">        <span class="keyword">if</span> self.session <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">            self.session = self.app.make_null_session()</div></pre></td></tr></table></figure>
+<p><code>app.open_session()</code> 方法会通过 Flask app 从 <code>SecureCookieSessionInterface</code> 实例中打开或创建 session。</p>
+<p>正因为 <code>request</code> 和 <code>session</code> 都是 RequestContext 的属性，所以是由如下方式从 Flask app 中获取：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.globals</span></div><div class="line">request = LocalProxy(partial(_lookup_req_object, <span class="string">'request'</span>))</div><div class="line">session = LocalProxy(partial(_lookup_req_object, <span class="string">'session'</span>))</div></pre></td></tr></table></figure>
+<p>偏函数 <code>partial</code> 把属性名传入可调用的 <code>_lookup_req_object</code> 方法中，分别得到当前 Flask app 的 RequestContext 实例中的 <code>request</code> 和 <code>session</code>。</p>
+<h4 id="current-app-和-g"><a href="#current-app-和-g" class="headerlink" title="current_app 和 g"></a>current_app 和 g</h4><p>继续看 <code>flask.local</code> 中对 <code>current_app</code> 的定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_find_app</span><span class="params">()</span>:</span></div><div class="line">    top = _app_ctx_stack.top</div><div class="line">    <span class="keyword">if</span> top <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        <span class="keyword">raise</span> RuntimeError(_app_ctx_err_msg)</div><div class="line">    <span class="keyword">return</span> top.app</div><div class="line"></div><div class="line">current_app = LocalProxy(_find_app)</div></pre></td></tr></table></figure>
+<p><code>current_app</code> 是通过 LocalProxy 获取代理的 application request 的栈顶对象。先对它做一个试验：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, current_app</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line">print(current_app.name)</div></pre></td></tr></table></figure>
+<p>运行后会抛出 “RuntimeError: Working outside of application context.” 的异常，这是因为在创建 Flask App 时，<code>AppContext</code> 还没有压入到 <code>_app_ctx_stack</code> 栈内，栈顶没有元素，所以需要先做入栈操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">app_ctx = app.app_context()  <span class="comment"># 手动创建 AppContext</span></div><div class="line">app_ctx.push()  <span class="comment"># 把 AppContext 入栈到 _app_ctx_stack</span></div><div class="line">print(current_app.name)</div><div class="line">app_ctx.pop()  <span class="comment"># 从 _app_ctx_stack 出栈</span></div></pre></td></tr></table></figure>
+<p>但实际开发中，我们并没有人为的去对 <code>_app_ctx_stack</code> 进行入栈出栈操作，那么栈内元素是什么时候入栈的呢？其实之前在分析 RequestContext 时已经涉及到了，因为当请求到达 Flask 应用时，会自动将 Request Context 推入到 <code>_request_ctx_stack</code>，因为 Request Context 必须是和 Application Context 关联，即必须在后者的生命周期内，因此如果 <code>_app_ctx_stack</code> 为空，会隐式的把 AppContext 入栈。</p>
+<p>再看 <code>g</code> 的定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.globals</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">_lookup_app_object</span><span class="params">(name)</span>:</span></div><div class="line">    top = _app_ctx_stack.top</div><div class="line">    <span class="keyword">if</span> top <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">        <span class="keyword">raise</span> RuntimeError(_app_ctx_err_msg)</div><div class="line">    <span class="keyword">return</span> getattr(top, name)</div><div class="line">g = LocalProxy(partial(_lookup_app_object, <span class="string">'g'</span>))</div></pre></td></tr></table></figure>
+<p><code>g</code> 其实就是通过 LocalProxy 代理得到 <code>_app_ctx_stack</code> 栈顶元素 AppContext 内属性为 “g” 的对象。从 <code>flask.ctx</code> 中回溯对属性 “g” 的定义：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.ctx.AppContext</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AppContext</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, app)</span>:</span></div><div class="line">        self.g = app.app_ctx_globals_class()</div></pre></td></tr></table></figure>
+<p>属性 “g” 是由 Flask app 调用 <code>app_ctx_globals_class()</code> 赋值，继续回溯源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.app.Flask</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Flask</span><span class="params">(_PackageBoundObject)</span>:</span></div><div class="line">    app_ctx_globals_class = _AppCtxGlobals</div></pre></td></tr></table></figure>
+<p><code>_AppCtxGlobals</code> 是字典集合，保存了 <code>flask.g</code> 的信息。</p>
+<p>这里需要插播一条贴士，在 Flask 0.9 里，<code>flask.g</code> 是通过 <code>request_globals_class</code> 获取，而从 0.10 开始，改为 <code>app_ctx_globals_class</code>，因为 <code>flask.g</code> 变成了 Application Context。</p>
+<p>另外，在 RequestContext 中，还拥有 <code>flask.g</code> 的 getter 和 setter：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># flask.ctx.RequestContext</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestContext</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_get_g</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="keyword">return</span> _app_ctx_stack.top.g</div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_set_g</span><span class="params">(self, value)</span>:</span></div><div class="line">        _app_ctx_stack.top.g = value</div><div class="line">    g = property(_get_g, _set_g)</div><div class="line">    <span class="keyword">del</span> _get_g, _set_g</div></pre></td></tr></table></figure>
+<p>也就是说，在每次客户端请求时，生成的 RequestContext 都可以对 <code>flask.g</code> 进行读写，因此在每次处理请求时，<code>flask.g</code> 可以作为临时存储的对象。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>啰啰嗦嗦抄了一大堆源码，写了一大堆废话，归结下来其实就几条结论——</p>
+<p>AppContext 是基于 <code>app = Flask(__name__)</code> 创建的 Flask app 层面上的 Context。对于同一个 Flask app 下的成员，都拥有同一个 AppContext。</p>
+<p>RequestContext 的生命周期在 AppContext 生命周期内，每个请求都会生成一个 RequestContext，不同的 RequestContext 对应一个 AppContext。</p>
+<p>RequestContext 内维护一个 <code>request</code> 属性，即 <code>flask.request</code> 对象。也就是说，每次 HTTP 请求都会新创建一个 <code>flask.request</code>，本质上就是 <code>flask.app.Request</code> 对象。</p>
 <hr>
 <p>参考资料：</p>
 <ul>
@@ -473,9 +520,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Python/" rel="tag"># Python</a>
-          
             <a href="/tags/Flask/" rel="tag"># Flask</a>
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
           
         </div>
       
@@ -484,8 +531,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/09/29/dive-into-flask-source-code/" rel="next" title="Flask 源码浅读">
-                <i class="fa fa-chevron-left"></i> Flask 源码浅读
+              <a href="/2016/09/24/cross-site-jsonp-and-cors/" rel="next" title="跨域请求之 JSONP 和 CORS">
+                <i class="fa fa-chevron-left"></i> 跨域请求之 JSONP 和 CORS
               </a>
             
           </div>
@@ -592,7 +639,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-count">37</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -696,7 +743,7 @@
             
 
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Context-的实现"><span class="nav-number">1.</span> <span class="nav-text">Context 的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#LocalStack-和-LocalProxy"><span class="nav-number">1.1.</span> <span class="nav-text">LocalStack 和 LocalProxy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#request-和-session"><span class="nav-number">1.2.</span> <span class="nav-text">request 和 session</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#current-app-和-g"><span class="nav-number">1.3.</span> <span class="nav-text">current_app 和 g</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">1.4.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -1025,7 +1072,7 @@
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
       var disqus_identifier = '2016/10/02/flask-context-guide/';
-      var disqus_title = '深入理解 Flask Context';
+      var disqus_title = '读源码认识 Flask Context';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');

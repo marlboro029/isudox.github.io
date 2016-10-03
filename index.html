@@ -315,7 +315,7 @@
               
                 
                 <a class="post-title-link" href="/2016/10/02/flask-context-guide/" itemprop="url">
-                  深入理解 Flask Context
+                  读源码认识 Flask Context
                 </a>
               
             
@@ -369,7 +369,7 @@
 
           
           
-             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="深入理解 Flask Context">
+             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="读源码认识 Flask Context">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -392,148 +392,9 @@
 
       
         
-          <p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境、状态、变量。Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context。</p>
+          <p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context，可以在不同方法中调用，并且实现通信及交互。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2016/10/02/flask-context-guide/" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-<!--
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
--->
-
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-
-    </footer>
-
-    <div>
-      
-    </div>
-
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/09/29/dive-into-flask-source-code/" itemprop="url">
-                  Flask 源码浅读
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-09-29T15:40:04+08:00" content="2016-09-29">
-              2016-09-29
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Coding/" itemprop="url" rel="index">
-                    <span itemprop="name">Coding</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/09/29/dive-into-flask-source-code/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/09/29/dive-into-flask-source-code/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/09/29/dive-into-flask-source-code/" class="leancloud_visitors" data-flag-title="Flask 源码浅读">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>Flask 是非常 Pythonic 的开源项目，非常值得深入学习，最新的稳定版是 0.11，由许多模块组成，相比 0.3 版的单文件工程，源码的阅读难度上也有所增加（0.3 还没有引入 Blueprint），本文就从 Flask 0.3 版的源码展开。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/09/29/dive-into-flask-source-code/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1684,6 +1545,145 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/07/28/secure-subdomain-with-ssl-certificate/" itemprop="url">
+                  为子域名安装 SSL 证书
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-28T17:07:42+08:00" content="2016-07-28">
+              2016-07-28
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/DevOps/" itemprop="url" rel="index">
+                    <span itemprop="name">DevOps</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/28/secure-subdomain-with-ssl-certificate/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/07/28/secure-subdomain-with-ssl-certificate/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/07/28/secure-subdomain-with-ssl-certificate/" class="leancloud_visitors" data-flag-title="为子域名安装 SSL 证书">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>今天把小站所在 Linode 服务器升级到了 4G 2CPU 的配置，可以搞搞大新闻了，打算用 Docker 部署下 GitLab 作为和前辈小伙伴们写作开发的代码库，把 GitLab 绑定到小站的子域名下。另外还得再加上 SSL 证书。<br>Docker 部署 GitLab 的事后面再写，先记下给子域名安装证书的事。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/28/secure-subdomain-with-ssl-certificate/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+<!--
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+
+    </footer>
+
+    <div>
+      
+    </div>
+
+  </article>
+
+
+    
   </section>
 
   
@@ -1729,7 +1729,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-count">37</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
