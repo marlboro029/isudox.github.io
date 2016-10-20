@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="JUnit 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇小文里描述的情况，JUnit 就可能捉襟见肘了。而 Mockito 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JUnit + Mockito 单元测试的风云际会">
+<meta property="og:url" content="http://isudox.com/2016/10/10/unit-test-with-junit-mockito/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="JUnit 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇小文里描述的情况，JUnit 就可能捉襟见肘了。而 Mockito 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/mockito.webp">
+<meta property="og:updated_time" content="2016-10-17T14:12:44.691Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JUnit + Mockito 单元测试的风云际会">
+<meta name="twitter:description" content="JUnit 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇小文里描述的情况，JUnit 就可能捉襟见肘了。而 Mockito 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。">
+<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/mockito.webp">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> JUnit + Mockito 单元测试的风云际会 | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                JUnit + Mockito 单元测试的风云际会
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-10T22:12:35+08:00" content="2016-10-10">
+              2016-10-10
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/10/unit-test-with-junit-mockito/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/10/10/unit-test-with-junit-mockito/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/10/10/unit-test-with-junit-mockito/" class="leancloud_visitors" data-flag-title="JUnit + Mockito 单元测试的风云际会">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://junit.org/junit4/" target="_blank" rel="external">JUnit</a> 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇<a href="/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop">小文</a>里描述的情况，JUnit 就可能捉襟见肘了。而 <a href="http://mockito.org/" target="_blank" rel="external">Mockito</a> 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。</p>
+<a id="more"></a>
+<p>上面其实已经点到 JUnit 和 Mockito 的不同了，虽然二者都是运用在单元测试中，但 JUnit 侧重对接口的运行状态和结果的测试，而 Mockito 侧重 “Mock” 数据，即对对象的模拟，尤其是不容易构造的复杂对象。</p>
+<p>JUnit + Mockito 组合的优势是显而易见的，对于服务化的系统，有了这个组合，就能实现各上下游模块并行开发，同时进行单元测试验证可用性，减少串行联调的时间。</p>
+<h3 id="JUnit"><a href="#JUnit" class="headerlink" title="JUnit"></a>JUnit</h3><blockquote>
+<p>PS: 虽然 <a href="http://junit.org/junit5/" target="_blank" rel="external">JUnit5</a> 已经发布，但目前使用最多的还是 JUnit4，所以本文仍然基于 JUnit4。</p>
+</blockquote>
+<p>利用 Maven 初始化一个简单的 Java 应用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn archetype:generate -DgroupId=com.isudox -DartifactId=test-demo -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false</div></pre></td></tr></table></figure>
+<p>Maven 会自动创建好类文件和测试类，路径如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">test-demo</div><div class="line">├── pom.xml       ---- pom 依赖配置文件</div><div class="line">└── src           ---- 源码路径</div><div class="line">    ├── main      ---- 类文件</div><div class="line">    │   └── java</div><div class="line">    │       └── com</div><div class="line">    │           └── isudox</div><div class="line">    │               └── App.java</div><div class="line">    └── test      ---- 测试类</div><div class="line">        └── java</div><div class="line">            └── com</div><div class="line">                └── isudox</div><div class="line">                    └── AppTest.java</div></pre></td></tr></table></figure>
+<p>在 pom.xml 中引入 JUnit4，</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">    <span class="comment">&lt;!-- junit4 --&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>引入 JUnit 依赖后，就能在测试类中，通过 JUnit 提供的注解和静态方法，对接口进行测试了。先编写一个简单的待测试类 Calculator.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// App.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Calculator</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">evaluate</span><span class="params">(String expression)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">if</span> (expression == <span class="keyword">null</span>)</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">"null value"</span>);</div><div class="line">        <span class="keyword">int</span> sum = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (String summand: expression.split(<span class="string">"\\+"</span>))</div><div class="line">            sum += Integer.valueOf(summand);</div><div class="line">        <span class="keyword">return</span> sum;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后在 src/test/ 路径下创建同样的包，将测试类命名为 CalculatorTest.java，如果是用 IntelliJ IDEA，可以直接在待测试类下通过快捷键 Ctrl+Shift+T 生成对应的测试类——</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// CalculatorTest.java</span></div><div class="line"><span class="keyword">import</span> org.junit.Test;</div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.junit.Assert.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CalculatorTest</span> </span>&#123;</div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">evaluate</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Calculator calculator = <span class="keyword">new</span> Calculator();</div><div class="line">        <span class="keyword">int</span> sum = calculator.evaluate(<span class="string">"1+2+3"</span>);</div><div class="line">        assertEquals(<span class="number">6</span>, sum);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>执行 <code>mvn test</code>，反馈得接口运行正确。<br>在上面这段简单的代码里，引入了 JUnit 的 <code>@Test</code> 注解和 <code>Assert</code> 下的系列静态断言方法。其中 <code>@Test</code> 注解把方法包装为测试方法，<code>assertEquals</code> 方法用来断言两个入参是否一致。通过这个简单的例子就实现了对待测方法的测试。</p>
+<p>JUnit 支持丰富的测试规则，除了 <code>@Test</code> 注解外，还有下面这些注解——</p>
+<ul>
+<li><code>@Before</code> 注解的作用是使被标记的方法在测试类里每个方法执行前调用；同理 <code>After</code> 使被标记方法在当前测试类里每个方法执行后调用。</li>
+<li><code>@BeforeClass</code> 注解的作用是使被标记的方法在当前测试类被实例化前调用；同理 <code>@AfterClass</code> 使被标记的方法在测试类被实例化后调用。</li>
+<li><code>@Ignore</code> 注解的作用是使被标记方法暂时不执行。</li>
+</ul>
+<p>参考下面这段代码的运行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.junit.*;</div><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.junit.Assert.*;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CalculatorTest</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CalculatorTest</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"Constructor"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@BeforeClass</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">beforeThis</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        System.out.println(<span class="string">"BeforeClass"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@AfterClass</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">afterThis</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        System.out.println(<span class="string">"AfterClass"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Before</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUp</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        System.out.println(<span class="string">"Before"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@After</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tearDown</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        System.out.println(<span class="string">"After"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">evaluate</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Calculator calculator = <span class="keyword">new</span> Calculator();</div><div class="line">        <span class="keyword">int</span> sum = calculator.evaluate(<span class="string">"1+2+3"</span>);</div><div class="line">        assertEquals(<span class="number">6</span>, sum);</div><div class="line">        System.out.println(<span class="string">"Test evaluate"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">idiot</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        assertTrue(<span class="keyword">true</span>);</div><div class="line">        System.out.println(<span class="string">"Test idiot"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Ignore</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ignoreMe</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        System.out.println(<span class="string">"Ignore"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>测试结果如下，从输出结果可以印证不同注解对执行顺序的影响：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">BeforeClass</div><div class="line">Constructor</div><div class="line">Before</div><div class="line">Test idiot</div><div class="line">After</div><div class="line">Constructor</div><div class="line">Before</div><div class="line">Test evaluate</div><div class="line">After</div><div class="line">AfterClass</div></pre></td></tr></table></figure>
+<p>另外，每个测试方法执行时都会实例化一次测试类，JUnit 这样处理的原因是保证每个测试方法彼此独立互不干扰。</p>
+<p>对于 <code>@Test</code> 注解标记的方法，<code>@Test</code> 支持两个参数的设置：<code>timeout</code> 和 <code>expected</code>。前者是设置待测方法的执行超时时间，后者是设置对待测方法期望的抛出异常。修改 <code>evaluate</code> 测试方法的注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span>(timeout = <span class="number">100</span>, expected = Exception.class)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">evaluate</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    Calculator calculator = <span class="keyword">new</span> Calculator();</div><div class="line">    <span class="keyword">int</span> sum = calculator.evaluate(<span class="keyword">null</span>);</div><div class="line">    assertEquals(<span class="number">6</span>, sum);</div><div class="line">    i++;</div><div class="line">    System.out.println(<span class="string">"Test evaluate "</span> + i);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Maven 运行测试，从结果可以看到，方法抛出了异常，测试通过。</p>
+<h3 id="Mockito"><a href="#Mockito" class="headerlink" title="Mockito"></a>Mockito</h3><p>相对于 JUnit，Mockito 则是 Mock 数据的测试框架，它简化了对有外部依赖的类的单元测试。Mockito 的工作流程如下图示（<a href="http://www.vogella.com/tutorials/Mockito/article.html" target="_blank" rel="external">图片来源</a>）：</p>
+<p><img src="https://o70e8d1kb.qnssl.com/mockito.webp" alt=""></p>
+<p>首先在 pom.xml 中导入 mockito 依赖，</p>
+<p>pom.xml 依赖中添加 Mockito：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mockito<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mockito-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>再静态导入 <code>org.mockito.Mockito.*;</code> 里的静态方法，这样就能在测试方法进行对象的 Mock。Mockito 支持通过静态方法 <code>mock()</code> 来 Mock 对象，或者通过 <code>@Mock</code> 注解，来创建 Mock 对象，但必须将其实例化。先演示下如何 Mock 对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> org.mockito.Mockito.*;</div><div class="line"></div><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mockIterator</span><span class="params">()</span> </span>&#123;</div><div class="line">    Iterator i = mock(Iterator.class);</div><div class="line">    when(i.next()).thenReturn(<span class="string">"hello"</span>).thenReturn(<span class="string">"world"</span>);</div><div class="line">    String result = i.next() + <span class="string">" "</span> + i.next();</div><div class="line">    assertEquals(<span class="string">"hello world"</span>, result);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>mock 出来的对象拥有和源对象同样的方法和属性，<code>when()</code> 和 <code>thenReturn()</code> 方法是对源对象的配置，怎么理解，就是说在第一步 <code>mock()</code> 时，mock 出来的对象还不具备被 Mock 对象实例的行为特征，而 <code>when(...).thenReturn(...)</code> 就是根据条件去配置源对象的预期行为，即：当执行 <code>when()</code> 中的操作时，返回 <code>thenReturn()</code> 中的结果。比如上面的代码中，mock 出来的 <code>i</code> 实例在被遍历时会依次输出 “hello” 和 “world”，<code>assertEquals()</code> 就是对预期结果和实际结果的判断。</p>
+<p>同理，也可以 Mock 网络请求，比如 <code>HttpServletRequest</code> 里的参数，也可以通过上面的方式来设定被 Mock 的源对象的表现行为。</p>
+<p>对于 <code>when()</code> 不定条件，Mockito 定义了 <code>any()</code>、 <code>anyInt()</code>、<code>anyString()</code>、<code>anySet()</code> 等方法来匹配指定类型的不定输入，<code>anyInt()</code> 匹配 int 参数，<code>anyString()</code> 匹配 String 参数, <code>any()</code> 匹配 任意类型的参数。如果需要匹配自定义的类型，可以通过 <code>any(CustomedClass.class)</code> 来配置。</p>
+<p><code>thenReturn()</code> 返回的是一个确定值，这在模拟可见的行为时是没问题的，但有时候，我们需要得到一个复杂的不定输出的行为，比如返回一个回调方法，或者返回一个类实例，Mockito 可以通过 <code>thenAnswer()</code> 来实现。参考 StackOverflow 上的这篇问答 <a href="http://stackoverflow.com/questions/36615330/mockito-thenanswer-vs-thenreturn" target="_blank" rel="external">Mockito : thenAnswer Vs thenReturn</a>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">    <span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">count</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    Duplicator counter = mock(Counter.class);</div><div class="line">    Answer&lt;Integer&gt; answer = <span class="keyword">new</span> Answer&lt;Integer&gt;() &#123;</div><div class="line">        <span class="function"><span class="keyword">public</span> Integer <span class="title">answer</span><span class="params">(InvocationOnMock invocationOnMock)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">            <span class="keyword">return</span> ((String) invocationOnMock.getArguments()[<span class="number">0</span>]).length();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    when(counter.count(anyString())).thenAnswer(answer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>InvocationOnMock</code> 接口提供了获取被测试方法的调用信息的几个重要方法：</p>
+<ul>
+<li><code>getMock()</code> 接口返回 mock 对象；</li>
+<li><code>getMethod()</code> 接口返回被调用方法的 Method 对象；</li>
+<li><code>getArguments()</code> 接口返回被测试方法的入参列表；</li>
+<li><code>getArgument()</code> 接口返回北侧方法指定位置的入参；</li>
+<li><code>callRealMethod()</code> 接口返回实际的调用方法；</li>
+</ul>
+<p>上面的例子已经说明了 Mockito 能跟踪被 Mock 对象所有的方法调用和它们的入参。除了对方法调用结果是否正确的测试，有时还需要验证一些方法的行为，比如验证方法被调用的次数，验证方法的入参等，Mockito 通过 <code>verify()</code> 方法实现这些场景的测试需求。这被称为“行为测试”。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testVerify</span><span class="params">()</span> </span>&#123;</div><div class="line">    Duplicator mock = mock(Duplicator.class);</div><div class="line">    when(mock.getUniqueId()).thenReturn(<span class="number">43</span>);</div><div class="line"></div><div class="line">    mock.duplicate(<span class="string">"Halo"</span>);</div><div class="line">    mock.getUniqueId();</div><div class="line">    mock.getUniqueId();</div><div class="line"></div><div class="line">    verify(mock).duplicate(Matchers.eq(<span class="string">"Halo"</span>));</div><div class="line">    verify(mock, times(<span class="number">2</span>)).getUniqueId();</div><div class="line">    verify(mock, never()).someMethod();</div><div class="line">    verify(mock, atLeastOnce()).someMethod();</div><div class="line">    verify(mock, atLeast(<span class="number">2</span>)).someMethod();</div><div class="line">    verify(mock, atMost(<span class="number">3</span>)).someMethod();;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>verify()</code> 内的条件设置简洁明了，第一个参数是 mock 对象，第二个参数可选，作为状语描述，从方法的名称上就能知道具体的用法，不多赘述了。</p>
+<p>Mockito 支持通过 <code>@Spy</code> 注解或 <code>spy()</code> 方法包裹实际对象，除非明确指定对象，否则都会调用包裹后的对象。这种方式实现了对实际对象的部分自定义修改。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testSpy</span><span class="params">()</span> </span>&#123;</div><div class="line">    List&lt;String&gt; spyList = spy(<span class="keyword">new</span> ArrayList&lt;String&gt;());</div><div class="line"></div><div class="line">    assertEquals(<span class="number">0</span>, spyList.size());</div><div class="line"></div><div class="line">    doReturn(<span class="number">100</span>).when(spyList).size();</div><div class="line">    assertEquals(<span class="number">100</span>, spyList.size());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面的测试代码中，<code>spy()</code> 修改了 <code>ArrayList</code> 对象的 <code>size()</code>。但是如果只是在执行某个操作是返回一个期望值，用之前的 <code>mock()</code> 也能实现，<code>spy()</code> 存在的理由是什么，看下面的代码能解释二者之间的差异：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">differMockSpy</span><span class="params">()</span> </span>&#123;</div><div class="line">    List mock = mock(ArrayList.class);</div><div class="line">    mock.add(<span class="string">"one"</span>);</div><div class="line">    verify(mock).add(<span class="string">"one"</span>);</div><div class="line">    assertEquals(<span class="number">0</span>, mock.size());</div><div class="line"></div><div class="line">    List spy = spy(<span class="keyword">new</span> ArrayList());</div><div class="line">    spy.add(<span class="string">"one"</span>);</div><div class="line">    verify(spy).add(<span class="string">"one"</span>);</div><div class="line">    assertEquals(<span class="number">1</span>, spy.size());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>从上面的运行结果可以看出，<code>mock()</code> 传入的是类，创建出来的是一个裸的实例，只是为了跟踪该实例下的方法调用，而不会对实例有其他副作用产生；而 <code>spy()</code> 传入的是类实例，它会对该实例进行包裹，创建出来的实例和源实例相同，唯一的不同在于，<code>spy()</code> 包裹后的实例可以对实例内部进行自定义的改动。</p>
+<p>对于依赖注入，Mockito 支持通过 <code>@InjectMocks</code> 注解将被标记的对象自动注入，其依赖会由 mock 出来的对象实例来填充。Mockito 会依次尝试通过 constructor injection、 property injection 和 filed injection，注意，如果其中任一注入策略失败，Mockito 也不会报告错误，就必须自行解决依赖。</p>
+<ul>
+<li><strong>Constructor injection</strong>：<code>@InjectMocks</code> 优先选择的注入策略，如果对象通过构造函数成功 mock 出来，则不会再进行后面的注入策略。</li>
+<li><strong>Property setter injection</strong>：会首先根据属性的类型（如果类型匹配则忽略变量名），如果有多个匹配项，则选择 mock 名和属性名相同的变量进行注入。</li>
+<li><strong>Field injection</strong>：同样首先根据域的类型（如果类型匹配则忽略变量名），如果有多个匹配项，则选择 mock 名和域名相同的变量进行注入。</li>
+</ul>
+<p>参考下面的样例代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManagerTest</span> <span class="keyword">extends</span> <span class="title">SampleBaseTestCase</span> </span>&#123;</div><div class="line">    <span class="meta">@Mock</span></div><div class="line">    <span class="keyword">private</span> ArticleCalculator calculator;</div><div class="line">    <span class="meta">@Mock</span>(name = <span class="string">"database"</span>)</div><div class="line">    <span class="keyword">private</span> ArticleDatabase dbMock; <span class="comment">// note the mock name attribute</span></div><div class="line">    <span class="meta">@Spy</span></div><div class="line">    <span class="keyword">private</span> UserProvider userProvider = <span class="keyword">new</span> ConsumerUserProvider();</div><div class="line"></div><div class="line">    <span class="meta">@InjectMocks</span></div><div class="line">    <span class="keyword">private</span> ArticleManager manager;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shouldDoSomething</span><span class="params">()</span> </span>&#123;</div><div class="line">        manager.initiateArticle();</div><div class="line">        verify(database).addListener(any(ArticleListener.class));</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SampleBaseTestCase</span> </span>&#123;</div><div class="line">    <span class="meta">@Before</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">initMocks</span><span class="params">()</span> </span>&#123;</div><div class="line">        MockitoAnnotations.initMocks(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面代码中，<code>@InjectMocks</code> 注解会把 mock 出来的 <code>dbMock</code> 和 <code>calculator</code> 注入进 <code>manager</code> 中。<code>ArticleManager</code> 可以只有一个有参构造函数，或者只有无参构造器，或者都有。需要注意的是，Mockito 无法实例化 inner class、local class、abstract class 和 interface。</p>
+<p>对需要注入的域，Constructor injection 会发生在下面的代码中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManager</span> </span>&#123;</div><div class="line">    ArticleManager(ArticleCalculator calculator, ArticleDatabase database) &#123;</div><div class="line">        <span class="comment">// parameterized constructor</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Property setter injection 在下面的代码中完成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManager</span> </span>&#123;</div><div class="line">    <span class="comment">// no-arg constructor</span></div><div class="line">    ArticleManager() &#123;  &#125;</div><div class="line"></div><div class="line">    <span class="comment">// setter</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setDatabase</span><span class="params">(ArticleDatabase database)</span> </span>&#123; &#125;</div><div class="line"></div><div class="line">    <span class="comment">// setter</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setCalculator</span><span class="params">(ArticleCalculator calculator)</span> </span>&#123; &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Field injection：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ArticleManager</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> ArticleDatabase database;</div><div class="line">    <span class="keyword">private</span> ArticleCalculator calculator;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://github.com/junit-team/junit4/wiki" target="_blank" rel="external">JUnit4 Wiki</a></li>
+<li><a href="https://github.com/mockito/mockito/wiki" target="_blank" rel="external">Mockito Wiki</a></li>
+<li><a href="https://dzone.com/articles/getting-started-mocking-java" target="_blank" rel="external">Getting Started with Mocking in Java using Mockit</a></li>
+<li><a href="http://www.vogella.com/tutorials/Mockito/article.html" target="_blank" rel="external">Unit tests with Mockito - Tutorial</a></li>
+</ul>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/02/flask-context-guide/" rel="next" title="读源码认识 Flask Context">
+                <i class="fa fa-chevron-left"></i> 读源码认识 Flask Context
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/11/spring-aop-with-reflection/" rel="prev" title="敏捷开发实战：Spring AOP + 反射">
+                敏捷开发实战：Spring AOP + 反射 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">40</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#JUnit"><span class="nav-number">1.</span> <span class="nav-text">JUnit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mockito"><span class="nav-number">2.</span> <span class="nav-text">Mockito</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2016/10/10/unit-test-with-junit-mockito/';
+      var disqus_title = 'JUnit + Mockito 单元测试的风云际会';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>
