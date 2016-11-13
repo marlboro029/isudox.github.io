@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://isudox.com/"/>
-  <updated>2016-10-28T16:45:14.934Z</updated>
+  <updated>2016-11-13T06:38:23.000Z</updated>
   <id>http://isudox.com/</id>
   
   <author>
@@ -14,6 +14,52 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>CORS 跨域调试记录</title>
+    <link href="http://isudox.com/2016/11/12/cors-in-action/"/>
+    <id>http://isudox.com/2016/11/12/cors-in-action/</id>
+    <published>2016-11-11T16:31:58.000Z</published>
+    <updated>2016-11-13T06:38:23.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>之前写了篇关于 JSONP 和 CORS 解决跨域请求的博客，在最近和深圳凹凸团队前后端联调时实打实的实战了一把 CORS。还是应了纸上得来终觉浅的老话，因为实际运用中会存在不同的状况，只是看文档理解概念并不能真正成为实战派。</p>
+<a id="more"></a>
+<p>这次联调采用前后端分离的方式，后端由 Spring MVC 提供数据接口，前端通过异步的方式做数据渲染，和以往不同的是，由于前端开发全部交给深圳的凹凸实验室，所以静态文件都跑在独立的一个域名上，就是京东的通天塔项目。因此所有来自前端的请求都成了跨域请求。</p>
+<p>JSONP 确实是通过一种巧妙的伎俩解决了跨域请求被浏览器拒绝的问题，但是它并不能解决 POST 跨域，联调的接口是跨域上传头像，采用 POST 发送 FormData 对象的方式。所以由服务端 CORS 来处理。</p>
+<p>对于服务端，Spring MVC 设置 CORS 很简单，如果 springframework 版本是 4.2 及以上，Spring MVC 可以直接由注解 <code>@CrossOrigin</code> 对标记的控制器方法设置 CORS。例如下面的示例代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@CrossOrigin</span>(origins = <span class="string">"http://localhost:9000"</span>)</div><div class="line"><span class="meta">@GetMapping</span>(<span class="string">"/greeting"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> Greeting <span class="title">greeting</span><span class="params">(@RequestParam(required=<span class="keyword">false</span>, defaultValue=<span class="string">"World"</span>)</span> String name) </span>&#123;</div><div class="line">    System.out.println(<span class="string">"==== in greeting ===="</span>);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Greeting(counter.incrementAndGet(), String.format(template, name));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>@CrossOrigin</code> 注解可以通过设置 <code>origins</code>、<code>methods</code>、<code>maxAge</code>、<code>allowHeaders</code>、<code>allowCredentials</code> 等参数来确定 CORS 接受跨域的来源域，请求类型，请求头等。如果 origins 设置为星号，则对所有来源域的请求都允许跨域，methods 设置为 POST 就只允许请求类型为 POST 的跨域请求。</p>
+<p>前端正常发送异步请求，类似如下代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> formData = <span class="keyword">new</span> FormData();</div><div class="line">formData.append(<span class="string">'avatar'</span>, <span class="string">'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII='</span>);</div><div class="line"><span class="keyword">var</span> req = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">req.open(<span class="string">'POST'</span>, <span class="string">'//xxx.jd.com/xxx/xxx'</span>);</div><div class="line">req.send(fromData);</div></pre></td></tr></table></figure>
+<p>但是结果并不如人意，返回码 302，请求被强制跳转京东的统一登录，这就是一个问题点，因为上传头像要求登录状态，所以浏览器请求时必须带上本地的 cookies，如果是 JSONP 的方式，它默认会传递 cookies。所以需要将 XMLHttpRequest 的凭证信息标识位设为 true：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> req = <span class="keyword">new</span> XMLHttpRequest();</div><div class="line">req.withCredentials = <span class="literal">true</span>;</div></pre></td></tr></table></figure>
+<p>这里有一点需要留意，如果请求带上了 cookies 那么服务端 CORS 的 origins 不能是 <code>*</code> 号，必须明确指定允许的来源 origin。再次联调测试，跨域还是失败了，看服务端日志发现，请求根本没有进入到 Controller 层，在登录拦截器里就被拒绝了。这是另外一个问题，因为 Spring MVC 设置了 interceptors，符合规则的请求都会被 interceptor 拦截，要么排除该跨域请求，但这是不可取，因为必须是登录用户才能进行的操作。所以需要在拦截器的 <code>preHandle()</code> 方法里进行处理，把来源域的加入到响应头的 <code>Access-Control-Allow-Origin</code> 字段中，同时设置 <code>Access-Control-Allow-Headers</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LoginInterceptor</span> <span class="keyword">extends</span> <span class="title">HandlerInterceptorAdapter</span></span>&#123;</div><div class="line">	<span class="comment">// before the actual handler will be executed</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request,</span></span></div><div class="line">		HttpServletResponse response, Object handler) <span class="keyword">throws</span> Exception &#123;</div><div class="line">		response.addHeader(<span class="string">"Access-Control-Allow-Origin"</span>, <span class="string">"http://h5.m.jd.com"</span>);</div><div class="line">        response.addHeader(<span class="string">"Access-Control-Allow-Methods"</span>, <span class="string">"GET, PUT, POST, DELETE, OPTIONS"</span>);</div><div class="line">        response.setHeader(<span class="string">"Access-Control-Allow-Headers"</span>, <span class="string">"Content-Type, Authorization, X-Requested-With, isAjaxRequest"</span>);</div><div class="line">		<span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>心想这次总该 OK 了吧，还是没调通，我摔！但是这次是有进步的，因为请求进到 Controller 的方法里，执行完了头像上传，只是浏览器的到的响应体为空，打开浏览器的控制台看到一段错误信息：</p>
+<blockquote>
+<p>XMLHttpRequest cannot load <a href="http://xxxp.jd.com/xxx/xxx" target="_blank" rel="external">http://xxxp.jd.com/xxx/xxx</a>. Credentials flag is ‘true’, but the ‘Access-Control-Allow-Credentials’ header is ‘’. It must be ‘true’ to allow credentials. Origin ‘<a href="http://h5.m.jd.com" target="_blank" rel="external">http://h5.m.jd.com</a>‘ is therefore not allowed access.</p>
+</blockquote>
+<p>这是第三个问题，POST 请求是标记了凭证信息标识位，但是服务端回传的响应头的 <code>Access-Control-Allow-Credentials</code> 字段却是空，而不是 <code>true</code>，解决办法显而易见了，设置 <code>HttpServletResponse</code> 响应字段为 <code>true</code> 即可：</p>
+<pre><code class="java">response.addHeader(<span class="string">"Access-Control-Allow-Credentials"</span>, <span class="string">"true"</span>);
+</code></pre>
+<p>这样处理后，浏览器就收到的 Controller 层方法返回的 JSON 结果。</p>
+<p>以上就是这次由服务端 CORS 实现的跨域请求的调试过程。其实从结果看真的很简单，只是有些问题如果实际开发中没有遇到，很容易疏漏，仅仅是看文档学怎么用还是不够的。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前写了篇关于 JSONP 和 CORS 解决跨域请求的博客，在最近和深圳凹凸团队前后端联调时实打实的实战了一把 CORS。还是应了纸上得来终觉浅的老话，因为实际运用中会存在不同的状况，只是看文档理解概念并不能真正成为实战派。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="HTTP" scheme="http://isudox.com/tags/HTTP/"/>
+    
+      <category term="SpringMVC" scheme="http://isudox.com/tags/SpringMVC/"/>
+    
+  </entry>
   
   <entry>
     <title>理解 Python 生成器</title>
@@ -1138,7 +1184,7 @@
     <link href="http://isudox.com/2016/07/28/secure-subdomain-with-ssl-certificate/"/>
     <id>http://isudox.com/2016/07/28/secure-subdomain-with-ssl-certificate/</id>
     <published>2016-07-28T09:07:42.000Z</published>
-    <updated>2016-07-28T12:25:39.000Z</updated>
+    <updated>2016-11-04T15:28:23.550Z</updated>
     
     <content type="html"><![CDATA[<p>今天把小站所在 Linode 服务器升级到了 4G 2CPU 的配置，可以搞搞大新闻了，打算用 Docker 部署下 GitLab 作为和前辈小伙伴们写作开发的代码库，把 GitLab 绑定到小站的子域名下。另外还得再加上 SSL 证书。<br>Docker 部署 GitLab 的事后面再写，先记下给子域名安装证书的事。</p>
 <a id="more"></a>
@@ -1183,9 +1229,9 @@
       <category term="DevOps" scheme="http://isudox.com/categories/DevOps/"/>
     
     
-      <category term="Nginx" scheme="http://isudox.com/tags/Nginx/"/>
+      <category term="HTTP" scheme="http://isudox.com/tags/HTTP/"/>
     
-      <category term="HTTPS" scheme="http://isudox.com/tags/HTTPS/"/>
+      <category term="Nginx" scheme="http://isudox.com/tags/Nginx/"/>
     
   </entry>
   
@@ -1767,194 +1813,6 @@
       <category term="Spring" scheme="http://isudox.com/tags/Spring/"/>
     
       <category term="Thymeleaf" scheme="http://isudox.com/tags/Thymeleaf/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 16-20</title>
-    <link href="http://isudox.com/2016/07/04/leetcode-tour-4/"/>
-    <id>http://isudox.com/2016/07/04/leetcode-tour-4/</id>
-    <published>2016-07-04T07:06:59.000Z</published>
-    <updated>2016-10-20T14:33:28.193Z</updated>
-    
-    <content type="html"><![CDATA[<p>本篇记录 LeetCode 算法部分第 16-20 题。</p>
-<a id="more"></a>
-<h3 id="3Sum-Closest"><a href="#3Sum-Closest" class="headerlink" title="3Sum Closest"></a>3Sum Closest</h3><p>第 16 题 <a href="https://leetcode.com/problems/3sum-closest/" target="_blank" rel="external">3Sum Closest</a></p>
-<blockquote>
-<p>给定一个包含 n 个整型数的数组 S，找出 S 中的三个数，使得三者求和的结果和目标值最接近。返回求和结果，假定 S 中一定存在唯一解。<br>举例：数组 S = { -1 2 1 -4 }，目标值 target = 1。最接近目标值的求和结果为 (-1 + 2 + 1 = 2)</p>
-</blockquote>
-<p>这题是第 15 题的延伸。沿用前一题的思路，先对数组进行排序，取 a(i) + a(i+k) + a(n) 求和，如果结果和目标值一致，则直接将求和结果返回；如果结果大于目标值，则表明需要减小下标 n 的值，逐次减小，每次比较当前求和结果与目标值的差值和前一次求和比较的差值，取绝对值较小的保留，同时保留当前的求和结果；如果结果小于目标值，则需要增大下标 (i+k)。Java 代码如下</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ThreeSumClosest.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">threeSumClosest</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> sum = Integer.MAX_VALUE;</div><div class="line">        <span class="keyword">int</span> diff = Integer.MAX_VALUE;</div><div class="line">        <span class="keyword">int</span> count = nums.length;</div><div class="line">        Arrays.sort(nums);</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count - <span class="number">2</span>; i++) &#123;</div><div class="line">            <span class="keyword">int</span> j = i + <span class="number">1</span>, k = count - <span class="number">1</span>;</div><div class="line">            <span class="keyword">while</span> (j &lt; k) &#123;</div><div class="line">                <span class="keyword">int</span> curSum = nums[i] + nums[j] + nums[k];</div><div class="line">                <span class="keyword">int</span> curDiff = curSum - target;</div><div class="line">                <span class="keyword">if</span> (curDiff == <span class="number">0</span>) <span class="keyword">return</span> curSum;</div><div class="line">                diff = Math.abs(diff) &lt; Math.abs(curDiff) ? diff : curDiff;</div><div class="line">                sum = target + diff;</div><div class="line">                <span class="keyword">if</span> (curDiff &gt; <span class="number">0</span>) &#123;</div><div class="line">                    k--;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[k] == nums[k + <span class="number">1</span>]) k--;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    j++;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[j] == nums[j - <span class="number">1</span>]) j++;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> sum;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">120 / 120</td>
-<td style="text-align:center">13 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ThreeSumClosest.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">threeSumClosest</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target)</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> sum = Integer.MAX_VALUE;</div><div class="line">        <span class="keyword">int</span> diff = Integer.MAX_VALUE;</div><div class="line">        <span class="keyword">int</span> count = nums.length;</div><div class="line">        Arrays.sort(nums);</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count - <span class="number">2</span>;) &#123;</div><div class="line">            <span class="keyword">int</span> j = i + <span class="number">1</span>, k = count - <span class="number">1</span>;</div><div class="line">            <span class="keyword">while</span> (j &lt; k) &#123;</div><div class="line">                <span class="keyword">int</span> curSum = nums[i] + nums[j] + nums[k];</div><div class="line">                <span class="keyword">int</span> curDiff = Math.abs(curSum - target);</div><div class="line">                <span class="keyword">if</span> (curDiff == <span class="number">0</span>) <span class="keyword">return</span> curSum;</div><div class="line">                <span class="keyword">if</span> (curDiff &lt; diff) &#123;</div><div class="line">                    diff = curDiff;</div><div class="line">                    sum = curSum;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">if</span> (curSum &gt; target) &#123;</div><div class="line">                    k--;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[k] == nums[k + <span class="number">1</span>]) k--;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    j++;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[j] == nums[j - <span class="number">1</span>]) j++;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            i++;</div><div class="line">            <span class="keyword">while</span> (i &lt; count - <span class="number">2</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) i++;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> sum;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">120 / 120</td>
-<td style="text-align:center">11 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<p>Python 代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 3sum_closest.py</span></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span><span class="params">(object)</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">threeSumClosest</span><span class="params">(self, nums, target)</span>:</span></div><div class="line">        <span class="string">"""</span></div><div class="line">        :type nums: List[int]</div><div class="line">        :type target: int</div><div class="line">        :rtype: int</div><div class="line">        """</div><div class="line">        res, diff = sys.maxsize, sys.maxsize</div><div class="line">        count = len(nums)</div><div class="line">        nums.sort()</div><div class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(count - <span class="number">2</span>):</div><div class="line">            <span class="keyword">if</span> i &gt; <span class="number">0</span> <span class="keyword">and</span> i &lt; count <span class="number">-2</span> <span class="keyword">and</span> nums[i] == nums[i - <span class="number">1</span>]:</div><div class="line">                <span class="keyword">continue</span></div><div class="line">            j, k = i + <span class="number">1</span>, count - <span class="number">1</span></div><div class="line">            <span class="keyword">while</span> j &lt; k:</div><div class="line">                cur_sum = nums[i] + nums[j] + nums[k]</div><div class="line">                cur_diff = cur_sum - target</div><div class="line">                <span class="keyword">if</span> cur_diff == <span class="number">0</span>:</div><div class="line">                    <span class="keyword">return</span> cur_sum</div><div class="line">                diff = diff <span class="keyword">if</span> abs(diff) &lt; abs(cur_diff) <span class="keyword">else</span> cur_diff</div><div class="line">                res = target + diff</div><div class="line">                <span class="keyword">if</span> cur_diff &gt; <span class="number">0</span>:</div><div class="line">                    k -= <span class="number">1</span></div><div class="line">                    <span class="keyword">while</span> j &lt; k <span class="keyword">and</span> nums[k] == nums[k + <span class="number">1</span>]:</div><div class="line">                        k -= <span class="number">1</span></div><div class="line">                <span class="keyword">else</span>:</div><div class="line">                    j += <span class="number">1</span></div><div class="line">                    <span class="keyword">while</span> j &lt; k <span class="keyword">and</span> nums[j] == nums[j - <span class="number">1</span>]:</div><div class="line">                        j += <span class="number">1</span></div><div class="line">        <span class="keyword">return</span> res</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">120 / 120</td>
-<td style="text-align:center">148 ms</td>
-<td style="text-align:center">Python</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="Letter-Combinations-of-a-Phone-Number"><a href="#Letter-Combinations-of-a-Phone-Number" class="headerlink" title="Letter Combinations of a Phone Number"></a>Letter Combinations of a Phone Number</h3><p>第 17 题 <a href="https://leetcode.com/problems/letter-combinations-of-a-phone-number/" target="_blank" rel="external">Letter Combinations of a Phone Number</a></p>
-<blockquote>
-<p>给定一个数字型的字符串，返回这些数字在手机九宫格键盘上所有可能表示的字母组合。<br>举例，输入字符串 “23”，输出结果：[ “ad”, “ae”, “af”, “bd”, “be”, “bf”, “cd”, “ce”, “cf” ]<br><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Telephone-keypad2.svg/200px-Telephone-keypad2.svg.png" alt=""></p>
-</blockquote>
-<p>抽象的看这道题，其实就是排列组合。键盘上 “23” 按钮可能的输出结果就是 “abc” 和 “def” 两个字符串中字符的所有组合情况。从每个数字所代表的字符串中选取一个，并和下一个数字所代表的字符串中字符组合，逐个拼接，很显然，可以通过递归处理，递归深度为数字键的个数。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// LetterCombinationsOfaPhoneNumber.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String[] keymap = &#123;<span class="string">"abc"</span>, <span class="string">"def"</span>, <span class="string">"ghi"</span>, <span class="string">"jkl"</span>, <span class="string">"mno"</span>, <span class="string">"pqrs"</span>, <span class="string">"tuv"</span>, <span class="string">"wxyz"</span>&#125;;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">letterCombinations</span><span class="params">(String digits)</span> </span>&#123;</div><div class="line">        List&lt;String&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">if</span> (digits == <span class="keyword">null</span> || digits.length() == <span class="number">0</span>) <span class="keyword">return</span> res;</div><div class="line">        <span class="keyword">this</span>.combineLetters(digits, <span class="string">""</span>, digits.length(), <span class="number">0</span>, res);</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">combineLetters</span><span class="params">(String digits, String str, <span class="keyword">int</span> len, <span class="keyword">int</span> pos, List&lt;String&gt; list)</span> </span>&#123;</div><div class="line">        String key = keymap[digits.charAt(pos) - <span class="string">'2'</span>];</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; key.length(); i++) &#123;</div><div class="line">            <span class="keyword">if</span> (pos == len - <span class="number">1</span>) list.add(str + key.charAt(i));</div><div class="line">            <span class="keyword">else</span> combineLetters(digits, str + key.charAt(i), len, pos + <span class="number">1</span>, list);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">25 / 25</td>
-<td style="text-align:center">1 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="4Sum"><a href="#4Sum" class="headerlink" title="4Sum"></a>4Sum</h3><p>第 18 题 <a href="https://leetcode.com/problems/4sum/" target="_blank" rel="external">4Sum</a></p>
-<blockquote>
-<p>给定 n 个整型数组成的数组 S，从中找出所有可能的 4 个整数 a, b, c, d 使得 a + b + c + d = 目标值 target。要求去重。<br>如 S = [ 1, 0, -1, 0, -2, 2 ] target = 0，则结果为 [ [-1,  0, 0, 1], [-2, -1, 1, 2], [-2,  0, 0, 2] ]</p>
-</blockquote>
-<p>LeetCode 第 15 题 <a href="/2016/06/15/leetcode-tour-3/#3Sum">3Sum</a> 已经给出了数组中取 3 个数求和为零，本题为 4 个数求和为目标值。可以直接借用 3Sum 的算法，先选取数组中一个数，把剩下的数组元素和所需要的差值传递给 3Sum 方法，如果 3Sum 返回了有效结果，则把当前选取的数分别插入 3Sum 的结果中。代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// FourSum.java v1.0</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> List&lt;List&lt;Integer&gt;&gt; fourSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</div><div class="line">        List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">if</span> (nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">4</span>) <span class="keyword">return</span> res;</div><div class="line">        Arrays.sort(nums);</div><div class="line">        <span class="keyword">int</span> count = nums.length;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count - <span class="number">3</span>; i++) &#123;</div><div class="line">            <span class="keyword">while</span> (i &gt; <span class="number">0</span> &amp;&amp; i &lt; count - <span class="number">3</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) i++;</div><div class="line">            <span class="keyword">int</span> diff = target - nums[i];</div><div class="line">            List&lt;List&lt;Integer&gt;&gt; lists = <span class="keyword">this</span>.threeSum(Arrays.copyOfRange(nums, i + <span class="number">1</span>, count), diff);</div><div class="line">            <span class="keyword">if</span> (lists.isEmpty()) <span class="keyword">continue</span>;</div><div class="line">            <span class="keyword">for</span> (List&lt;Integer&gt; list : lists) &#123;</div><div class="line">                list.add(nums[i]);</div><div class="line">                res.add(list);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 3Sum</span></div><div class="line">    <span class="keyword">private</span> List&lt;List&lt;Integer&gt;&gt; threeSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</div><div class="line">        List&lt;List&lt;Integer&gt;&gt; lists = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">if</span> (nums == <span class="keyword">null</span> || nums.length &lt; <span class="number">3</span>) <span class="keyword">return</span> lists;</div><div class="line">        <span class="keyword">int</span> count = nums.length, i = <span class="number">0</span>;</div><div class="line">        <span class="keyword">while</span> (i &lt; count - <span class="number">2</span>) &#123;</div><div class="line">            <span class="keyword">int</span> j = i + <span class="number">1</span>;</div><div class="line">            <span class="keyword">int</span> k = count - <span class="number">1</span>;</div><div class="line">            <span class="keyword">while</span> (j &lt; k) &#123;</div><div class="line">                <span class="keyword">int</span> sum = nums[i] + nums[j] + nums[k];</div><div class="line">                <span class="keyword">if</span> (sum == target) &#123;</div><div class="line">                    List&lt;Integer&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">                    list.add(nums[i]);</div><div class="line">                    list.add(nums[j++]);</div><div class="line">                    list.add(nums[k--]);</div><div class="line">                    lists.add(list);</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[j] == nums[j - <span class="number">1</span>]) j++;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[k] == nums[k + <span class="number">1</span>]) k--;</div><div class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (sum &lt; target) &#123;</div><div class="line">                    j++;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[j] == nums[j - <span class="number">1</span>]) j++;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    k--;</div><div class="line">                    <span class="keyword">while</span> (j &lt; k &amp;&amp; nums[k] == nums[k + <span class="number">1</span>]) k--;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            i++;</div><div class="line">            <span class="keyword">while</span> (i &lt; count - <span class="number">2</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) i++;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> lists;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">282 / 282</td>
-<td style="text-align:center">71 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<h3 id="Remove-Nth-Node-From-End-of-List"><a href="#Remove-Nth-Node-From-End-of-List" class="headerlink" title="Remove Nth Node From End of List"></a>Remove Nth Node From End of List</h3><p>第 19 题 <a href="https://leetcode.com/problems/remove-nth-node-from-end-of-list/" target="_blank" rel="external">Remove Nth Node From End of List</a></p>
-<blockquote>
-<p>给定一个链表，移除倒数第 n 个节点，返回该链表的首节点。<br>例如链表  <strong>1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 5</strong>，<strong>n = 2</strong>，移除倒数第 2 节点后的链表为 <strong>1 -&gt; 2 -&gt; 3 -&gt; 5</strong><br>假定 n 是有效的。</p>
-</blockquote>
-<p>普通链表是单向，假如是正向的移除第 n 个节点，很好做，但是反向的移除就需要动下脑筋。最直接的办法就是先遍历链表求其长度，减去 n 就是正向的节点位置，然后再做依次顺序遍历，找到要移除的节点。这种方法需要两次遍历。还有一种略微机智的方法，只需要做一次遍历，先让早起步的头指针移动 n 次，再让另一个慢起步的头指针开始移动，这样等早起步头指针到达最后一个节点的时候，后一个指针正好到达要移除的节点。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// RemoveNthNodeFromEndOfList.java</span></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Definition for singly-linked list.</div><div class="line"> * public class ListNode &#123;</div><div class="line"> *     int val;</div><div class="line"> *     ListNode next;</div><div class="line"> *     ListNode(int x) &#123; val = x; &#125;</div><div class="line"> * &#125;</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">removeNthFromEnd</span><span class="params">(ListNode head, <span class="keyword">int</span> n)</span> </span>&#123;</div><div class="line">        ListNode res = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</div><div class="line">        res.next = head;</div><div class="line">        ListNode node1 = res, node2 = res;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) node1 = node1.next;</div><div class="line">        <span class="keyword">while</span> (node1.next != <span class="keyword">null</span>) &#123;</div><div class="line">            node1 = node1.next;</div><div class="line">            node2 = node2.next;</div><div class="line">        &#125;</div><div class="line">        node2.next = node2.next.next;</div><div class="line">        <span class="keyword">return</span> res.next;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">207 / 207</td>
-<td style="text-align:center">1 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<h3 id="Valid-Parentheses"><a href="#Valid-Parentheses" class="headerlink" title="Valid Parentheses"></a>Valid Parentheses</h3><p>第 20 题 <a href="https://leetcode.com/problems/valid-parentheses/" target="_blank" rel="external">Valid Parentheses</a></p>
-<blockquote>
-<p>给出一个仅包含字符 <code>&#39;(&#39;</code>, <code>&#39;)&#39;</code>, <code>&#39;{&#39;</code>, <code>&#39;}&#39;</code>, <code>&#39;[&#39;</code> 和 <code>&#39;]&#39;</code> 的字符串，判断它是否有效。<br>有效的字符串必须是闭合的，如 <code>&quot;()&quot;</code> <code>{[()]}</code> 和 <code>&quot;()[]{}&quot;</code> 是有效的，而 <code>&quot;(]&quot;</code> 和 <code>&quot;([)]&quot;</code> 是无效的。</p>
-</blockquote>
-<p>从有效字符串的形式 <code>&quot;()&quot;</code> <code>{[()]}</code> 和 <code>&quot;()[]{}&quot;</code> 中可以看出，这很像是四则运算的中缀表达式。而四则运算的中缀表达式可以通过栈这种数据结构来存储。因为左半括号必定再其对应右半括号的前面，所以遍历到当前字符为左半括号时，将其入栈。遍历到右半括号时，将栈顶字符出栈，比较是否匹配。直到栈元素为空。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ValidParentheses.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValid</span><span class="params">(String s)</span> </span>&#123;</div><div class="line">        <span class="keyword">char</span>[] stack = <span class="keyword">new</span> <span class="keyword">char</span>[s.length()];</div><div class="line">        <span class="keyword">int</span> index = <span class="number">0</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.length(); i++) &#123;</div><div class="line">            <span class="keyword">if</span> (s.charAt(i) == <span class="string">'('</span> || s.charAt(i) == <span class="string">'['</span> || s.charAt(i) == <span class="string">'&#123;'</span>) &#123;</div><div class="line">                stack[index++] = s.charAt(i);</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (s.charAt(i) == <span class="string">')'</span>) &#123;</div><div class="line">                <span class="keyword">if</span> (index == <span class="number">0</span> || stack[--index] != <span class="string">'('</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (s.charAt(i) == <span class="string">']'</span>) &#123;</div><div class="line">                <span class="keyword">if</span> (index == <span class="number">0</span> || stack[--index] != <span class="string">'['</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">if</span> (index == <span class="number">0</span> || stack[--index] != <span class="string">'&#123;'</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> index == <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">65 / 65</td>
-<td style="text-align:center">0 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<p>下一篇：<a href="/2016/07/08/leetcode-tour-5/">LeetCode 探险第五弹</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本篇记录 LeetCode 算法部分第 16-20 题。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Algorithm" scheme="http://isudox.com/tags/Algorithm/"/>
-    
-      <category term="LeetCode" scheme="http://isudox.com/tags/LeetCode/"/>
     
   </entry>
   
