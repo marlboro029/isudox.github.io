@@ -37,27 +37,27 @@ NProgress.set(<span class="number">1.0</span>);     <span class="comment">// Sor
 </code></pre>
 <p><strong>Get the status value:</strong> To get the status value, use <code>.status</code></p>
 <h2 id="Configuration"><a href="#Configuration" class="headerlink" title="Configuration"></a>Configuration</h2><h4 id="minimum"><a href="#minimum" class="headerlink" title="minimum"></a><code>minimum</code></h4><p>Changes the minimum percentage used upon starting. (default: <code>0.08</code>)</p>
-<pre><code class="js">NProgress.configure({ minimum: <span class="number">0.1</span> });
+<pre><code class="js">NProgress.configure({ <span class="attr">minimum</span>: <span class="number">0.1</span> });
 </code></pre>
 <h4 id="template"><a href="#template" class="headerlink" title="template"></a><code>template</code></h4><p>You can change the markup using <code>template</code>. To keep the progress<br>bar working, keep an element with <code>role=&#39;bar&#39;</code> in there. See the [default template]<br>for reference.</p>
 <pre><code class="js">NProgress.configure({
-  template: <span class="string">"&lt;div class='....'&gt;...&lt;/div&gt;"</span>
+  <span class="attr">template</span>: <span class="string">"&lt;div class='....'&gt;...&lt;/div&gt;"</span>
 });
 </code></pre>
 <h4 id="easing-and-speed"><a href="#easing-and-speed" class="headerlink" title="easing and speed"></a><code>easing</code> and <code>speed</code></h4><p>Adjust animation settings using <em>easing</em> (a CSS easing string)<br>and <em>speed</em> (in ms). (default: <code>ease</code> and <code>200</code>)</p>
-<pre><code class="js">NProgress.configure({ easing: <span class="string">'ease'</span>, speed: <span class="number">500</span> });
+<pre><code class="js">NProgress.configure({ <span class="attr">easing</span>: <span class="string">'ease'</span>, <span class="attr">speed</span>: <span class="number">500</span> });
 </code></pre>
 <h4 id="trickle"><a href="#trickle" class="headerlink" title="trickle"></a><code>trickle</code></h4><p>Turn off the automatic incrementing behavior by setting this to <code>false</code>. (default: <code>true</code>)</p>
-<pre><code class="js">NProgress.configure({ trickle: <span class="literal">false</span> });
+<pre><code class="js">NProgress.configure({ <span class="attr">trickle</span>: <span class="literal">false</span> });
 </code></pre>
 <h4 id="trickleRate-and-trickleSpeed"><a href="#trickleRate-and-trickleSpeed" class="headerlink" title="trickleRate and trickleSpeed"></a><code>trickleRate</code> and <code>trickleSpeed</code></h4><p>You can adjust the <em>trickleRate</em> (how much to increase per trickle) and<br><em>trickleSpeed</em> (how often to trickle, in ms).</p>
-<pre><code class="js">NProgress.configure({ trickleRate: <span class="number">0.02</span>, trickleSpeed: <span class="number">800</span> });
+<pre><code class="js">NProgress.configure({ <span class="attr">trickleRate</span>: <span class="number">0.02</span>, <span class="attr">trickleSpeed</span>: <span class="number">800</span> });
 </code></pre>
 <h4 id="showSpinner"><a href="#showSpinner" class="headerlink" title="showSpinner"></a><code>showSpinner</code></h4><p>Turn off loading spinner by setting it to false. (default: <code>true</code>)</p>
-<pre><code class="js">NProgress.configure({ showSpinner: <span class="literal">false</span> });
+<pre><code class="js">NProgress.configure({ <span class="attr">showSpinner</span>: <span class="literal">false</span> });
 </code></pre>
 <h4 id="parent"><a href="#parent" class="headerlink" title="parent"></a><code>parent</code></h4><p>specify this to change the parent container. (default: <code>body</code>)</p>
-<pre><code class="js">NProgress.configure({ parent: <span class="string">'#container'</span> });
+<pre><code class="js">NProgress.configure({ <span class="attr">parent</span>: <span class="string">'#container'</span> });
 </code></pre>
 <h2 id="Customization"><a href="#Customization" class="headerlink" title="Customization"></a>Customization</h2><p>Just edit <code>nprogress.css</code> to your liking. Tip: you probably only want to find<br>and replace occurrences of <code>#29d</code>.</p>
 <p>The included CSS file is pretty minimal… in fact, feel free to scrap it and<br>make your own!</p>

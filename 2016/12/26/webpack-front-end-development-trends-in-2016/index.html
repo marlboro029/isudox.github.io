@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Spring," />
+  <meta name="keywords" content="Frontend,Webpack," />
 
 
 
@@ -87,16 +87,18 @@
 
 
 
-<meta name="description" content="成熟的互联网公司内部一般都会有多个线上环境，像在 JD，就有测试环境，预发布环境，生产环境。开发过程通常是现在本地编写代码，功能差不多了提到测试环境，再到预发布联调，测试通过再提交上线包部署到生产环境。但这是理想状况，实际开发中会有上下游系统联调的问题。">
+<meta name="description" content="对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spring AOP 本地模拟线上 RPC">
-<meta property="og:url" content="http://isudox.com/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop/index.html">
+<meta property="og:title" content="2016 年前端补习篇一：Webpack">
+<meta property="og:url" content="http://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="成熟的互联网公司内部一般都会有多个线上环境，像在 JD，就有测试环境，预发布环境，生产环境。开发过程通常是现在本地编写代码，功能差不多了提到测试环境，再到预发布联调，测试通过再提交上线包部署到生产环境。但这是理想状况，实际开发中会有上下游系统联调的问题。">
-<meta property="og:updated_time" content="2016-10-28T16:45:14.934Z">
+<meta property="og:description" content="对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/what-is-webpack.png">
+<meta property="og:updated_time" content="2016-12-26T16:48:20.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Spring AOP 本地模拟线上 RPC">
-<meta name="twitter:description" content="成熟的互联网公司内部一般都会有多个线上环境，像在 JD，就有测试环境，预发布环境，生产环境。开发过程通常是现在本地编写代码，功能差不多了提到测试环境，再到预发布联调，测试通过再提交上线包部署到生产环境。但这是理想状况，实际开发中会有上下游系统联调的问题。">
+<meta name="twitter:title" content="2016 年前端补习篇一：Webpack">
+<meta name="twitter:description" content="对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。">
+<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/what-is-webpack.png">
 
 
 
@@ -125,7 +127,7 @@
 
 
 
-  <title> Spring AOP 本地模拟线上 RPC | I sudo X </title>
+  <title> 2016 年前端补习篇一：Webpack | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -315,7 +317,7 @@
             
             
               
-                Spring AOP 本地模拟线上 RPC
+                2016 年前端补习篇一：Webpack
               
             
           </h1>
@@ -327,8 +329,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-08-03T14:57:22+08:00" content="2016-08-03">
-              2016-08-03
+            <time itemprop="dateCreated" datetime="2016-12-26T10:40:41+08:00" content="2016-12-26">
+              2016-12-26
             </time>
           </span>
 
@@ -357,8 +359,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/08/03/imitate-rpc-invoke-locally-by-spring-aop/" itemprop="commentsCount"></span>
+                <a href="/2016/12/26/webpack-front-end-development-trends-in-2016/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/12/26/webpack-front-end-development-trends-in-2016/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -368,7 +370,7 @@
 
           
           
-             <span id="/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop/" class="leancloud_visitors" data-flag-title="Spring AOP 本地模拟线上 RPC">
+             <span id="/2016/12/26/webpack-front-end-development-trends-in-2016/" class="leancloud_visitors" data-flag-title="2016 年前端补习篇一：Webpack">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -390,19 +392,36 @@
       
 
       
-        <p>成熟的互联网公司内部一般都会有多个线上环境，像在 JD，就有测试环境，预发布环境，生产环境。开发过程通常是现在本地编写代码，功能差不多了提到测试环境，再到预发布联调，测试通过再提交上线包部署到生产环境。但这是理想状况，实际开发中会有上下游系统联调的问题。</p>
+        <p>对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。</p>
 <a id="more"></a>
-<p>JD 的项目绝大多数都已经服务化了，服务的提供者和消费者分别在服务中心注册，消费者就能调用服务者的接口。但由于 JD 内部系统繁多，各有不同的开发团队维护各自的项目，除了生产环境和预发布环境能保证各系统间能互联互通，很多情况下，本地运行或在测试环境上运行时，没法调用到服务提供者的接口，这就很尴尬了，因为测试资源的不到位，只能上预发布环境进行上下游系统的对接联调，这是很烦人的，比较好的开发方案是，如果测试环境不完善，就把预发布环境上服务接口的真实数据截流并重定向到本地文件，把它打包成一个本地的测试数据源，以后直接在本地运行就行了。</p>
-<p>如何拦截数据？这就需要 AOP 大显身手了。Spring AOP 可以通过 <a href="http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/aop/framework/autoproxy/BeanNameAutoProxyCreator.html" target="_blank" rel="external">BeanNameAutoProxyCreatoraaaa</a> 自动代理目标 bean，属性 <code>beanNames</code> 和 <code>interceptorNames</code> 分别设置要代理的目标 bean 列表和拦截器数组。这样就很方便的实现了对目标 bean 的切入拦截。</p>
-<p>简单说下具体的实现流程：</p>
+<blockquote>
+<p>因为我对前端的认知停留在三脚猫的水平，因此本文不会执著于对不同框架/工具的优劣比较，谨作为个人浅尝辄止的学习记录。</p>
+</blockquote>
+<h2 id="Webpack-基础命令"><a href="#Webpack-基础命令" class="headerlink" title="Webpack 基础命令"></a>Webpack 基础命令</h2><h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p><img src="https://o70e8d1kb.qnssl.com/what-is-webpack.png" alt="What is webpack"></p>
+<p><a href="https://webpack.js.org/" target="_blank" rel="external">Webpack</a> 是一个前端的模块（Module Bundler）打包工具，如上图所示，它可以对各种类型的静态文件做统一的加载和处理。在展开对它的学习之前，先把准备工作做好，Webpack 的安装很简单，全局或本地安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># globally install</span></div><div class="line">yarn global add webpack</div><div class="line"><span class="comment"># locally install</span></div><div class="line">yarn add webpack</div></pre></td></tr></table></figure>
+<p>安装完后，就可以在控制台使用 <code>webpack</code> 命令了。在目录下执行 <code>webpack</code>，首先需要配置 <code>webpack.config.js</code> 文件，由该配置文件来控制 <code>webpack</code> 的操作。参考阮一峰老师 GitHub 上的示例如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// webpack.config.js</span></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: <span class="string">'./main.js'</span>,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span></div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>然后执行 <code>webpack</code> 命令就可以按照配置文件的设置，把目录下的 <code>main.js</code> 打包成 <code>bundle.js</code>。</p>
+<h3 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h3><p>Webpack 有 4 个核心概念必须要了解：<a href="https://webpack.js.org/concepts/entry-points/" target="_blank" rel="external">Entry</a>、<a href="https://webpack.js.org/concepts/output/" target="_blank" rel="external">Output</a>、<a href="https://webpack.js.org/concepts/loaders/" target="_blank" rel="external">Loaders</a> 和 <a href="https://webpack.js.org/concepts/plugins/" target="_blank" rel="external">Plugins</a>。</p>
+<h4 id="Entry"><a href="#Entry" class="headerlink" title="Entry"></a>Entry</h4><p>webpack 为 web 应用的依赖关系创建了图表，而 Entry 则是告诉 webpack 这张图表的入口位置并循着依赖关系去打包，webpack 通过对 webpack configuration object 设置 <code>entry</code> 属性来定义 Entry，参考下面的代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># webpack.config.js</div><div class="line">module.exports = &#123;</div><div class="line">  entry: './path/to/my/entry/file.js'</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>如果要指定多个 Entry，则需要将 <code>entry</code> 属性从 <code>string</code> 改为 <code>Array&lt;string&gt;</code>，比如 [‘./main.js’, ‘./index.js’]。也可以使用 Object 语法，把 <code>entry</code> 属性设置为一个 key-value 对象，这是更具扩展性的定义 <code>entry</code> 的写法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> config = &#123;</div><div class="line">  <span class="attr">entry</span>: &#123;</div><div class="line">    <span class="attr">app</span>: <span class="string">'./src/app.js'</span>,</div><div class="line">    <span class="attr">vendors</span>: <span class="string">'./src/vendors.js'</span></div><div class="line">  &#125;</div><div class="line">&#125;;</div><div class="line"><span class="built_in">module</span>.exports = config;</div></pre></td></tr></table></figure>
+<h4 id="Output"><a href="#Output" class="headerlink" title="Output"></a>Output</h4><p>既然由 Bundle 的入口 Entry，相应的必然也会有 Bundle 的出口，这就是 Output。我们需要告知 webpack 对打包后的静态资源如何处置，存放在哪，文件名是什么。webpack 的 <code>output</code> 属性描述了该如何处理打包后的代码。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"># webpack.config.js</div><div class="line">var path = require('path');</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">  entry: './path/to/my/entry/file.js',</div><div class="line">  output: &#123;</div><div class="line">    path: path.resolve(__dirname, 'dist'),</div><div class="line">    filename: 'my-first-webpack.bundle.js'</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>对于 <code>output.filename</code>，如果 <code>entry</code> 属性配置了多个文件，则需要使用命名替换的方式确保 output filename 不重名。其中，占位符 <code>[name]</code> 采用 chunk 的名称作为替换，<code>[hash]</code> 是采用编译后文件的 hash 值替换，而 <code>[chunkhash]</code> 则是根据 chunk 的 hash 值来替换。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">entry</span>: &#123;</div><div class="line">    <span class="attr">app</span>: <span class="string">'./src/app.js'</span>,</div><div class="line">    <span class="attr">search</span>: <span class="string">'./src/search.js'</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'[name].js'</span>,</div><div class="line">    <span class="attr">path</span>: __dirname + <span class="string">'/build'</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对于 <code>output.path</code> 属性，必须设置为绝对路径，占位符 <code>[hash]</code> 会被编译后文件的 hash 值替换：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">output: &#123;</div><div class="line">    <span class="attr">path</span>: <span class="string">"/home/proj/public/assets"</span>,</div><div class="line">    <span class="attr">publicPath</span>: <span class="string">"/assets/"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="Loaders"><a href="#Loaders" class="headerlink" title="Loaders"></a>Loaders</h4><h4 id="Plugins"><a href="#Plugins" class="headerlink" title="Plugins"></a>Plugins</h4><h2 id="Webpack-Config"><a href="#Webpack-Config" class="headerlink" title="Webpack Config"></a>Webpack Config</h2><p>参考阮一峰老师的 demo，是一个最简单的配置：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// webpack.config.js</span></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: <span class="string">'./main.js'</span>,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span></div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<hr>
+<p>参考资料：</p>
 <ul>
-<li>当线上运行时，通过拦截器对目标 bean 内部方法的拦截，将方法调用的结果持久化到结果文件中；</li>
-<li>当本地运行时，拦截器就不走远程调用，而是直接从结果文件中读取真实的调用结果。</li>
+<li>Webpack - <a href="https://webpack.github.io/docs/" target="_blank" rel="external">Docs</a></li>
+<li>阮一峰 - <a href="https://github.com/ruanyf/webpack-demos" target="_blank" rel="external">webpack-demos</a></li>
 </ul>
-<p>下面给出大致的拦截服务调用数据的代码：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- spring-aop-config.xml --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">beans</span>&gt;</span></div><div class="line">  <span class="comment">&lt;!-- method interceptor --&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"rpcInterceptor"</span> <span class="attr">class</span>=<span class="string">"com.isudox.utils.RpcInterceptor"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"mode"</span> <span class="attr">value</span>=<span class="string">"online"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"fileName"</span> <span class="attr">value</span>=<span class="string">"/home/sudoz/dev/local-rpc-data.properties"</span>/&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line">  <span class="comment">&lt;!-- auto proxy --&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"rpcAutoProxyCreator"</span></span></div><div class="line">        <span class="attr">class</span>=<span class="string">"org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"beanNames"</span>&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">list</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>remoteService1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>remoteService2<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>remoteService3<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>remoteService4<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">list</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"interceptorNames"</span>&gt;</span></div><div class="line">      <span class="tag">&lt;<span class="name">list</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>rpcInterceptor<span class="tag">&lt;/<span class="name">value</span>&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">list</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> org.aopalliance.intercept.MethodInterceptor;</div><div class="line"><span class="keyword">import</span> org.aopalliance.intercept.MethodInvocation;</div><div class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RpcInterceptor</span> <span class="keyword">implements</span> <span class="title">MethodInteceptors</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(RpcInterceptor.class);</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String mode = <span class="string">"local"</span>;  <span class="comment">// local || online</span></div><div class="line"></div><div class="line">    <span class="keyword">private</span> String fileName = <span class="string">"/home/sudoz/dev/local-rpc-data.properties"</span></div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> File rpcResultFile = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Properties rpcResultProperties;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RpcInterceptor</span><span class="params">()</span> </span>&#123;&#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(MethodInvocation invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</div><div class="line">        Object result;</div><div class="line">        String methodName = invocation.getMethod().getName();</div><div class="line">        Class&lt;?&gt; returnType = invocation.getMethod.getReturnType();</div><div class="line">        String className = invocation.getMethod().getDeclaringClass().getSimpleName();</div><div class="line">        Object[] args = invocation.getArguments();</div><div class="line">        </div><div class="line">        String key = className + <span class="string">"."</span> + methodName;</div><div class="line">        <span class="keyword">if</span> (StringUtils.equals(getMode(), <span class="string">"local"</span>)) &#123;</div><div class="line">            String value = rpcResultProperties.getProperty(key);</div><div class="line">            <span class="keyword">if</span> (StringUtils.isNotBlank(value)) &#123;</div><div class="line">                result = JSON.parseObject(value, returnType);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                result = invocation.proceed();</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            result = invocation.proceed();</div><div class="line">            String value = JSON.toJSONString(result);</div><div class="line">            <span class="keyword">this</span>.appendRpcResult2File(key, value);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> result;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">appendRpcResult2File</span><span class="params">(String k, String v)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Properties properties = <span class="keyword">new</span> Properties();</div><div class="line">            <span class="keyword">if</span> (rpcResultFile.exists()) &#123;</div><div class="line">                FileInputStream fis = <span class="keyword">new</span> FileInputStream(rpcResultFile);</div><div class="line">                properties.load(fis);</div><div class="line">            &#125;</div><div class="line">            FileOutputStream fos = <span class="keyword">new</span> FileOutputStream(rpcResultFile);</div><div class="line">            properties.setProperty(k, v);</div><div class="line">            properties.store(fos, <span class="string">"blabla..."</span>);</div><div class="line">            fos.flush();</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">            logger.error(<span class="string">"appendRpcResult2File failed, &#123;&#125;"</span>, e);</div><div class="line">        &#125; <span class="keyword">finally</span> &#123;</div><div class="line">            fos.close();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getMode</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> mode;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMode</span><span class="params">(String mode)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.mode = mode;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getfileName</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> fileName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setfileName</span><span class="params">(String fileName)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.fileName = fileName;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在线上预发布环境跑一次，简单的通过 AOP 就一劳永逸的解决了联调测试的一大困扰。要是线上有一个专门做服务调用数据生成的应用，所有系统和开发人员都能从上面生成真实的测试数据，那就更好了。</p>
 
       
     </div>
@@ -443,7 +462,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Spring/" rel="tag"># Spring</a>
+            <a href="/tags/Frontend/" rel="tag"># Frontend</a>
+          
+            <a href="/tags/Webpack/" rel="tag"># Webpack</a>
           
         </div>
       
@@ -452,8 +473,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/08/01/running-gitlab-in-docker-container/" rel="next" title="Docker 部署 GitLab">
-                <i class="fa fa-chevron-left"></i> Docker 部署 GitLab
+              <a href="/2016/11/12/cors-in-action/" rel="next" title="CORS 跨域调试记录">
+                <i class="fa fa-chevron-left"></i> CORS 跨域调试记录
               </a>
             
           </div>
@@ -461,10 +482,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/08/08/how-hashmap-works-in-jdk8/" rel="prev" title="JDK 8 中 HashMap 的工作原理">
-                JDK 8 中 HashMap 的工作原理 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -668,7 +685,7 @@
             
 
             
-              <p class="post-toc-empty">此文章未包含目录</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Webpack-基础命令"><span class="nav-number">1.</span> <span class="nav-text">Webpack 基础命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hello-World"><span class="nav-number">1.1.</span> <span class="nav-text">Hello World</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#核心概念"><span class="nav-number">1.2.</span> <span class="nav-text">核心概念</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Entry"><span class="nav-number">1.2.1.</span> <span class="nav-text">Entry</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Output"><span class="nav-number">1.2.2.</span> <span class="nav-text">Output</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Loaders"><span class="nav-number">1.2.3.</span> <span class="nav-text">Loaders</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Plugins"><span class="nav-number">1.2.4.</span> <span class="nav-text">Plugins</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Webpack-Config"><span class="nav-number">2.</span> <span class="nav-text">Webpack Config</span></a></li></ol></div>
             
 
           </div>
@@ -996,8 +1013,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
-      var disqus_identifier = '2016/08/03/imitate-rpc-invoke-locally-by-spring-aop/';
-      var disqus_title = 'Spring AOP 本地模拟线上 RPC';
+      var disqus_identifier = '2016/12/26/webpack-front-end-development-trends-in-2016/';
+      var disqus_title = '2016 年前端补习篇一：Webpack';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
