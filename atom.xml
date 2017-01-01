@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://isudox.com/"/>
-  <updated>2016-12-26T16:48:20.000Z</updated>
+  <updated>2017-01-01T16:48:07.000Z</updated>
   <id>http://isudox.com/</id>
   
   <author>
@@ -16,20 +16,229 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>2016 年前端补习篇一：Webpack</title>
+    <title>对 2017 年的期望</title>
+    <link href="http://isudox.com/2017/01/01/todo-list-2017/"/>
+    <id>http://isudox.com/2017/01/01/todo-list-2017/</id>
+    <published>2016-12-31T16:39:29.000Z</published>
+    <updated>2017-01-01T16:48:07.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>看完李安的《推手》，迎来了 2017 年的第一天。这算是新的一年里的开篇吧，就不写代码了，看社区里很多同行都在做过去的 2016 年的总结，或者是新一年的期望。对过去一年，我似乎很难整理出一条清晰的逻辑去完整的复盘和总结，总体来讲，我自己并不是很满意，当然也有令我激动的地方，比如遇到了 Kiki 啊……我觉得在毕业后的一年里没有取得自己想要的进步，没有达到我想达到的层次，新的一年里还得加油啊。既然不做总结了，展望还是要有的，万一做到了呢？</p>
+<a id="more"></a>
+<blockquote>
+<p>博客的 Markdown 解析器好像不支持 <code>checkbox</code> 语法，尴尬</p>
+</blockquote>
+<ul>
+<li>锻炼身体，体重达到 65 kg 以上，用肌肉武装自己；</li>
+<li>努力学习英语，雅思争取拿到满意的成绩；</li>
+<li>向 Kiki 学吉他，光看 Live 有什么劲啊；</li>
+<li>好好写博客，向大牛看齐，写出有技术深度满满干货的技术博客，好好混 GitHub，写出自己满意的开源作品；</li>
+<li>为爱自己的人，为自己爱的人，赚钱！赚好多钱！！赚更多钱！！！</li>
+</ul>
+<p>嗯，就是这样。其实上面有些是 2016 年的计划，当然这就意味着我没做到，只能延期一年，希望明年这时候会是另外一个状态。</p>
+<p>最后，既然是程序员，就要用程序员的方式辞旧迎新——</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;/<span class="name">2016</span>&gt;</span><span class="tag">&lt;<span class="name">2017</span>&gt;</span></div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;看完李安的《推手》，迎来了 2017 年的第一天。这算是新的一年里的开篇吧，就不写代码了，看社区里很多同行都在做过去的 2016 年的总结，或者是新一年的期望。对过去一年，我似乎很难整理出一条清晰的逻辑去完整的复盘和总结，总体来讲，我自己并不是很满意，当然也有令我激动的地方，比如遇到了 Kiki 啊……我觉得在毕业后的一年里没有取得自己想要的进步，没有达到我想达到的层次，新的一年里还得加油啊。既然不做总结了，展望还是要有的，万一做到了呢？&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Life" scheme="http://isudox.com/categories/Life/"/>
+    
+    
+      <category term="Todo" scheme="http://isudox.com/tags/Todo/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2016 前端补习 Yarn 篇</title>
+    <link href="http://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/"/>
+    <id>http://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/</id>
+    <published>2016-12-27T14:39:09.000Z</published>
+    <updated>2016-12-28T13:00:55.880Z</updated>
+    
+    <content type="html"><![CDATA[<p>目前使用最广泛的 JavaScript 的包管理工具应该是 npm，可以说是非常时髦的工具。但是在前端圈子，三岁就得叫爷爷，拳怕少壮，不久前 Facebook 和 Google 等联手推出了新的包管理工具 Yarn，一阵横扫之势，GitHub 上狂收 2w+ stars，令人侧目……在上一篇讲 webpack 学习的博客中也尝试使用了 Yarn，本篇就专门写写 Yarn。</p>
+<a id="more"></a>
+<h2 id="基础操作"><a href="#基础操作" class="headerlink" title="基础操作"></a>基础操作</h2><p>如果使用过 npm 的话，能发现二者在使用上非常接近，从 npm 迁移到 Yarn 近乎零成本。</p>
+<p>初始化新项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># same as npm init</span></div><div class="line">yarn init</div></pre></td></tr></table></figure>
+<p>执行该命令时，会询问项目名称，入口文件，作者等信息，确认后自动创建包管理文件 <code>package.json</code>，以后每次对包的增删更新都会同步到 <code>package.json</code> 中。</p>
+<p>安装依赖包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># same as npm install [package]</span></div><div class="line">yarn add [package]</div><div class="line">yarn add [package]@[version]</div><div class="line">yarn add [package]@[tag]</div></pre></td></tr></table></figure>
+<p>另外，该命令可以通过标识参数来指定依赖类型：</p>
+<ul>
+<li><code>yarn add --dev</code> 会把依赖包添加进 <code>devDependencies</code> 字段；</li>
+<li><code>yarn add --peer</code> 会把依赖包添加进 <code>peerDependencies</code> 字段；</li>
+<li><code>yarn add --optional</code> 会把依赖包添加进 <code>optionalDependencies</code> 字段；</li>
+</ul>
+<p>更新依赖包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># same as npm upgrade [package]</span></div><div class="line">yarn upgrade [package]</div><div class="line">yarn upgrade [package]@[version]</div><div class="line">yarn upgrade [package]@[tag]</div></pre></td></tr></table></figure>
+<p>卸载依赖包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># same as npm uninstall [package]</span></div><div class="line">yarn remove [package]</div></pre></td></tr></table></figure>
+<p>根据 <code>package.json</code> 安装所有依赖包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># same as npm install</span></div><div class="line">yarn install</div></pre></td></tr></table></figure>
+<p>该命令也支持通过标识参数来实现额外的功能：</p>
+<ul>
+<li><code>yarn install --flat</code> 每个包都只允许安装唯一的版本，第一次运行时会提示用户确认版本；</li>
+<li><code>yarn install --force</code> 强制联网下载所有包，即使之前下载过；</li>
+<li><code>yarn install --production</code> 使用该标识符或者环境变量 <code>NODE_ENV</code> 为 <code>production</code> 时，Yarn 会忽略 <code>devDependencies</code> 中的依赖包；</li>
+</ul>
+<p>除了 <code>package.json</code> 外，Yarn 还维护了 <code>yarn.lock</code> 来精确匹配所有依赖包的版本号，来弥补 <code>package.json</code> 管理依赖包版本时的不精确问题。因此，如果使用 Yarn，需要把 <code>yarn.lock</code> 添加进版本管理中。</p>
+<p>Yarn 还有其他一些比较常用的命令：</p>
+<ul>
+<li><code>yarn clean</code> 命令会清理掉不需要的依赖包，释放 <code>node_modules</code> 的空间。在执行该命令后，Yarn 会在项目根目录下创建 <code>.yarnclean</code> 文件，它也应该添加到版本管理中；</li>
+<li><code>yarn config set &lt;key&gt; &lt;value&gt; [-g|--global]</code> 命令会设置默认的 Yarn 信息，相应的，读取的命令是 <code>yarn config get &lt;key&gt;</code>。可以设置的 <code>key</code> 可以由 <code>yarn config list</code> 命令查看到；</li>
+<li><code>yarn global</code> 是一个前缀命令，可以加在 <code>add</code>、<code>remove</code> 等命令上，使得作用在全局上，类似 npm 的 <code>--global</code> 参数；</li>
+<li><code>yarn info &lt;package&gt;</code> 命令用来查看依赖包的详细信息；</li>
+<li><code>yarn login</code> 和 <code>yarn logout</code> 命令分别用来登录和登出 npm 的账户；</li>
+<li><code>yarn run [script] [-- &lt;args&gt;]</code> 命令用来执行 <code>package.json</code> 配置的 <code>scripts</code> 脚本命令，和 <code>npm run [script]</code> 一样；</li>
+<li><code>yarn why [package]</code> 命令检查安装该依赖包的原因，并列出依赖该包的其他包；</li>
+</ul>
+<h2 id="npm-命令比较"><a href="#npm-命令比较" class="headerlink" title="npm 命令比较"></a>npm 命令比较</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">npm</th>
+<th style="text-align:center">Yarn</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">npm install</td>
+<td style="text-align:center">yarn install</td>
+</tr>
+<tr>
+<td style="text-align:center">(N/A)</td>
+<td style="text-align:center">yarn install –flat</td>
+</tr>
+<tr>
+<td style="text-align:center">(N/A)</td>
+<td style="text-align:center">yarn install –har</td>
+</tr>
+<tr>
+<td style="text-align:center">(N/A)</td>
+<td style="text-align:center">yarn install –no-lockfile</td>
+</tr>
+<tr>
+<td style="text-align:center">(N/A)</td>
+<td style="text-align:center">yarn install –pure-lockfile</td>
+</tr>
+<tr>
+<td style="text-align:center">npm install [package]</td>
+<td style="text-align:center">(N/A)</td>
+</tr>
+<tr>
+<td style="text-align:center">npm install –save [package]</td>
+<td style="text-align:center">yarn add [package]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm install –save-dev [package]</td>
+<td style="text-align:center">yarn add [package] [–dev/-D]</td>
+</tr>
+<tr>
+<td style="text-align:center">(N/A)</td>
+<td style="text-align:center">yarn add [package] [–peer/-P]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm install –save-optional [package]</td>
+<td style="text-align:center">yarn add [package] [–optional/-O]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm install –save-exact [package]</td>
+<td style="text-align:center">yarn add [package] [–exact/-E]</td>
+</tr>
+<tr>
+<td style="text-align:center">(N/A)</td>
+<td style="text-align:center">yarn add [package] [–tilde/-T]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm install –global [package]</td>
+<td style="text-align:center">yarn global add [package]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm rebuild</td>
+<td style="text-align:center">yarn install –force</td>
+</tr>
+<tr>
+<td style="text-align:center">npm uninstall [package]</td>
+<td style="text-align:center">(N/A)</td>
+</tr>
+<tr>
+<td style="text-align:center">npm uninstall –save [package]</td>
+<td style="text-align:center">yarn remove [package]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm uninstall –save-dev [package]</td>
+<td style="text-align:center">yarn remove [package]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm uninstall –save-optional [package]</td>
+<td style="text-align:center">yarn remove [package]</td>
+</tr>
+<tr>
+<td style="text-align:center">npm cache clean</td>
+<td style="text-align:center">yarn cache clean</td>
+</tr>
+<tr>
+<td style="text-align:center">rm -rf node_modules &amp;&amp; npm install</td>
+<td style="text-align:center">yarn upgrade</td>
+</tr>
+</tbody>
+</table>
+<h2 id="package-json-依赖配置"><a href="#package-json-依赖配置" class="headerlink" title="package.json 依赖配置"></a>package.json 依赖配置</h2><h3 id="功能区分管理"><a href="#功能区分管理" class="headerlink" title="功能区分管理"></a>功能区分管理</h3><p>有的依赖包是为了编译构建工程，而有的包视为了运行，因此不同功能的包在 <code>package.json</code> 中被分离到不同的依赖集合中：<code>dependencies</code>、<code>devDependencies</code>、<code>optionalDependencies</code> 和 <code>peerDependencies</code>。</p>
+<p>参考 Yarn 文档里的示例：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">"name"</span>: <span class="string">"my-project"</span>,</div><div class="line">  <span class="attr">"dependencies"</span>: &#123;</div><div class="line">    <span class="attr">"package-a"</span>: <span class="string">"^1.0.0"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"devDependencies"</span>: &#123;</div><div class="line">    <span class="attr">"package-b"</span>: <span class="string">"^1.2.1"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"peerDependencies"</span>: &#123;</div><div class="line">    <span class="attr">"package-c"</span>: <span class="string">"^2.5.4"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">"optionalDependencies"</span>: &#123;</div><div class="line">    <span class="attr">"package-d"</span>: <span class="string">"^3.1.0"</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>用的最多的应该是 <code>dependencies</code> 和 <code>devDependencies</code>，下面按照官方文档具体说明：</p>
+<ul>
+<li><code>dependencies</code>：记录运行程序时所需的依赖包；</li>
+<li><code>devDependencies</code>：这是开发的依赖包，是开发构建时所需的依赖包，但在运行时不需要；</li>
+<li><code>peerDependencies</code>：只有当开发者需要发布自己的包时，才需要配置；</li>
+<li><code>optionalDependencies</code>：顾名思义就是可选的依赖包，即使安装失败，也不会影响；</li>
+<li><code>bundledDependencies</code>：是项目内部的包，而不是从 npm 上安装；</li>
+</ul>
+<h3 id="版本号管理"><a href="#版本号管理" class="headerlink" title="版本号管理"></a>版本号管理</h3><p><code>package.json</code> 也对依赖包的版本做了管理，版本号遵循 <code>major.minor.patch</code> 的规则，如果是 beta 版，则会在版本号后追加 <code>-beta.x</code>。除了明确指定版本号，还可以通过操作符实现指定版本号范围。</p>
+<p>最简单易懂的就是 <code>=</code>、<code>&gt;</code>、<code>&lt;=</code> 等符号，这个不多讲，还有两个特殊的符号 <code>~</code> 和 <code>^</code>：</p>
+<ul>
+<li><code>~</code> 符：当版本号带有 <code>minor</code> 版本时，<code>~</code> 表示允许 <code>patch</code> 版本在 <code>minor</code> 保持不变时，递增变化。比如 <code>~3.1.4</code> 等同 <code>&gt;=3.1.4 &lt;3.2.0</code>；<code>~3.1</code> 等同于 <code>3.1.x</code>。当 <code>~</code> 后的版本号只有 <code>major</code> 时，只允许在 <code>major</code> 不变时，<code>minor</code> 的变化，比如 <code>~3</code> 等同于 <code>3.x</code>。</li>
+<li><code>^</code> 符：允许版本号在不改变第一个非零版本位的范围变动，比如 <code>^3.1.4</code> 表示 <code>&gt;=3.1.4 &lt;4.0.0</code>，<code>^0.4.2</code> 表示 <code>&gt;=0.4.2 &lt;0.5.0</code>， <code>^0.0.2</code> 表示 <code>&gt;=0.0.2 &lt;0.0.3</code>。Yarn 在安装依赖包时，默认使用 <code>^</code> 来设置版本号。</li>
+</ul>
+<p>还有逻辑符号，用空格表示 <code>and</code> 关系，<code>||</code> 表示 <code>or</code> 关系，比如 <code>&gt;=2.0.0 &lt;3.1.4</code> 的意思是版本号大于等于 <code>2.0.0</code> 且小于 <code>3.1.4</code>。连字符 <code>-</code> 很有用，直接表示起止范围，上面这个版本范围用 <code>-</code> 符表示的话就是 <code>2.0.0 - 3.1.4</code>。</p>
+<p>Yarn 的内容不多，使用也很简单，花半小时操练下命令就都了解了。</p>
+<hr>
+<p>参考资料：</p>
+<ul>
+<li>Yarn - <a href="https://yarnpkg.com/en/docs" target="_blank" rel="external">Docs</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;目前使用最广泛的 JavaScript 的包管理工具应该是 npm，可以说是非常时髦的工具。但是在前端圈子，三岁就得叫爷爷，拳怕少壮，不久前 Facebook 和 Google 等联手推出了新的包管理工具 Yarn，一阵横扫之势，GitHub 上狂收 2w+ stars，令人侧目……在上一篇讲 webpack 学习的博客中也尝试使用了 Yarn，本篇就专门写写 Yarn。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="Frontend" scheme="http://isudox.com/tags/Frontend/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2016 前端补习 Webpack 篇</title>
     <link href="http://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/"/>
     <id>http://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/</id>
     <published>2016-12-26T02:40:41.000Z</published>
-    <updated>2016-12-26T16:48:20.000Z</updated>
+    <updated>2016-12-28T13:00:55.880Z</updated>
     
     <content type="html"><![CDATA[<p>对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。</p>
 <a id="more"></a>
 <blockquote>
 <p>因为我对前端的认知停留在三脚猫的水平，因此本文不会执著于对不同框架/工具的优劣比较，谨作为个人浅尝辄止的学习记录。</p>
 </blockquote>
-<h2 id="Webpack-基础命令"><a href="#Webpack-基础命令" class="headerlink" title="Webpack 基础命令"></a>Webpack 基础命令</h2><h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p><img src="https://o70e8d1kb.qnssl.com/what-is-webpack.png" alt="What is webpack"></p>
+<h2 id="Webpack-基础命令"><a href="#Webpack-基础命令" class="headerlink" title="Webpack 基础命令"></a>Webpack 基础命令</h2><h3 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h3><p><img src="https://webpack.github.io/assets/what-is-webpack.png" alt="What is webpack"></p>
 <p><a href="https://webpack.js.org/" target="_blank" rel="external">Webpack</a> 是一个前端的模块（Module Bundler）打包工具，如上图所示，它可以对各种类型的静态文件做统一的加载和处理。在展开对它的学习之前，先把准备工作做好，Webpack 的安装很简单，全局或本地安装：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># globally install</span></div><div class="line">yarn global add webpack</div><div class="line"><span class="comment"># locally install</span></div><div class="line">yarn add webpack</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># globally install</span></div><div class="line">yarn global add webpack@2.1.0-beta.20</div><div class="line"><span class="comment"># locally install</span></div><div class="line">yarn add webpack@2.1.0-beta.20 -D</div></pre></td></tr></table></figure>
 <p>安装完后，就可以在控制台使用 <code>webpack</code> 命令了。在目录下执行 <code>webpack</code>，首先需要配置 <code>webpack.config.js</code> 文件，由该配置文件来控制 <code>webpack</code> 的操作。参考阮一峰老师 GitHub 上的示例如下：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// webpack.config.js</span></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: <span class="string">'./main.js'</span>,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span></div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
 <p>然后执行 <code>webpack</code> 命令就可以按照配置文件的设置，把目录下的 <code>main.js</code> 打包成 <code>bundle.js</code>。</p>
@@ -42,14 +251,46 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"># webpack.config.js</div><div class="line">var path = require('path');</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">  entry: './path/to/my/entry/file.js',</div><div class="line">  output: &#123;</div><div class="line">    path: path.resolve(__dirname, 'dist'),</div><div class="line">    filename: 'my-first-webpack.bundle.js'</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
 <p>对于 <code>output.filename</code>，如果 <code>entry</code> 属性配置了多个文件，则需要使用命名替换的方式确保 output filename 不重名。其中，占位符 <code>[name]</code> 采用 chunk 的名称作为替换，<code>[hash]</code> 是采用编译后文件的 hash 值替换，而 <code>[chunkhash]</code> 则是根据 chunk 的 hash 值来替换。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="attr">entry</span>: &#123;</div><div class="line">    <span class="attr">app</span>: <span class="string">'./src/app.js'</span>,</div><div class="line">    <span class="attr">search</span>: <span class="string">'./src/search.js'</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'[name].js'</span>,</div><div class="line">    <span class="attr">path</span>: __dirname + <span class="string">'/build'</span></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>对于 <code>output.path</code> 属性，必须设置为绝对路径，占位符 <code>[hash]</code> 会被编译后文件的 hash 值替换：</p>
+<p>对于 <code>output.path</code> 属性，必须设为绝对路径，占位符 <code>[hash]</code> 会被编译后文件的 hash 值替换：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">output: &#123;</div><div class="line">    <span class="attr">path</span>: <span class="string">"/home/proj/public/assets"</span>,</div><div class="line">    <span class="attr">publicPath</span>: <span class="string">"/assets/"</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h4 id="Loaders"><a href="#Loaders" class="headerlink" title="Loaders"></a>Loaders</h4><h4 id="Plugins"><a href="#Plugins" class="headerlink" title="Plugins"></a>Plugins</h4><h2 id="Webpack-Config"><a href="#Webpack-Config" class="headerlink" title="Webpack Config"></a>Webpack Config</h2><p>参考阮一峰老师的 demo，是一个最简单的配置：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// webpack.config.js</span></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: <span class="string">'./main.js'</span>,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span></div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h4 id="Loaders"><a href="#Loaders" class="headerlink" title="Loaders"></a>Loaders</h4><p>webpack 可以对项目里所有静态资源（包括 <code>.css</code>、<code>.html</code>、<code>scss</code>、<code>jpg</code> 等）所谓模块进行处理，但是 webpack 只能理解 JavaScript，如果要处理其他类型的静态文件，就需要 webpack 的 Loaders，把这些静态文件转换成模块的处理器。在 <code>webpack.config.js</code> 的 Loaders 属性配置中，有两个目标需要确认：</p>
+<ol>
+<li>标识什么文件可以被转换成模块（由 <code>test</code> 属性指定）；</li>
+<li>指定转换这些文件的处理器 loader（由 <code>use</code> 属性指定）;</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</div><div class="line"></div><div class="line"><span class="keyword">const</span> config = &#123;</div><div class="line">  <span class="attr">entry</span>: <span class="string">'./path/to/my/entry/file.js'</span>,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">path</span>: path.resolve(__dirname, <span class="string">'dist'</span>),  <span class="comment">// bundle 文件的绝对路径</span></div><div class="line">    publicPath: <span class="string">"/dist/"</span>,  <span class="comment">// 网站运行时的访问路径</span></div><div class="line">    filename: <span class="string">'my-first-webpack.bundle.js'</span>  <span class="comment">// bundle 的文件名</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">module</span>: &#123;</div><div class="line">    <span class="attr">rules</span>: [</div><div class="line">      &#123;<span class="attr">test</span>: <span class="regexp">/\.(js|jsx)$/</span>, <span class="attr">use</span>: <span class="string">'babel-loader'</span>&#125;</div><div class="line">    ]</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>上面的配置，通过 <code>rule</code> 属性对单个模块的处理进行设置，因此 webpack 会对项目依赖关系中被 <code>require</code> 或 <code>import</code> 的 <code>.js</code> 和 <code>.jsx</code> 文件，在它们被添加进 bundle 之前，用 <code>babel-loader</code> 处理器进行转换处理（该处理器会把 JSX 和 ES6 的文件转换成 JS 文件）。另外，loaders 的名称都是 <code>xxx-loader</code> 格式，<code>use</code> 属性也可以简写为 <code>xxx</code>。</p>
+<h4 id="Plugins"><a href="#Plugins" class="headerlink" title="Plugins"></a>Plugins</h4><p>Loaders 只能在 bundle 之前对静态资源作预处理，而 Plugins 则可以对编译后文件和 chunk 文件进行处理，比如 <code>UglifyJsPlugin</code> 可以对 bundle 后的 JavaScript 代码进行压缩处理。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>);</div><div class="line"><span class="keyword">var</span> uglifyJsPlugin = webpack.optimize.UglifyJsPlugin;</div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: <span class="string">'./main.js'</span>,</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">plugins</span>: [</div><div class="line">    <span class="keyword">new</span> uglifyJsPlugin(&#123;</div><div class="line">      <span class="attr">compress</span>: &#123;</div><div class="line">        <span class="attr">warnings</span>: <span class="literal">false</span></div><div class="line">      &#125;</div><div class="line">    &#125;)</div><div class="line">  ]</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h2 id="结合-React"><a href="#结合-React" class="headerlink" title="结合 React"></a>结合 React</h2><p>在了解 webpack 的基础操作后，可以在 React 项目中实际运用 webpack 进行打包。为了便于描述，就采用最简单的 Hello World 例子。React 项目结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- hello-world</div><div class="line">    - dist/</div><div class="line">    - src/</div><div class="line">        - js/</div><div class="line">            Welcome.js</div><div class="line">            entry.js</div><div class="line">    index.html</div><div class="line">    webpack.config.js</div></pre></td></tr></table></figure>
+<p>其中，<code>Welcome.js</code> 定义了一个 React Component，代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Welcome.js</span></div><div class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Welcome</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</div><div class="line">  render() &#123;</div><div class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello, &#123;this.props.name&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>entry.js</code> 是依赖关系的入口文件，引入依赖的模块，并输出页面元素：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// entry.js</span></div><div class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</div><div class="line"><span class="keyword">import</span> Welcome <span class="keyword">from</span> <span class="string">'./Welcome'</span>;</div><div class="line"></div><div class="line">React.render(<span class="xml"><span class="tag">&lt;<span class="name">Welcome</span> <span class="attr">name</span>=<span class="string">"sudoz"</span> /&gt;</span>, document.getElementById('root'));</span></div></pre></td></tr></table></figure>
+<p>而 <code>index.html</code> 的页面源码如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Hello World<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"root"</span>&gt;</span></div><div class="line">    <span class="comment">&lt;!-- This HTML file is a template. --&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/dist/bundle.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure>
+<p><code>webpack.config.js</code> 需要对 React 的 JSX 文件进行 babel 转换：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// webpack.config.js</span></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: [</div><div class="line">    path.resolve(root_path, <span class="string">'./src/js/entry'</span>)</div><div class="line">  ],</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">path</span>: path.resolve(root_path, <span class="string">'dist'</span>),</div><div class="line">    <span class="attr">publicPath</span>: <span class="string">'/dist/'</span>,</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span></div><div class="line">  &#125;,</div><div class="line">  <span class="attr">module</span>: &#123;</div><div class="line">    <span class="attr">rules</span>: [</div><div class="line">      &#123;</div><div class="line">        <span class="attr">test</span>: <span class="regexp">/\.js[x]$/</span>,</div><div class="line">        <span class="attr">use</span>: [<span class="string">'babel-loader'</span>],</div><div class="line">        <span class="attr">query</span>: &#123;</div><div class="line">          <span class="attr">presets</span>: [<span class="string">'es2015'</span>, <span class="string">'react'</span>]</div><div class="line">        &#125;,</div><div class="line">        <span class="attr">exclude</span>: <span class="regexp">/node_modules/</span></div><div class="line">      &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="模块热替换"><a href="#模块热替换" class="headerlink" title="模块热替换"></a>模块热替换</h2><p>当修改、新增或移除模块时，热替换（Hot Module Replacement, HMR）可以使程序无需重新载入页面就能实现更新。</p>
+<p>要使用 HMR，需要安装一下依赖，另外在安装 React 依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">yarn add -D babel@6.5.2 babel-core@6.13.2 babel-loader@6.2.4 babel-preset-es2015@6.13.2 babel-preset-react@6.11.1 babel-preset-stage-2@6.13.0 css-loader@0.23.1 postcss-loader@0.9.1 react-hot-loader@3.0.0-beta.6 style-loader@0.13.1 webpack@2.1.0-beta.20 webpack-dev-server@2.1.0-beta.0</div><div class="line"></div><div class="line">yarn add react@15.3.0 react-dom@15.3.0</div></pre></td></tr></table></figure>
+<p>配置 <code>.babelrc</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">  <span class="string">"presets"</span>: [</div><div class="line">    [<span class="string">"es2015"</span>, &#123;<span class="string">"modules"</span>: <span class="literal">false</span>&#125;],</div><div class="line">    <span class="comment">// webpack understands the native import syntax, and uses it for tree shaking</span></div><div class="line"></div><div class="line">    <span class="string">"stage-2"</span>,</div><div class="line">    <span class="comment">// Specifies what level of language features to activate.</span></div><div class="line">    <span class="comment">// Stage 2 is "draft", 4 is finished, 0 is strawman.</span></div><div class="line">    <span class="comment">// See https://tc39.github.io/process-document/</span></div><div class="line"></div><div class="line">    <span class="string">"react"</span></div><div class="line">    <span class="comment">// Transpile React components to JavaScript</span></div><div class="line">  ],</div><div class="line">  <span class="string">"plugins"</span>: [</div><div class="line">    <span class="string">"react-hot-loader/babel"</span></div><div class="line">    <span class="comment">// Enables React code to work with HMR.</span></div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>webpack.config.js</code> 的参考配置：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> &#123; resolve &#125; = <span class="built_in">require</span>(<span class="string">'path'</span>);</div><div class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>);</div><div class="line"></div><div class="line"><span class="built_in">module</span>.exports = &#123;</div><div class="line">  <span class="attr">entry</span>: [</div><div class="line">    <span class="string">'react-hot-loader/patch'</span>,</div><div class="line">    <span class="comment">// activate HMR for React</span></div><div class="line"></div><div class="line">    <span class="string">'webpack-dev-server/client?http://localhost:8080'</span>,</div><div class="line">    <span class="comment">// bundle the client for webpack-dev-server</span></div><div class="line">    <span class="comment">// and connect to the provided endpoint</span></div><div class="line"></div><div class="line">    <span class="string">'webpack/hot/only-dev-server'</span>,</div><div class="line">    <span class="comment">// bundle the client for hot reloading</span></div><div class="line">    <span class="comment">// only- means to only hot reload for successful updates</span></div><div class="line"></div><div class="line"></div><div class="line">    <span class="string">'./index.js'</span></div><div class="line">    <span class="comment">// the entry point of our app</span></div><div class="line">  ],</div><div class="line">  <span class="attr">output</span>: &#123;</div><div class="line">    <span class="attr">filename</span>: <span class="string">'bundle.js'</span>,</div><div class="line">    <span class="comment">// the output bundle</span></div><div class="line"></div><div class="line">    path: resolve(__dirname, <span class="string">'dist'</span>),</div><div class="line"></div><div class="line">    <span class="attr">publicPath</span>: <span class="string">'/'</span></div><div class="line">    <span class="comment">// necessary for HMR to know where to load the hot update chunks</span></div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  <span class="attr">context</span>: resolve(__dirname, <span class="string">'src'</span>),</div><div class="line"></div><div class="line">  <span class="attr">devtool</span>: <span class="string">'inline-source-map'</span>,</div><div class="line"></div><div class="line">  <span class="attr">devServer</span>: &#123;</div><div class="line">    <span class="attr">hot</span>: <span class="literal">true</span>,</div><div class="line">    <span class="comment">// enable HMR on the server</span></div><div class="line"></div><div class="line">    contentBase: resolve(__dirname, <span class="string">'dist'</span>),</div><div class="line">    <span class="comment">// match the output path</span></div><div class="line"></div><div class="line">    publicPath: <span class="string">'/'</span></div><div class="line">    <span class="comment">// match the output `publicPath`</span></div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  <span class="attr">module</span>: &#123;</div><div class="line">    <span class="attr">rules</span>: [</div><div class="line">      &#123;</div><div class="line">        <span class="attr">test</span>: <span class="regexp">/\.js$/</span>,</div><div class="line">        <span class="attr">use</span>: [</div><div class="line">          <span class="string">'babel-loader'</span>,</div><div class="line">        ],</div><div class="line">        <span class="attr">exclude</span>: <span class="regexp">/node_modules/</span></div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        <span class="attr">test</span>: <span class="regexp">/\.css$/</span>,</div><div class="line">        <span class="attr">use</span>: [</div><div class="line">          <span class="string">'style-loader'</span>,</div><div class="line">          <span class="string">'css-loader?modules'</span>,</div><div class="line">          <span class="string">'postcss-loader'</span>,</div><div class="line">        ],</div><div class="line">      &#125;,</div><div class="line">    ],</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  <span class="attr">plugins</span>: [</div><div class="line">    <span class="keyword">new</span> webpack.HotModuleReplacementPlugin(),</div><div class="line">    <span class="comment">// enable HMR globally</span></div><div class="line"></div><div class="line">    <span class="keyword">new</span> webpack.NamedModulesPlugin(),</div><div class="line">    <span class="comment">// prints more readable module names in the browser console on HMR updates</span></div><div class="line">  ],</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>上面的配置是假定入口文件是 <code>./src/index.js</code>，且需要引入 Loader 来处理 CSS 模块。注意 <code>entry</code> 属性中增加了 <code>react-hot-loader</code> 模块，这是开启 React 组件 HMR 的必要操作。<code>NamedModulesPlugin</code> 是非常有用的 Plugin，它能友好的显示什么模块发生了 HMR。</p>
+<p>再来看 webpack 官方文档给出的入口 JS 文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ./src/index.js</span></div><div class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</div><div class="line"><span class="keyword">import</span> ReactDOM <span class="keyword">from</span> <span class="string">'react-dom'</span>;</div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123; AppContainer &#125; <span class="keyword">from</span> <span class="string">'react-hot-loader'</span>;</div><div class="line"><span class="comment">// AppContainer is a necessary wrapper component for HMR</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./components/App'</span>;</div><div class="line"></div><div class="line"><span class="keyword">const</span> render = <span class="function">(<span class="params">Component</span>) =&gt;</span> &#123;</div><div class="line">  ReactDOM.render(</div><div class="line">    <span class="xml"><span class="tag">&lt;<span class="name">AppContainer</span>&gt;</span></span></div><div class="line">      <span class="tag">&lt;<span class="name">Component</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">AppContainer</span>&gt;</span>,</div><div class="line">    <span class="built_in">document</span>.getElementById(<span class="string">'root'</span>)</div><div class="line">  );</div><div class="line">&#125;;</div><div class="line"></div><div class="line">render(App);</div><div class="line"></div><div class="line"><span class="comment">// Hot Module Replacement API</span></div><div class="line"><span class="keyword">if</span> (<span class="built_in">module</span>.hot) &#123;</div><div class="line">  <span class="built_in">module</span>.hot.accept(<span class="string">'./components/App'</span>, () =&gt; &#123;</div><div class="line">    <span class="keyword">const</span> NewApp = <span class="built_in">require</span>(<span class="string">'./components/App'</span>).default</div><div class="line">    render(NewApp)</div><div class="line">  &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>App 组件 <code>App.js</code> 源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ./src/components/App.js</span></div><div class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span>;</div><div class="line"><span class="keyword">import</span> styles <span class="keyword">from</span> <span class="string">'./App.css'</span>;</div><div class="line"></div><div class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> (</div><div class="line">  <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;styles.app&#125;</span>&gt;</span></span></div><div class="line">    <span class="tag">&lt;<span class="name">h2</span>&gt;</span>Hello, <span class="tag">&lt;/<span class="name">h2</span>&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">);</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> App;</div></pre></td></tr></table></figure>
+<p><code>App.css</code></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">// ./src/components/App.css</div><div class="line">.app &#123;</div><div class="line">    text-size-adjust: none;</div><div class="line">    font-family: helvetica, arial, sans-serif;</div><div class="line">    line-height: 200%;</div><div class="line">    padding: 6px 20px 30px;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在项目根目录下执行 <code>webpack-dev-server</code>，打开 <code>http：//127.0.0.1:8080</code> 查看页面控制台。</p>
 <hr>
 <p>参考资料：</p>
 <ul>
-<li>Webpack - <a href="https://webpack.github.io/docs/" target="_blank" rel="external">Docs</a></li>
+<li>Webpack 2 - <a href="https://webpack.js.org" target="_blank" rel="external">Docs</a></li>
 <li>阮一峰 - <a href="https://github.com/ruanyf/webpack-demos" target="_blank" rel="external">webpack-demos</a></li>
 </ul>
 ]]></content>
@@ -1554,170 +1795,6 @@
     
     
       <category term="PostgreSQL" scheme="http://isudox.com/tags/PostgreSQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hexo 主题美化</title>
-    <link href="http://isudox.com/2016/07/14/customize-hexo-theme/"/>
-    <id>http://isudox.com/2016/07/14/customize-hexo-theme/</id>
-    <published>2016-07-14T08:01:06.000Z</published>
-    <updated>2016-08-25T10:50:31.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>小站有段时间没折{no}腾{zuo}前{no}端{die}了，在浏览别的个人站时总会时不时被里面的设计吸引到，最近闲着没事干，就把别人的主题抄袭过来，嘿嘿。</p>
-<a id="more"></a>
-<h3 id="头像旋转"><a href="#头像旋转" class="headerlink" title="头像旋转"></a>头像旋转</h3><p><a href="https://github.com/A-limon/pacman" target="_blank" rel="external">Pacman</a> 主题布局非常大气，最有心的设计在我看来就是底栏的可旋转的圆形头像，非常可爱。相比之下，鄙人小站侧边栏头像就显得很呆板了。那就抄过来！<br>可以知道，这是一个鼠标的 <code>hover</code> 事件，因此先找到位于 <code>source/css/_common/components/sidebar/sidebar-author.syl</code> 模板文件里侧边栏头像的样式 <code>.site-author-image</code></p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.site-author-image</span> &#123;</div><div class="line">    <span class="attribute">display</span>: block;</div><div class="line">    <span class="attribute">margin</span>: <span class="number">0</span> auto;</div><div class="line">    <span class="attribute">padding</span>: $site-author-image-padding;</div><div class="line">    <span class="attribute">max-width</span>: $site-author-image-width;</div><div class="line">    <span class="attribute">height</span>: $site-author-image-height;</div><div class="line">    <span class="attribute">border</span>: $site-author-image-border-width solid $site-author-image-border-color;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>首先要做的事就是把原头像图通过 css 样式改成圆形头像。通过修改 <code>border-radius</code> 属性就可以改图片四个角的圆角程度。另外针对不同内核的浏览器也能分别指定。再加上属性变化的动画效果 <code>transition</code>。</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.site-author-image</span> &#123;</div><div class="line">    <span class="attribute">border-radius</span>: <span class="number">50%</span>;</div><div class="line">    <span class="attribute">-webkit-border-radius</span>: <span class="number">50%</span>;</div><div class="line">    <span class="attribute">-moz-border-radius</span>: <span class="number">50%</span>;</div><div class="line">    <span class="attribute">transition</span>: <span class="number">1.4s</span> all;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>圆角效果完成后，再做 <code>hover</code> 动作。添加 <code>.site-author-image:hover</code> 样式，由 <code>rotate()</code> 方法实现，旋转 360°</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.site-author-image</span><span class="selector-pseudo">:hover</span> &#123;</div><div class="line">    <span class="attribute">-webkit-transform</span>: <span class="built_in">rotate</span>(360deg);</div><div class="line">    <span class="attribute">-moz-transform</span>: <span class="built_in">rotate</span>(360deg);</div><div class="line">    <span class="attribute">-ms-transform</span>: <span class="built_in">rotate</span>(360deg);</div><div class="line">    <span class="attribute">-transform</span>: <span class="built_in">rotate</span>(360deg);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>OK，成就达成。</p>
-<h3 id="侧边滚动条"><a href="#侧边滚动条" class="headerlink" title="侧边滚动条"></a>侧边滚动条</h3><p><a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="external">Yilia</a> 也是 GitHub 上非常受欢迎的一款 Hexo 主题， 虽然我用的不是 Yilia 主题，但是不妨碍我喜欢它的侧边滚动条，灰色系的性冷淡风很契合我的小站。所以我就把这个样式挪到了我的小站里。<br>为了不影响小站原主题的样式，最好不要直接在原有样式上做修改。在 <code>source/css/_custom</code> 里的 <code>custom.stl</code> 模板文件里编写对滚动条的自定义样式。不过有一点，自定义的滚动条只支持 webkit 内核的浏览器，比如 Firefox 和 IE 就爱莫能助了。当然，在 Chrome 上的体验完美！</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line">// Custom styles.</div><div class="line">::-webkit-scrollbar &#123;</div><div class="line">  width: 10px;</div><div class="line">	height: 10px;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button &#123;</div><div class="line">	width: 0;</div><div class="line">	height: 0;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:start:increment,::-webkit-scrollbar-button:end:decrement &#123;</div><div class="line">	display: none;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-corner &#123;</div><div class="line">	display: block;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-thumb &#123;</div><div class="line">	border-radius: 8px;</div><div class="line">	background-color: rgba(0,0,0,.2);</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-thumb:hover &#123;</div><div class="line">	border-radius: 8px;</div><div class="line">	background-color: rgba(0,0,0,.5);</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-track,::-webkit-scrollbar-thumb &#123;</div><div class="line">	border-right: 1px solid transparent;</div><div class="line">	border-left: 1px solid transparent;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-track:hover &#123;</div><div class="line">	background-color: rgba(0,0,0,.15);</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:start &#123;</div><div class="line">	width: 10px;</div><div class="line">	height: 10px;</div><div class="line">	background: url(../images/scrollbar_arrow.png) no-repeat 0 0;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:start:hover &#123;</div><div class="line">	background: url(../images/scrollbar_arrow.png) no-repeat -15px 0;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:start:active &#123;</div><div class="line">	background: url(../images/scrollbar_arrow.png) no-repeat -30px 0;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:end &#123;</div><div class="line">	width: 10px;</div><div class="line">	height: 10px;</div><div class="line">	background: url(../images/scrollbar_arrow.png) no-repeat 0 -18px;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:end:hover &#123;</div><div class="line">	background: url(../images/scrollbar_arrow.png) no-repeat -15px -18px;</div><div class="line">&#125;</div><div class="line">::-webkit-scrollbar-button:end:active &#123;</div><div class="line">	background: url(../images/scrollbar_arrow.png) no-repeat -30px -18px;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>前后对比<br><img src="https://o70e8d1kb.qnssl.com/scrollbars.png" alt=""></p>
-<h3 id="顶部阅读进度条"><a href="#顶部阅读进度条" class="headerlink" title="顶部阅读进度条"></a>顶部阅读进度条</h3><p>阅读进度条的宽度是随着页面上下滚动而变化的。当滚动条在顶部时，阅读进度条宽度为浏览器宽度的 0%，当滚动条在页面底部时，阅读进度条宽度为浏览器宽度的 100%。很简单，写好进度条的样式和高度计算的脚本就能轻松实现。<br>先在 <code>layout/_partials/header.swig</code> 模板文件里加上进度条的 div：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"top-scroll-bar"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>在自定义样式文件 <code>source/css/_custom/custom.styl</code> 中加上 <code>.top-scroll-bar</code> 的样式，还是一如既往采用克制的灰色系：</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="selector-class">.top-scroll-bar</span> &#123;</div><div class="line">    <span class="attribute">position</span>: fixed;</div><div class="line">    <span class="attribute">top</span>: <span class="number">0</span>;</div><div class="line">    <span class="attribute">left</span>: <span class="number">0</span>;</div><div class="line">    <span class="attribute">z-index</span>: <span class="number">9999</span>;</div><div class="line">    <span class="attribute">display</span>: none;</div><div class="line">    <span class="attribute">width</span>: <span class="number">0</span>;</div><div class="line">    <span class="attribute">height</span>: <span class="number">2px</span>;</div><div class="line">    <span class="attribute">background</span>: <span class="number">#6d6d6d</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>然后在新建自定义的 js 脚本文件 <code>source/js/src/custom/custom.js</code>，计算当前高度的百分比：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">  $(<span class="built_in">window</span>).scroll(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    $(<span class="string">".top-scroll-bar"</span>).attr(<span class="string">"style"</span>, <span class="string">"width: "</span> + ($(<span class="keyword">this</span>).scrollTop() / ($(<span class="built_in">document</span>).height() - $(<span class="keyword">this</span>).height()) * <span class="number">100</span>) + <span class="string">"%; display: block;"</span>);</div><div class="line">  &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
-<p>再在 <code>layout/_scripts/commons.swig</code> 中把该文件引入进页面的模板中：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&#123;%</div><div class="line">  set js_commons = [</div><div class="line">    &apos;src/utils.js&apos;,</div><div class="line">    &apos;src/motion.js&apos;,</div><div class="line">    &apos;src/custom/custom.js&apos;</div><div class="line">  ]</div><div class="line">%&#125;</div><div class="line"></div><div class="line">&#123;% for common in js_commons %&#125;</div><div class="line">  &lt;script type=&quot;text/javascript&quot; src=&quot;&#123;&#123; url_for(theme.js) &#125;&#125;/&#123;&#123; common &#125;&#125;?v=&#123;&#123; theme.version &#125;&#125;&quot;&gt;&lt;/script&gt;</div><div class="line">&#123;% endfor %&#125;</div></pre></td></tr></table></figure>
-<p>测试下，可以看到页面顶部出现了一道性感的阅读进度条。</p>
-<h3 id="页面加载进度条"><a href="#页面加载进度条" class="headerlink" title="页面加载进度条"></a>页面加载进度条</h3><p>前一段时间 GitHub 做了一次较大的更新，个人页面的连续 commit 提交天数被去掉了，还有在打开仓库文件时可以看到页面顶部增加了一条发光发亮的加载进度条。通过 Chrome 控制台可以看到，这条加载进度条是由下面的 HTML 代码展示的：</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"js-pjax-loader-bar"</span> <span class="attr">class</span>=<span class="string">"pjax-loader-bar"</span>&gt;</span></div><div class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"progress"</span> <span class="attr">style</span>=<span class="string">"width: 100%;"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>思路跟上面的阅读进度条一样。不过需要更改计算进度条宽度的依据，根据资源加载的完成度来改变进度条的宽度，并且当宽度为 100% 时自动隐藏。GitHub 上已经有轮子可用，就是 <a href="https://github.com/rstacruz/nprogress" target="_blank" rel="external">nprogress</a>，提供了 <code>nprogress.css</code> 和 <code>nprogress.js</code> 两个文件。因为是第三方的库，所以把这两个文件加进 <code>source/vendor/nprogress/</code> 目录下。<br>在 <code>layout/_partials/head.swig</code> 模板中加入 <code>nprogress.css</code>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&#123;% set nprogress_uri = url_for(theme.vendors._internal + &apos;/nprogress/nprogress.css&apos;) %&#125;</div><div class="line">&lt;link href=&quot;&#123;&#123; nprogress_uri &#125;&#125;&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;</div></pre></td></tr></table></figure>
-<p>在 <code>layout/_scripts/vendors.swig</code> 模板中加入 <code>nprogress.js</code>：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;% set js_vendors.nprogress   = &apos;nprogress/nprogress.js&apos; %&#125;</div></pre></td></tr></table></figure>
-<p>这样就完成了对 nprogress 样式和脚本的引入。在 <code>custom.js</code> 里加入页面加载进度条的脚本：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="comment">// 页面加载进度条</span></div><div class="line">    NProgress.start();</div><div class="line">    <span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">        NProgress.done();</div><div class="line">    &#125;;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
-<p>大功告成 :)</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;小站有段时间没折{no}腾{zuo}前{no}端{die}了，在浏览别的个人站时总会时不时被里面的设计吸引到，最近闲着没事干，就把别人的主题抄袭过来，嘿嘿。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Frontend" scheme="http://isudox.com/tags/Frontend/"/>
-    
-      <category term="Hexo" scheme="http://isudox.com/tags/Hexo/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>LeetCode 21-25</title>
-    <link href="http://isudox.com/2016/07/08/leetcode-tour-5/"/>
-    <id>http://isudox.com/2016/07/08/leetcode-tour-5/</id>
-    <published>2016-07-08T13:25:43.000Z</published>
-    <updated>2016-10-20T14:33:28.193Z</updated>
-    
-    <content type="html"><![CDATA[<p>本篇记录 LeetCode 算法部分第 21 至 25 题。</p>
-<a id="more"></a>
-<h3 id="Merge-Two-Sorted-Lists"><a href="#Merge-Two-Sorted-Lists" class="headerlink" title="Merge Two Sorted Lists"></a>Merge Two Sorted Lists</h3><p>第 21 题 <a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="external">Merge Two Sorted Lists</a></p>
-<blockquote>
-<p>将两个有序链表合并成一个新的有序链表。</p>
-</blockquote>
-<p>题目不复杂，取两个指针分别往下遍历两个链表的每个节点，逐次指向节点的值，取其较小值，并移动该指针，另一指针不动。继续往下比较，知道其中有一个指针到达末端为止。<br>循环解法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// MergeTwoSortedLists.java v1.0</span></div><div class="line"><span class="comment">// Definition for singly-linked list.</span></div><div class="line"><span class="comment">// public class ListNode &#123;</span></div><div class="line"><span class="comment">//     int val;</span></div><div class="line"><span class="comment">//     ListNode next;</span></div><div class="line"><span class="comment">//     ListNode(int x) &#123; val = x; &#125;</span></div><div class="line"><span class="comment">// &#125;</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeTwoLists</span><span class="params">(ListNode l1, ListNode l2)</span> </span>&#123;</div><div class="line">        ListNode res = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</div><div class="line">        ListNode temp = res;</div><div class="line">        <span class="keyword">while</span> (l1 != <span class="keyword">null</span> &amp;&amp; l2 != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (l1.val &lt; l2.val) &#123;</div><div class="line">                temp.next = l1;</div><div class="line">                l1 = l1.next;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                temp.next = l2;</div><div class="line">                l2 = l2.next;</div><div class="line">            &#125;</div><div class="line">            temp = temp.next;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (l1 == <span class="keyword">null</span>) temp.next = l2;</div><div class="line">        <span class="keyword">else</span> temp.next = l1;</div><div class="line">        <span class="keyword">return</span> res.next;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>递归解法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// MergeTwoSortedLists.java v1.1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">mergeTwoLists</span><span class="params">(ListNode l1, ListNode l2)</span> </span>&#123;</div><div class="line">        ListNode res = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</div><div class="line">        pickListNode(l1, l2, res);</div><div class="line">        <span class="keyword">return</span> res.next;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">pickListNode</span><span class="params">(ListNode l1, ListNode l2, ListNode res)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (l1 == <span class="keyword">null</span> || l2 == <span class="keyword">null</span>) &#123;</div><div class="line">            res.next = l1 == <span class="keyword">null</span> ? l2 : l1;</div><div class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (l1.val &lt; l2.val) &#123;</div><div class="line">            res.next = l1;</div><div class="line">            l1 = l1.next;</div><div class="line">            pickListNode(l1, l2, res.next);</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            res.next = l2;</div><div class="line">            l2 = l2.next;</div><div class="line">            pickListNode(l1, l2, res.next);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">208 / 208</td>
-<td style="text-align:center">1 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="Generate-Parentheses"><a href="#Generate-Parentheses" class="headerlink" title="Generate Parentheses"></a>Generate Parentheses</h3><p>第 22 题 <a href="https://leetcode.com/problems/generate-parentheses/" target="_blank" rel="external">Generate Parentheses</a></p>
-<blockquote>
-<p>给定 n 对括号，编写方法生成所有可能的有效组合形式。<br>例如，n = 3，所有的组合情况为：[ “((()))”, “(()())”, “(())()”, “()(())”, “()()()” ]</p>
-</blockquote>
-<p>这题很容易想起之前做过的第 20 题 <a href="/2016/07/04/leetcode-tour-4/#Valid-Parentheses">Valid Parentheses</a>，当时利用了栈的 FILO 特性去检验括号组合的有效性。一个很直接的想法就是枚举全部的组合，然后传给 Valid Parentheses 方法去做有效性检验。但是这种方法平方级的时间复杂度太高，因为要判断所有组合。<br>n + 1 对括号的组合，可以发现，其实就是将新增的一对括号和之前的 n 对括号的组合拼起来。因此这里就可以利用递归的思想。<br>n 对括号组合，就需要把 n 个 <code>&quot;(&quot;</code> 和 n 个 <code>&quot;)&quot;</code> 插入进字符串中。而且从左往右，<code>&quot;(&quot;</code> 的数量一定不少于 <code>&quot;)&quot;</code> 才能使得组合有效，换句话说，就是只有在待插入的 <code>&quot;)&quot;</code>的数量大于待插入的 <code>&quot;(&quot;</code> 数量时，才需要往字符串中插入 <code>&quot;)&quot;</code>。当待插入的括号数量为零时，结束递归，将所得括号字符串添加进列表里。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// GenerateParentheses.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">generateParenthesis</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</div><div class="line">        List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) <span class="keyword">return</span> list;</div><div class="line">        recursive(list, <span class="string">""</span>, n, n);</div><div class="line">        <span class="keyword">return</span> list;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">recursive</span><span class="params">(List&lt;String&gt; result, String paren, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (left == <span class="number">0</span> &amp;&amp; right == <span class="number">0</span>) &#123;</div><div class="line">            result.add(paren);</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (left &gt; <span class="number">0</span>) &#123;</div><div class="line">            recursive(result, paren + <span class="string">"("</span>, left - <span class="number">1</span>, right);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (right &gt; <span class="number">0</span> &amp;&amp; left &lt; right) &#123;</div><div class="line">            recursive(result, paren + <span class="string">")"</span>, left, right - <span class="number">1</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">8 / 8</td>
-<td style="text-align:center">2 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="Merge-k-Sorted-Lists"><a href="#Merge-k-Sorted-Lists" class="headerlink" title="Merge k Sorted Lists"></a>Merge k Sorted Lists</h3><p>第 23 题 <a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="external">Merge k Sorted Lists</a></p>
-<blockquote>
-</blockquote>
-<hr>
-<h3 id="Swap-Nodes-in-Pairs"><a href="#Swap-Nodes-in-Pairs" class="headerlink" title="Swap Nodes in Pairs"></a>Swap Nodes in Pairs</h3><p>第 24 题 <a href="https://leetcode.com/problems/swap-nodes-in-pairs/" target="_blank" rel="external">Swap Nodes in Pairs</a></p>
-<blockquote>
-<p>给定一个 Linked list，两两交换相邻节点，返回该链表。<br>例如，给定的链表为 <code>1 -&gt;2 -&gt; 3 -&gt; 4</code>，返回结果为 <code>2 -&gt; 1 -&gt; 4 -&gt; 3</code>。</p>
-</blockquote>
-<p>首先需要新建一个 ListNode 保存给定 ListNode 的头指针,这样在交换相邻节点时,该指针位置能保持固定不动。此外还需要另一个 ListNode 作为移动的指针来交换相邻节点，因此还需要创建两个临时的 ListNode，一左一右作交换。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// SwapNodesInPairs.java</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ListNode</span> </span>&#123;</div><div class="line">        <span class="keyword">int</span> val;</div><div class="line">        ListNode next;</div><div class="line">        ListNode(<span class="keyword">int</span> x) &#123; val = x; &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> ListNode <span class="title">swapPairs</span><span class="params">(ListNode head)</span> </span>&#123;</div><div class="line">        ListNode res = <span class="keyword">new</span> ListNode(<span class="number">0</span>);</div><div class="line">        ListNode curNode = res;</div><div class="line">        res.next = head;</div><div class="line">        <span class="keyword">while</span> (curNode.next != <span class="keyword">null</span> &amp;&amp; curNode.next.next != <span class="keyword">null</span>) &#123;</div><div class="line">            ListNode l = curNode.next, r = curNode.next.next;</div><div class="line">            curNode.next = r;</div><div class="line">            l.next = r.next;</div><div class="line">            r.next = l;</div><div class="line">            curNode = l;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> res.next;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">Status</th>
-<th style="text-align:center">Tests</th>
-<th style="text-align:center">Run Time</th>
-<th style="text-align:center">Language</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Accepted</td>
-<td style="text-align:center">55 / 55</td>
-<td style="text-align:center">0 ms</td>
-<td style="text-align:center">Java</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<h3 id="Merge-Reverse-Nodes-in-k-Group"><a href="#Merge-Reverse-Nodes-in-k-Group" class="headerlink" title="Merge Reverse Nodes in k-Group"></a>Merge Reverse Nodes in k-Group</h3><p>第 25 题 <a href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank" rel="external">Reverse Nodes in k-Group</a></p>
-<blockquote>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// MergeReverseNodesInKGroup.java</span></div></pre></td></tr></table></figure>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本篇记录 LeetCode 算法部分第 21 至 25 题。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="http://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Algorithm" scheme="http://isudox.com/tags/Algorithm/"/>
-    
-      <category term="LeetCode" scheme="http://isudox.com/tags/LeetCode/"/>
     
   </entry>
   
