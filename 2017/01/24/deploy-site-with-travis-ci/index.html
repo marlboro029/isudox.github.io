@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo,VPS,Git," />
+  <meta name="keywords" content="CI," />
 
 
 
@@ -87,22 +87,19 @@
 
 
 
-<meta name="description" content="进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。
-Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？
-需要有这么多为什么吗？因为好玩，这就够了。具">
+<meta name="description" content="这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo 小站轻松部署方案">
-<meta property="og:url" content="http://isudox.com/2015/09/03/hexo-your-blog/index.html">
+<meta property="og:title" content="Travis CI 持续部署静态站方案">
+<meta property="og:url" content="https://isudox.com/2017/01/24/deploy-site-with-travis-ci/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。
-Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？
-需要有这么多为什么吗？因为好玩，这就够了。具">
-<meta property="og:updated_time" content="2016-08-29T07:59:34.000Z">
+<meta property="og:description" content="这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/deploy-key.png">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/travis-env-var.png">
+<meta property="og:updated_time" content="2017-01-24T16:46:38.537Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo 小站轻松部署方案">
-<meta name="twitter:description" content="进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。
-Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？
-需要有这么多为什么吗？因为好玩，这就够了。具">
+<meta name="twitter:title" content="Travis CI 持续部署静态站方案">
+<meta name="twitter:description" content="这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能">
+<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/deploy-key.png">
 
 
 
@@ -131,7 +128,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
 
 
 
-  <title> Hexo 小站轻松部署方案 | I sudo X </title>
+  <title> Travis CI 持续部署静态站方案 | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -321,7 +318,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
             
             
               
-                Hexo 小站轻松部署方案
+                Travis CI 持续部署静态站方案
               
             
           </h1>
@@ -333,8 +330,8 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-09-03T00:19:38+08:00" content="2015-09-03">
-              2015-09-03
+            <time itemprop="dateCreated" datetime="2017-01-24T14:07:42+00:00" content="2017-01-24">
+              2017-01-24
             </time>
           </span>
 
@@ -363,8 +360,8 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2015/09/03/hexo-your-blog/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/09/03/hexo-your-blog/" itemprop="commentsCount"></span>
+                <a href="/2017/01/24/deploy-site-with-travis-ci/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/01/24/deploy-site-with-travis-ci/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -374,7 +371,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
 
           
           
-             <span id="/2015/09/03/hexo-your-blog/" class="leancloud_visitors" data-flag-title="Hexo 小站轻松部署方案">
+             <span id="/2017/01/24/deploy-site-with-travis-ci/" class="leancloud_visitors" data-flag-title="Travis CI 持续部署静态站方案">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -396,46 +393,40 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
       
 
       
-        <p>进入 9 月了，开学季正拉开序幕，又是一个新的开始。对于刚结束学生生涯的我而言，这个开学季有长长的 todo list，排在队首的就是在这里码字开垦。</p>
-<p>Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像长势萎靡无人问津的路边草。那为什么还要做 Blog？为什么不选用现成的空间、Blog 提供商？为什么还是静态 Blog，还要搭在 VPS 上？</p>
-<p>需要有这么多为什么吗？因为好玩，这就够了。具体好玩的元素有很多，在下面的记录中会有所提及，更多的还需要自己去发现。</p>
+        <p>这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能一劳永逸，但我觉得还可以再抢救下。</p>
 <a id="more"></a>
-<h3 id="Why"><a href="#Why" class="headerlink" title="Why"></a>Why</h3><ul>
-<li>选择自己搭建独立 Blog 的理由很简单，既然是自己的东西，就不需要放在别人口袋里；</li>
-<li>选择静态 Blog 是因为无需数据库，支持 Markdown，文本文件便于 Git 管理；</li>
-</ul>
-<p>静态 Blog 程序尽管小众，也还是有不少选择的，按语言不同门派各异，也是一江湖。比如 Ruby 系 <a href="http://jekyllrb.com" target="_blank" rel="external">Jekyll</a>，Node.js 系 <a href="http://hexo.io" target="_blank" rel="external">Hexo</a>，Python 系 <a href="http://blog.getpelican.com" target="_blank" rel="external">Pelican</a>。</p>
-<p>什么？竟然没有世界上最好的语言！好吧，<a href="http://wordpress.org" target="_blank" rel="external">WordPress</a> 正在冲你露大白牙……</p>
-<p>Jekyll、Hexo 和 Pelican 各有拥趸，各执一词。我不辩优劣，选 Hexo 只是因为平时用 JS 更多罢了。如果对语言有信仰，那就闭上眼睛遵从信仰吧。</p>
-<h3 id="How"><a href="#How" class="headerlink" title="How"></a>How</h3><p>Google 一下关键字 Hexo + Blog，或者直接查看 Hexo 官方<a href="http://hexo.io/docs" target="_blank" rel="external">文档</a>，都可以对 Hexo 的搭建过程有较为清晰的认知。我设想的方案是搭建一个由 GitHub 托管，并且能在 VPS 上实时发布部署的 Blog 程序，因此基本框架就是 Hexo + GitHub + VPS。</p>
-<h3 id="Let’s-Hexo"><a href="#Let’s-Hexo" class="headerlink" title="Let’s Hexo"></a>Let’s Hexo</h3><h4 id="GitHub"><a href="#GitHub" class="headerlink" title="GitHub"></a>GitHub</h4><p>网上已有的 Hexo 方案基本都是将 Hexo 生成的静态文件提交至 GitHub Pages，通过 GitHub Pages 实现 Blog 的撰写及更新。但有一不足，如果换一台电脑写，难道还要将 Hexo 源文件拷贝过来再生成静态博客？肯定不能这么做，对此我的建议很简单：在 GitHub 上的以 {username}.github.io 命名的仓库里建立两个分支：一是 master 分支，保存 Hexo 生成的静态文件；另一是 source 分支，保存 Hexo 的源文件。</p>
-<h4 id="VPS"><a href="#VPS" class="headerlink" title="VPS"></a>VPS</h4><p>首先得买一台可靠的 VPS，我选用的美帝 <a href="https://www.linode.com/?r=285e75ec2001be00899a5a81796260d2e5962a5b" target="_blank" rel="external">Linode</a>。我在 VPS 上测试过两种方案，方案一是在 VPS 上也创建 Hexo 环境，同时新建一个 Git 裸仓库作为私有 Git 服务器，本地提交 Hexo 的源文件至 VPS 上的 Git 服务器，然后 VPS 上的 Hexo 程序生成静态文件并发布部署到 Web 目录下；方案二则是本地提交 Hexo 生成文件到 Git 裸仓库，VPS 直接将其部署到 Web 目录下。前者徒增 VPS 的压力，后者使得 Git 日志冗余，各有长短。两种方案我都测试通过，最后采用方案二。<br>GitHub 提供 GitHub Pages 服务，原意是用来给开发者发布器在 GitHub 上项目的文档及说明，当然也可以作为开发者的个人站点使用。如果是创建 {username}.github.io 仓库，GitHub 会将其 master 分支下的内容作为站点文件发布；如果是创建其他自定义名称的仓库，GitHub 将以 gh-page 分支作为站点文件。</p>
-<p>创建新用户 git，在服务器上创建 git server 请参考 git <a href="https://git-scm.com/book/en/v2/Git-on-the-Server-Setting-Up-the-Server" target="_blank" rel="external">官方文档</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ sudo adduser git</div><div class="line">$ git init --bare &lt;your_repo&gt;.git</div><div class="line">$ touch &lt;your_repo&gt;.git/hook/post-receive</div><div class="line">$ chmod +x post-receive</div><div class="line">$ <span class="built_in">cd</span> &lt;path_to_your_blog&gt;</div><div class="line">$ git <span class="built_in">clone</span> &lt;your_repo&gt;.git</div></pre></td></tr></table></figure></p>
-<p>其中<code>post-receive</code>为 Git Hook，Git 通过该脚本实现本地提交改动后自动发布更新<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#!/bin/bash -l</span></div><div class="line"></div><div class="line">GIT_REPO=/home/git/isudox-hexo.git</div><div class="line">GIT_TEMP=/home/git/repo/isudox-hexo</div><div class="line">WWW_HEXO=/home/git/www/isudox-hexo</div><div class="line"></div><div class="line">rm -rf <span class="variable">$&#123;GIT_TEMP&#125;</span></div><div class="line">git <span class="built_in">clone</span> <span class="variable">$GIT_REPO</span> <span class="variable">$GIT_TEMP</span></div><div class="line">rm -rf <span class="variable">$&#123;WWW_HEXO&#125;</span>/*</div><div class="line">cp -rf <span class="variable">$&#123;GIT_TEMP&#125;</span>/* <span class="variable">$&#123;WWW_HEXO&#125;</span></div></pre></td></tr></table></figure></p>
-<p>原理很简单，VPS 上的 Git 仓库一旦接收到 <code>push</code>，便会触发 <code>post-receive</code> 脚本，进入 Blog 根目录，执行更新发布任务。</p>
-<p>如果是方案一，<code>post-receive</code> 也是类似的操作，只是多了一步 <code>hexo generate</code> 生成静态文件的操作，因为提交到 Git 仓库的是 Hexo 源文件而不是生成文件。</p>
-<h4 id="Local"><a href="#Local" class="headerlink" title="Local"></a>Local</h4><p>本地环境需要 Node.js 和 git，系统可以是 Linux | Mac | Win 任一，Node.js与Git 和这些操作系统都能友好相处。我的本地环境是 Arch Linux，因此配置起来可谓轻松愉快——</p>
-<p>安装 Node.js、git<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo pacman -S git nodejs</div></pre></td></tr></table></figure></p>
-<p>安装 Hexo<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ sudo npm install -g hexo-cli</div></pre></td></tr></table></figure></p>
-<p>创建本地 Git 仓库并提交至远端 Git 仓库的 master 分支<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="comment"># isudox.github.io &gt;&gt; README.md</span></div><div class="line">git init</div><div class="line">git add README.md</div><div class="line">git commit -m <span class="string">"first commit"</span></div><div class="line">git remote add origin git@github.com:isudox/isudox.github.io.git</div><div class="line">git push -u origin master</div></pre></td></tr></table></figure></p>
-<p>新建 Hexo 源文件分支 <code>source</code></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git checkout -b <span class="built_in">source</span></div></pre></td></tr></table></figure>
-<p>在本地 Git 仓库下创建 Hexo Blog，并安装必要的 npm 包</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ hexo init</div><div class="line">$ npm install</div><div class="line">$ npm install hexo-deployer-git --save</div></pre></td></tr></table></figure>
-<p>执行完上述命令后，属于你的 Hexo Blog 就已经诞生了，接下来可以修改配置文件 <code>_config.yml</code>，可以在 <code>themes/</code> 路径下添加主题，可以撰写新文章……总之，你拥有了 Hexo 的全部魔力。</p>
-<p>因为本地的Hexo项目的提交涉及三处：</p>
+<h2 id="初步方案"><a href="#初步方案" class="headerlink" title="初步方案"></a>初步方案</h2><p>既然核心目标都是一键部署，为什么不利用持续集成，那就用 <a href="https://travis-ci.org/" target="_blank" rel="external">Travis CI</a> 吧，和 GitHub 无缝结合。</p>
+<p>先来梳理下整个部署思路：</p>
 <ol>
-<li>Github 仓库的 source 分支；</li>
-<li>Github 仓库的 master 分支；</li>
-<li>VPS 上的私有 Git 仓库 master 分支；</li>
+<li>源码文件 Push 到 GitHub Page <code>source</code> 分支;</li>
+<li>Travis-CI 在 GitHub Page <code>source</code> 分支更新后，自动构建生成站点文件；</li>
+<li>Travis-CI 将站点文件推送到 GtiHub Page <code>master</code> 分支，同时推送到 VPS；</li>
 </ol>
-<p>因此需要更改 <code>_config</code> 文件中 <code>deploy</code> 字段的属性</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">    type: git</div><div class="line">    repo:</div><div class="line">        github: git@github.com:&lt;username&gt;/&lt;username&gt;.github.io.git,master</div><div class="line">        vpsgit: git@vps_ip:&lt;your_repo&gt;.git,master</div></pre></td></tr></table></figure>
-<p>注意 <code>.yml</code> 的 <code>:</code> 后面必须跟一个空格，这是格式规定，否则配置无效。</p>
-<p>提交 GitHub source 分支时，确人当前分支为 source，然后执行 <code>git push origin source</code>；<br>提交 GitHub master 分支和 VPS 私有 Git 库时，执行 <code>hexo deploy</code> 发布即可；</p>
-<p>好了，回到本地的 Hexo 项目根目录下，再敲最后一行命令，让我们看看会发生什么<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate --deploy</div></pre></td></tr></table></figure></p>
-<p>打开 <a href="http://{username}.github.io" target="_blank" rel="external">http://{username}.github.io</a> 或者你自己绑定的域名……</p>
-<p>Duang    ^<strong>__</strong>^</p>
+<p>也就是说，整个部署过程只需要将写好源码文件 Push 到 GitHub 相应分支，后面的操作全部交给 Travis-CI 处理。</p>
+<h2 id="具体操作"><a href="#具体操作" class="headerlink" title="具体操作"></a>具体操作</h2><h3 id="Travis-关联-GitHub"><a href="#Travis-关联-GitHub" class="headerlink" title="Travis 关联 GitHub"></a>Travis 关联 GitHub</h3><p>首先要让 Travis 监听 GitHub 的更新，打开 Travis，选择要监听的 GitHub 仓库，选中后记得勾选 “Build only if .travis.yml is present” 和 “Build pushes” 两个选项。</p>
+<p>Travis 要有更改 GitHub 仓库的权限，因此还要到 GitHub 那为 Travis 设置权限 key。打开上面所关联的 GitHub 仓库的 Settings，在 Deploy keys 选项中，为 Travis 添加 SSH key。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 生成 ssh key 私钥公钥对，无需 passphrase</span></div><div class="line">ssh-keygen -t rsa -C <span class="string">"your_email@example.com"</span></div></pre></td></tr></table></figure>
+<p>然后讲 SSH 公钥 <code>id_rsa.pub</code> 粘贴到 Deploy key 中，如下图示——</p>
+<p><img src="https://o70e8d1kb.qnssl.com/deploy-key.png" alt="deploy-key"></p>
+<p>接下来就是将 SSH 私钥赋给 Travis，参考下面的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">travis encrypt-file ~/.ssh/id_rsa --add</div></pre></td></tr></table></figure>
+<p>Travis 命令行工具会根据私钥自动匹配到对应的 GitHub 仓库，控制台会得到类似如下回显——</p>
+<blockquote>
+<p>Detected repository as isudox/isudox.github.io, is this correct? |yes|<br>encrypting /home/sudoz/.ssh/id_rsa for isudox/isudox.github.io<br>storing result as id_rsa.enc<br>storing secure env variables for decryption<br>Make sure to add id_rsa.enc to the git repository.<br>Make sure <strong>not</strong> to add /home/sudoz/.ssh/id_rsa to the git repository.<br>Commit all changes to your .travis.yml.</p>
+</blockquote>
+<p>对 Travis 添加私钥后，就能在 Travis 网站上看到新增的环境变量配置，如下图示——</p>
+<p><img src="https://o70e8d1kb.qnssl.com/travis-env-var.png" alt="travis-environment-variables"></p>
+<p>上面的操作会对私钥再次加密，并在当前路径下生成加密文件 <code>id_rsa.enc</code>，同时在当前路径下的 <code>.travis.yml</code> 配置中添加一条解密命令——</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">openssl aes-256-cbc -K $encrypted_xxx_key -iv $encrypted_xxx_iv -in .travis/id_rsa.enc -out ~/.ssh/id_rsa -d</div></pre></td></tr></table></figure>
+<p>然后对加密文件解密，存放在 <code>~/.ssh/</code> 下，并配置 <code>~/.ssh/config</code> 指定要使用的私钥文件，这些操作和普通的 SSH 操作是一致的，很易懂。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># Set the permission of the key</div><div class="line">chmod 600 ~/.ssh/id_rsa</div><div class="line"># Start SSH agent</div><div class="line">eval $(ssh-agent)</div><div class="line"># Add the private key to the system</div><div class="line">ssh-add ~/.ssh/id_rsa</div></pre></td></tr></table></figure>
+<p>下面是 <code>~/.ssh/config</code> 的参考——</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Host github.com</div><div class="line">  HostName github.com</div><div class="line">  User git</div><div class="line">  StrictHostKeyChecking no</div><div class="line">  IdentityFile ~/.ssh/id_rsa</div><div class="line">  IdentitiesOnly yes</div></pre></td></tr></table></figure>
+<p>Push 到 GitHub 前还得对 Git 的全局参数进行配置，例如 username 和 email 信息——</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># Set Git config</div><div class="line">git config --global user.name &apos;sudoz&apos;</div><div class="line">git config --global user.email &apos;me@isudox.com&apos;</div></pre></td></tr></table></figure>
+<p>剩下的工作就都是 Hexo 的操作了，安装依赖，构建静态文件，部署静态站点——</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># Install Hexo</div><div class="line">npm install hexo-cli -g</div><div class="line">npm install</div><div class="line"></div><div class="line">hexo generate</div><div class="line">hexo deploy</div></pre></td></tr></table></figure>
+<h3 id="travis-yml-配置"><a href="#travis-yml-配置" class="headerlink" title="travis.yml 配置"></a>travis.yml 配置</h3><figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="attr">language:</span> node_js</div><div class="line"></div><div class="line"><span class="attr">node_js:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">'6'</span></div><div class="line"></div><div class="line"><span class="attr">sudo:</span> <span class="literal">false</span></div><div class="line"></div><div class="line"><span class="attr">cache:</span></div><div class="line"><span class="attr">  apt:</span> <span class="literal">true</span></div><div class="line"><span class="attr">  directories:</span></div><div class="line"><span class="bullet">    -</span> node_modules</div><div class="line"></div><div class="line"><span class="attr">addons:</span></div><div class="line"><span class="attr">  ssh_known_hosts:</span> github.com</div><div class="line"></div><div class="line"><span class="attr">script:</span></div><div class="line"><span class="bullet">  -</span> npm run build</div><div class="line"></div><div class="line"><span class="attr">deploy:</span></div><div class="line"><span class="attr">  provider:</span> script</div><div class="line"><span class="attr">  script:</span> .travis/deploy.sh</div><div class="line"><span class="attr">  skip_cleanup:</span> <span class="literal">true</span></div><div class="line"><span class="attr">  on:</span></div><div class="line"><span class="attr">    branch:</span> source</div></pre></td></tr></table></figure>
 
       
     </div>
@@ -476,11 +467,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
       
         <div class="post-tags">
           
-            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
-          
-            <a href="/tags/VPS/" rel="tag"># VPS</a>
-          
-            <a href="/tags/Git/" rel="tag"># Git</a>
+            <a href="/tags/CI/" rel="tag"># CI</a>
           
         </div>
       
@@ -489,15 +476,15 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/01/16/dockerize-applications/" rel="next" title="Docker 容器化应用">
+                <i class="fa fa-chevron-left"></i> Docker 容器化应用
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2015/09/26/begin-arch-linux/" rel="prev" title="开启 Arch 之旅">
-                开启 Arch 之旅 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -597,7 +584,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">46</span>
+              <span class="site-state-item-count">47</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -614,7 +601,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-count">34</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -701,7 +688,7 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Why"><span class="nav-number">1.</span> <span class="nav-text">Why</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#How"><span class="nav-number">2.</span> <span class="nav-text">How</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Let’s-Hexo"><span class="nav-number">3.</span> <span class="nav-text">Let’s Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#GitHub"><span class="nav-number">3.1.</span> <span class="nav-text">GitHub</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VPS"><span class="nav-number">3.2.</span> <span class="nav-text">VPS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Local"><span class="nav-number">3.3.</span> <span class="nav-text">Local</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#初步方案"><span class="nav-number">1.</span> <span class="nav-text">初步方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体操作"><span class="nav-number">2.</span> <span class="nav-text">具体操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Travis-关联-GitHub"><span class="nav-number">2.1.</span> <span class="nav-text">Travis 关联 GitHub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#travis-yml-配置"><span class="nav-number">2.2.</span> <span class="nav-text">travis.yml 配置</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -1029,8 +1016,8 @@ Blog 仿佛已是古董，在一众微博微信席卷的现下，多少有点像
 
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
-      var disqus_identifier = '2015/09/03/hexo-your-blog/';
-      var disqus_title = 'Hexo 小站轻松部署方案';
+      var disqus_identifier = '2017/01/24/deploy-site-with-travis-ci/';
+      var disqus_title = 'Travis CI 持续部署静态站方案';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
