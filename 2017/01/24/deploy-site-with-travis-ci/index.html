@@ -98,7 +98,7 @@
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/deploy-key.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/travis-env-var.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/travis-build-success.png">
-<meta property="og:updated_time" content="2017-02-06T08:45:05.304Z">
+<meta property="og:updated_time" content="2017-02-14T13:40:20.001Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Travis CI 持续部署静态站方案">
 <meta name="twitter:description" content="这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能">
@@ -403,7 +403,8 @@
 <ol>
 <li>源码文件 Push 到 GitHub Page <code>source</code> 分支;</li>
 <li>Travis-CI 在 GitHub Page <code>source</code> 分支更新后，自动构建生成站点文件；</li>
-<li>Travis-CI 将站点文件推送到 GtiHub Page <code>master</code> 分支，同时推送到 VPS；</li>
+<li>Travis-CI 将站点文件推送到 GtiHub Page <code>master</code> 分支，使得 username.github.io 更新；</li>
+<li>VPS 从 GitHub Page <code>master</code> 分支拉取更新；</li>
 </ol>
 <p>也就是说，整个部署过程只需要将写好源码文件 Push 到 GitHub 相应分支，后面的操作全部交给 Travis-CI 处理。</p>
 <h2 id="具体操作"><a href="#具体操作" class="headerlink" title="具体操作"></a>具体操作</h2><h3 id="Travis-关联-GitHub"><a href="#Travis-关联-GitHub" class="headerlink" title="Travis 关联 GitHub"></a>Travis 关联 GitHub</h3><p>首先要让 Travis 监听 GitHub 的更新，打开 Travis，选择要监听的 GitHub 仓库，选中后记得勾选 “Build only if .travis.yml is present” 和 “Build pushes” 两个选项。</p>
@@ -437,6 +438,10 @@
 </blockquote>
 <p>踩了好几个坑，足足 Push 了 7 次才调试成功</p>
 <p><img src="https://o70e8d1kb.qnssl.com/travis-build-success.png" alt=""></p>
+<h3 id="VPS-定时更新静态站内容"><a href="#VPS-定时更新静态站内容" class="headerlink" title="VPS 定时更新静态站内容"></a>VPS 定时更新静态站内容</h3><p>Travis CI 完成集成工作后，VPS 就能从 GitHub 上拉取更新了。之前我的方案是在 VPS 上也搭建一个 Git Repo，本地将改动同时 commit 到 GitHub 和 VPS 上的 Repo，触发 VPS Git Repo 的 Hook 事件，将更新拉取并复制静态站全部内容到 Nginx 站点路径下。这次改版不打算沿用之前的方案了，虽然这种 Hook 触发事件很及时高效。我打算使用 Linux 自带的 Crontab 定时任务功能。</p>
+<p>Crontab 的使用很简单，将可执行的脚本或命令通过 <code>crontab -e</code> 写入系统用户的定时任务中即可。我设置的是每小时执行一次 <code>git pull</code> 操作。写法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># m h  dom mon dow   command</div><div class="line">0 * * * * su -s /bin/sh root -c &apos;cd /usr/share/nginx/html/isudox.github.io &amp;&amp; /usr/bin/git pull -q origin master&apos;</div></pre></td></tr></table></figure>
+<p>如果不确定命令行是否生效，可以在控制台里执行下上面的 shell 脚本。</p>
 
       
     </div>
@@ -598,7 +603,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">48</span>
+              <span class="site-state-item-count">50</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -709,7 +714,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#初步方案"><span class="nav-number">1.</span> <span class="nav-text">初步方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体操作"><span class="nav-number">2.</span> <span class="nav-text">具体操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Travis-关联-GitHub"><span class="nav-number">2.1.</span> <span class="nav-text">Travis 关联 GitHub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#travis-yml-配置"><span class="nav-number">2.2.</span> <span class="nav-text">travis.yml 配置</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#初步方案"><span class="nav-number">1.</span> <span class="nav-text">初步方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体操作"><span class="nav-number">2.</span> <span class="nav-text">具体操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Travis-关联-GitHub"><span class="nav-number">2.1.</span> <span class="nav-text">Travis 关联 GitHub</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#travis-yml-配置"><span class="nav-number">2.2.</span> <span class="nav-text">travis.yml 配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VPS-定时更新静态站内容"><span class="nav-number">2.3.</span> <span class="nav-text">VPS 定时更新静态站内容</span></a></li></ol></li></ol></div>
             
 
           </div>

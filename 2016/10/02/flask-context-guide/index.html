@@ -71,7 +71,7 @@
 <link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Flask,Python," />
+  <meta name="keywords" content="Python,Flask," />
 
 
 
@@ -91,13 +91,13 @@
 
 <meta name="description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 current_app、request 都是 Context，可以在不同方法中调用，并且实现通信及交">
 <meta property="og:type" content="article">
-<meta property="og:title" content="读源码认识 Flask Context">
+<meta property="og:title" content="读 Flask 源码：Context">
 <meta property="og:url" content="https://isudox.com/2016/10/02/flask-context-guide/index.html">
 <meta property="og:site_name" content="I sudo X">
 <meta property="og:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 current_app、request 都是 Context，可以在不同方法中调用，并且实现通信及交">
-<meta property="og:updated_time" content="2017-02-06T08:45:05.300Z">
+<meta property="og:updated_time" content="2017-02-14T13:40:20.001Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="读源码认识 Flask Context">
+<meta name="twitter:title" content="读 Flask 源码：Context">
 <meta name="twitter:description" content="Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 current_app、request 都是 Context，可以在不同方法中调用，并且实现通信及交">
 
 
@@ -127,7 +127,7 @@
 
 
 
-  <title> 读源码认识 Flask Context | I sudo X </title>
+  <title> 读 Flask 源码：Context | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -317,7 +317,7 @@
             
             
               
-                读源码认识 Flask Context
+                读 Flask 源码：Context
               
             
           </h1>
@@ -370,7 +370,7 @@
 
           
           
-             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="读源码认识 Flask Context">
+             <span id="/2016/10/02/flask-context-guide/" class="leancloud_visitors" data-flag-title="读 Flask 源码：Context">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -522,9 +522,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Flask/" rel="tag"># Flask</a>
-          
             <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/Flask/" rel="tag"># Flask</a>
           
         </div>
       
@@ -645,7 +645,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">48</span>
+              <span class="site-state-item-count">50</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1085,7 +1085,7 @@
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
       var disqus_identifier = '2016/10/02/flask-context-guide/';
-      var disqus_title = '读源码认识 Flask Context';
+      var disqus_title = '读 Flask 源码：Context';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');
