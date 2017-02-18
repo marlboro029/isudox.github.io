@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://isudox.com/"/>
-  <updated>2017-02-14T13:40:20.001Z</updated>
+  <updated>2017-02-18T15:58:29.381Z</updated>
   <id>https://isudox.com/</id>
   
   <author>
@@ -16,23 +16,140 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>[译] Git 分支开发模型</title>
+    <link href="https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/"/>
+    <id>https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/</id>
+    <published>2017-02-18T06:51:10.000Z</published>
+    <updated>2017-02-18T15:58:29.381Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a> 是 <a href="https://github.com/nvie/gitflow" target="_blank" rel="external">gitflow</a> 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。</p>
+<a id="more"></a>
+<blockquote>
+<p>下面是原文的译文。</p>
+</blockquote>
+<hr>
+<p>本文里，我会介绍一个在一年前就引入进多个项目（包括工作和个人项目）中的开发模型，实践表明该模型很成功。为此专门写篇文章的想法由来已久，但始终没挤出时间来做，直到现在。我不会细究项目的具体细节，仅仅是项目开发的分支策略和发布管理。</p>
+<p><img align="center" src="https://o70e8d1kb.qnssl.com/git-model@2x.png" width="575"></p>
+<p>该模型专注于使用 <a href="https://git-scm.com/" target="_blank" rel="external">Git</a> 作为代码版本管理工具。（另外，如果你对 Git 感兴趣，我司的 GitPrime 提供了一些很棒的软件性能实时数据分析功能）</p>
+<h2 id="为什么使用-Git"><a href="#为什么使用-Git" class="headerlink" title="为什么使用 Git"></a>为什么使用 Git</h2><p>关于 Git 相比于中心化的代码管理系统的优劣，可以从网上找到很多相关讨论。作为开发者，我选择 Git。Git 确实改变了开发者们对分支和合并的理解。在之前使用经典的 CVS/Subversion 时，新建分支和合并分支总是有点吓人（小心代码合并时的冲突，它们会咬你）。</p>
+<p>但是用 Git 时，这些日常工作流的主要操作都变得简便易行。举例来说，在 CVS/Subversion 的相关书籍中，分支和合并操作会在靠后的章节中介绍（面向高阶读者），而 Git 的书中，往往是前三章的基础操作里就会做说明。</p>
+<p>由于 Git 的简单性和重用性（repetitive），分支和合并不再是令人生畏的高危操作。版本管理工具应该更多的协助代码的新建分支和合并分支。</p>
+<p>闲言少叙，进入开发模型的正题吧。我要介绍的模型基本上只是团队里每个成员都要遵循的一组开发流程规范。</p>
+<h2 id="去中心化也中心化"><a href="#去中心化也中心化" class="headerlink" title="去中心化也中心化"></a>去中心化也中心化</h2><p>在分支模型下工作良好的代码库，实际上有一个真实的中心代码库。注意这个库被视为一个中心（因为 Git 是分布式的版本管理工具，所以从技术角度上说并不存在中心代码库）。我们将其视为为 origin，因为所有 Git 用户都熟悉这个名称。</p>
+<p><img align="center" src="https://o70e8d1kb.qnssl.com/centr-decentr@2x.png" width="487"></p>
+<p>每个开发者对 origin 进行 pull 和 push 操作。但是除了中心化的 push-pull，每个开发者也可能会建立子团队并 pull 同个子团队里其他成员的代码改动。比如，和两个或更多开发者合作开发一个大的新功能时，避免过早的将开发进行过程中的代码 push 上去。上图中，有 Alice 和 Bob 的小团队，Clair 和 David 的小团队。</p>
+<p>本质上说，这实际上就像是 Alice 定义了一个 Git 远程分支，名叫 bob，并指向 Bob 的代码库，反之亦然。</p>
+<h2 id="主干分支"><a href="#主干分支" class="headerlink" title="主干分支"></a>主干分支</h2><p><img align="right" src="https://o70e8d1kb.qnssl.com/main-branches@2x.png" width="267"><br>我的开发模型实际上从现有的模型中得到很多启发。中心库保有两个伴随代码库整个生命流程的主要分支：</p>
+<ul>
+<li>master</li>
+<li>develop</li>
+</ul>
+<p>Git 用户应该对 origin 上的 <code>master</code> 分支很熟悉。此外，另一个分支命名为 <code>develop</code>。</p>
+<p>我们将 <code>origin/master</code> 分支作为一个主干分支，使得它的 HEAD 指针始终指向可发布的生产状态（production-ready state）。</p>
+<p><code>origin/develop</code> 分支作为另一主干分支，而它的 HEAD 指针始终指向为下一发版而做的最新开发改动。有人把这成为 integration 分支。通常这就是 nightly 版本发布的出处。</p>
+<p>当 <code>develop</code> 分支上的代码开发到 stable 状态并且已经可以发布时，所有的改动都应该 merge 到 <code>master</code> 分支上，然后打上发布版本号的标签。后面会继续讲如何执行这一系列操作。</p>
+<p>因此，每次把改动合并到 <code>master</code> 分支上后，就生成了一个新的可发布的生产状态。我们对合并到 <code>master</code> 分支的行为把控严格，所以理论上，每当 <code>master</code> 分支上有 commit 操作时，我们可以通过 Git hook 脚本实现自动构建并把应用推送到生产服务器上。</p>
+<h2 id="辅助分支"><a href="#辅助分支" class="headerlink" title="辅助分支"></a>辅助分支</h2><p>主干分支之外，我们的开发模型使用了很多辅助分支来帮助团队成员间的并行开发，减轻功能跟踪的成本，预备新版的发布，协助快速修复已发布版本的问题。和主干分支不同，这些辅助分支只有有限的生命期，最终会被移除。</p>
+<p>我们可能会用到的辅助分支有：</p>
+<ul>
+<li>Feature 分支</li>
+<li>Release 分支</li>
+<li>Hotfix 分支</li>
+</ul>
+<p>上面的每个辅助分支都有一个特定的目标，且严格限制哪些是起源分支，哪些是合并的目标分支。我们一会儿会详细解释。</p>
+<p>这些辅助分支并不特别，分支的类型是按照我们如何使用它们而划分的，也就是普通的 Git 分支而已。</p>
+<h3 id="Feature-分支"><a href="#Feature-分支" class="headerlink" title="Feature 分支"></a>Feature 分支</h3><p><img align="right" src="https://o70e8d1kb.qnssl.com/fb@2x.png" width="133"><br>从 <code>develop</code> 分支派生；<br>必须 merge 回 <code>develop</code> 分支；<br>辅助分支的命名惯例是：除 master，develop，release_* 和 hotfix-* 以外的任意命名。</p>
+<p>Feature 分支，或者叫 topic 分支，是用来为未来的发版而开发新 features 的分支。当开始 feature 的开发时，。Feature 分支的本质它会在 feature 的开发期内存在，但最终会合并回 <code>develop</code> 分支（以明确的将 feature 添加进即将 release 的版本中），或者被直接丢弃掉（在令人失望的情况下）。</p>
+<p>Feature 分支通常只存在于开发者的 repo 中，而不会在中心库 origin repo 中。</p>
+<center><strong>创建 Feature 分支</strong></center>
+
+<p>要创建一个新的 Feature 分支，从 <code>develop</code> 分支上派生：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git checkout -b myfeature develop</div><div class="line">Switched to a new branch <span class="string">"myfeature"</span></div></pre></td></tr></table></figure>
+<center><strong>已完成的 feature 合并回 develop</strong></center>
+
+<p>已开发完成的 features 应该被合并至 <code>develop</code> 分支上，将 features 添加到即将发 release 的代码版本中。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ git checkout develop</div><div class="line">Switched to branch <span class="string">'develop'</span></div><div class="line">$ git merge --no-ff myfeature</div><div class="line">Updating ea1b82a..05e9557</div><div class="line">(Summary of changes)</div><div class="line">$ git branch <span class="_">-d</span> myfeature</div><div class="line">Deleted branch myfeature (was 05e9557).</div><div class="line">$ git push origin develop</div></pre></td></tr></table></figure>
+<p><code>--no-ff</code> 标识使得 merge 操作总是创建一个新的 commit，即使 merge 可以使用 fast-forward。这避免了 feature 分支历史信息的丢失，而且把所有 commit 归并在一起。比较下图的两个案例：</p>
+<p><img align="center" src="https://o70e8d1kb.qnssl.com/merge-without-ff@2x.png" width="478"></p>
+<p>右边的案例中，无法从 Git 历史中找到是哪些 commit 实现了 feature，你必须要手工的去检查所有的 log 信息。撤销一个 feature 对后一案例而言简直是头疼，而如果使用了 –no-ff 标志，则很容易完成。</p>
+<p>是的，它会付出创建更多的 commit 的代价，但所得更多。</p>
+<h3 id="Release-分支"><a href="#Release-分支" class="headerlink" title="Release 分支"></a>Release 分支</h3><p>从 <code>develop</code> 分支派生；<br>必须 merge 回 <code>develop</code> 分支和 <code>master</code> 分支；<br>分支命名惯例：release-*</p>
+<p>Release 分支为新的生产版本做预备。They allow for last-minute dotting of i’s and crossing t’s. 此外，Release 分支也可以用来修复小 bug 和准备发布版本的元数据（版本号，构建日期等）。通过 Release 分支，<code>develop</code> 分支将被清理以便接收下一个大版本的发布。</p>
+<p>从 <code>develop</code> 分支派生新分支的关键时刻是在开发几乎要到达预期的 release 状态时。至少所有针对要构建版本的 feature 必须已经 merge 到 <code>develop</code> 分支上了。而针对未来的 release 的 feature 则需要等到当前的 release 分支派生以后。</p>
+<p>正是在 Release 分支的开始时，而不是之前，即将到来的 release 才被分配版本号。直到那时，<code>develop</code> 分支才反映了 next release 的改动，但直到 release 分支开始前，next release 是 0.3 版还是 1.0 版并不确定。对 release 版本的决定是在 release 分支开始时，并由项目的版本号规则来拟定。</p>
+<center><strong>创建 release 分支</strong></center>
+
+<p>Release 分支是由 <code>develop</code> 分支派生而来。例如，当前的生产版本是 1.15，且即将有一个大迭代。<code>develop</code> 分支的状态已经为 next release 做好准备，我们也已经决定好即将到来的版本是 1.2。因此我们从当前的 <code>develop</code> 分支上派生并命名该 <code>release</code> 分支为新的版本号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git checkout -b release-1.2 develop</div><div class="line">Switched to a new branch <span class="string">"release-1.2"</span></div><div class="line">$ ./bump-version.sh 1.2</div><div class="line">Files modified successfully, version bumped to 1.2.</div><div class="line">$ git commit <span class="_">-a</span> -m <span class="string">"Bumped version number to 1.2"</span></div><div class="line">[release-1.2 74d9424] Bumped version number to 1.2</div><div class="line">1 files changed, 1 insertions(+), 1 deletions(-)</div></pre></td></tr></table></figure>
+<p>创建并切换到新分支后，我们 bump 了版本号。在这里，<code>bump-version.sh</code> 是一个虚拟出来的 shell 脚本，用来修改一些文件，使其能体现新版本。之后，新的版本被 commit 上去。</p>
+<p>该新分支可能会存在一段时间，知道 release 可以确定被发布出来。在此期间，分支上可能会修复一些 bug（而不是在 <code>develop</code> 分支上）。严禁在该分支上添加大的 feature 进来。release 分支最后必须被 merge 回 <code>develop</code> 分支上，然后继续等待下一个大版本的发布。</p>
+<center><strong>完成 release 分支</strong></center>
+
+<p>开始的两步操作：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ git checkout master</div><div class="line">Switched to branch <span class="string">'master'</span></div><div class="line">$ git merge --no-ff release-1.2</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div><div class="line">$ git tag <span class="_">-a</span> 1.2</div></pre></td></tr></table></figure>
+<h3 id="Hotfix-分支"><a href="#Hotfix-分支" class="headerlink" title="Hotfix 分支"></a>Hotfix 分支</h3><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;原文 &lt;a href=&quot;http://nvie.com/posts/a-successful-git-branching-model/&quot;&gt;A successful Git branching model&lt;/a&gt; 是 &lt;a href=&quot;https://github.com/nvie/gitflow&quot;&gt;gitflow&lt;/a&gt; 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Translation" scheme="https://isudox.com/categories/Translation/"/>
+    
+    
+      <category term="Git" scheme="https://isudox.com/tags/Git/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>探究 Spring MVC 的重定向和转发</title>
+    <link href="https://isudox.com/2017/02/16/spring-mvc-redirect-forward/"/>
+    <id>https://isudox.com/2017/02/16/spring-mvc-redirect-forward/</id>
+    <published>2017-02-16T03:35:09.000Z</published>
+    <updated>2017-02-18T15:58:29.381Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近参与的一个微信公众号相关的项目开发中，业务逻辑包含大量的页面跳转逻辑，以及数据的拦截器获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。</p>
+<a id="more"></a>
+<p>比如客户端的请求进到 Controller 方法中，我们会判断当前用户状态，可能会跳转到用户中心页，也可能会跳转到等待页，又或者错误页。类似的场景很多，都需要用到请求的重定向和转发。Sping MVC 实现重定向或转发的方法有很多，我先大致梳理下，然后再通过源码加深理解。</p>
+<h2 id="不同情况的处理"><a href="#不同情况的处理" class="headerlink" title="不同情况的处理"></a>不同情况的处理</h2><p>Controller 间方法的跳转，无非就是带参跳转和不带参跳转。通常的做法是 return 映射到另一个 Controller 方法的字符串。如果有请求参数，就拼接在 RequestMapping 映射的字符串后面。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 返回字符串映射 RequestMapping 的方式</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="string">"redirect:/bye"</span>;</div><div class="line">    <span class="comment">// return "redirect:/bye?username=sudoz";</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>另一种方法是通过返回 <code>ModelAndView</code> 对象来实现跳转，类似的，如果有请求参数，也可以通过类似 GET 参数拼接的方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 返回 ModelAndView 对象</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> ModelAndView <span class="title">hello</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView(<span class="string">"redirect:/bye"</span>);</div><div class="line">    <span class="comment">// return new ModelAndView("redirect:/bye?username=sudoz");</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>还有一种方法是通过返回 <code>RedirectView</code> 对象实现跳转</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> RedirectView <span class="title">hello</span><span class="params">()</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RedirectView(<span class="string">""</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UrlBasedViewResolver</span> <span class="keyword">extends</span> <span class="title">AbstractCachingViewResolver</span> <span class="keyword">implements</span> <span class="title">Ordered</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String REDIRECT_URL_PREFIX = <span class="string">"redirect:"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String FORWARD_URL_PREFIX = <span class="string">"forward:"</span>;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> View <span class="title">createView</span><span class="params">(String viewName, Locale locale)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="comment">// If this resolver is not supposed to handle the given view,</span></div><div class="line">        <span class="comment">// return null to pass on to the next resolver in the chain.</span></div><div class="line">        <span class="keyword">if</span> (!canHandle(viewName, locale)) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Check for special "redirect:" prefix.</span></div><div class="line">        <span class="keyword">if</span> (viewName.startsWith(REDIRECT_URL_PREFIX)) &#123;</div><div class="line">            String redirectUrl = viewName.substring(REDIRECT_URL_PREFIX.length());</div><div class="line">            RedirectView view = <span class="keyword">new</span> RedirectView(redirectUrl, isRedirectContextRelative(), isRedirectHttp10Compatible());</div><div class="line">            <span class="keyword">return</span> applyLifecycleMethods(viewName, view);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Check for special "forward:" prefix.</span></div><div class="line">        <span class="keyword">if</span> (viewName.startsWith(FORWARD_URL_PREFIX)) &#123;</div><div class="line">            String forwardUrl = viewName.substring(FORWARD_URL_PREFIX.length());</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> InternalResourceView(forwardUrl);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Else fall back to superclass implementation: calling loadView.</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.createView(viewName, locale);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p>参考资料</p>
+<ul>
+<li><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html" target="_blank" rel="external">Spring MVC Documentation</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近参与的一个微信公众号相关的项目开发中，业务逻辑包含大量的页面跳转逻辑，以及数据的拦截器获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="https://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="Java" scheme="https://isudox.com/tags/Java/"/>
+    
+      <category term="Spring" scheme="https://isudox.com/tags/Spring/"/>
+    
+  </entry>
+  
+  <entry>
     <title>读 Flask 源码：源码结构</title>
     <link href="https://isudox.com/2017/02/14/explore-flask-source-code-structure/"/>
     <id>https://isudox.com/2017/02/14/explore-flask-source-code-structure/</id>
     <published>2017-02-14T11:47:11.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
-    <content type="html"><![CDATA[<p>打算对 Flask 的学习做个整理，以 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 <code>0.3</code> 版还是单文件，整个 <code>flask.py</code> 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。</p>
+    <content type="html"><![CDATA[<p>打算对 Flask 的学习做个整理，以 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 0.3 版本还是单文件版，整个 <code>flask.py</code> 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。</p>
 <a id="more"></a>
-<p>拿到源码先不着急，就像读书一样，不妨浏览下目录，以便有个全局的了解。Flask 的源码有一个非常好的优点，就是它的注释非常完备，即使不看源码，只看注释，也能有个大概的理解。</p>
-<p>从 Flask 根目录下的 <code>setup.py</code> 可以看到，Flask 依赖的组件主要有 3 个：</p>
-<ul>
-<li><a href="http://werkzeug.pocoo.org/docs/" target="_blank" rel="external">Werkzeug</a>：一个 HTTP 和 WSGI 的工具集；</li>
-<li><a href="http://jinja.pocoo.org/docs/" target="_blank" rel="external">Jinja2</a>：Python 的前端模板引擎；</li>
-<li><a href="http://pythonhosted.org/itsdangerous/" target="_blank" rel="external">itsdangerous</a>：处理并传递可信数据的辅助函数集；</li>
-</ul>
-<p>Flask 的核心代码都在 <code>flask</code> 目录下，其目录结构如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">flask</div><div class="line">├── ext</div><div class="line">│   └── __init__.py     flask 扩展</div><div class="line">├── __init__.py         导入模块</div><div class="line">├── __main__.py         命令行运行</div><div class="line">├── _compat.py          Py2/3 兼容性模块</div><div class="line">├── app.py              核心模块</div><div class="line">├── blueprints.py       蓝图模块</div><div class="line">├── cli.py              命令行支持模块</div><div class="line">├── config.py           flask 配置模块</div><div class="line">├── ctx.py              flask context 模块</div><div class="line">├── debughelpers.py     debug 辅助函数</div><div class="line">├── exthook.py          flask 扩展迁移，flaskext.foo 迁移到 flask_foo</div><div class="line">├── globals.py          flask 全局变量模块，包括 `g`，`current_app`，`request`</div><div class="line">├── helpers.py          辅助函数模块</div><div class="line">├── json.py             JSON 支持模块</div><div class="line">├── logging.py          日志模块</div><div class="line">├── sessions.py         基于 itsdangerous 的 cookie 和 session 模块</div><div class="line">├── signals.py          基于 blinker 的信号模块</div><div class="line">├── templating.py       桥接 Jinja2 的模板模块</div><div class="line">├── testing.py          测试模块</div><div class="line">├── views.py            view_func 模块</div><div class="line">└── wrappers.py         WSGI request 和 response 的封装模块</div></pre></td></tr></table></figure>
 <hr>
 <p>参考资料：</p>
 <ul>
@@ -42,7 +159,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;打算对 Flask 的学习做个整理，以 &lt;a href=&quot;https://github.com/pallets/flask&quot;&gt;Flask&lt;/a&gt; 的 GitHub 代码库的 &lt;code&gt;master&lt;/code&gt; 分支为参考。其实早期的 &lt;code&gt;0.3&lt;/code&gt; 版还是单文件，整个 &lt;code&gt;flask.py&lt;/code&gt; 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。&lt;/p&gt;
+      &lt;p&gt;打算对 Flask 的学习做个整理，以 &lt;a href=&quot;https://github.com/pallets/flask&quot;&gt;Flask&lt;/a&gt; 的 GitHub 代码库的 &lt;code&gt;master&lt;/code&gt; 分支为参考。其实早期的 0.3 版本还是单文件版，整个 &lt;code&gt;flask.py&lt;/code&gt; 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。&lt;/p&gt;
     
     </summary>
     
@@ -60,7 +177,7 @@
     <link href="https://isudox.com/2017/02/10/spring-boot-note-1/"/>
     <id>https://isudox.com/2017/02/10/spring-boot-note-1/</id>
     <published>2017-02-10T15:59:24.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://projects.spring.io/spring-boot/" target="_blank" rel="external">Spring Boot</a> 是 Pivotal 团队开发的开源 Java Web 框架，相比同门师兄 Spring，Spring Boot 把开发者从繁重的配置中解放出来，遵循“约定大于配置”(convention over configuration)的设计范式。从零搭建 Spring Boot 项目几乎是傻瓜化的，因为框架把大量配置自动完成了。</p>
 <a id="more"></a>
@@ -105,7 +222,7 @@
     <link href="https://isudox.com/2017/02/06/rpc-uni-entry-with-reflection/"/>
     <id>https://isudox.com/2017/02/06/rpc-uni-entry-with-reflection/</id>
     <published>2017-02-06T07:18:55.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>最近项目开发中，有这样一个场景，依赖外部很多服务，每个服务从功能上彼此独立，因此各个外部服务的调用也是相对独立的。因此当时为每个调用都写了一个专属的 Porcessor 去处理服务调用的结果。当然好处就是功能区分清晰，不好的地方就是当 Processor 多了后维护起来不太方便。一种思路就是利用反射思想，为 Processor 中的 RPC 调用添加统一入口，通过服务名和方法名对调用进行定位。</p>
 <a id="more"></a>
@@ -137,7 +254,7 @@
     <link href="https://isudox.com/2017/01/24/deploy-site-with-travis-ci/"/>
     <id>https://isudox.com/2017/01/24/deploy-site-with-travis-ci/</id>
     <published>2017-01-24T14:07:42.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能一劳永逸，但我觉得还可以再抢救下。</p>
 <a id="more"></a>
@@ -205,7 +322,7 @@
     <link href="https://isudox.com/2017/01/16/dockerize-applications/"/>
     <id>https://isudox.com/2017/01/16/dockerize-applications/</id>
     <published>2017-01-16T05:30:31.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>最近看了一篇<a href="http://www.kkblog.me/notes/%E4%BD%BF%E7%94%A8Docker%E6%9E%84%E5%BB%BA%E9%AB%98%E6%95%88Web%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83" target="_blank" rel="external">博文</a>，大受启发，也想着手尝试把自己 VPS 上的应用容器化，一方面尝试下新的开发方式，另一方面也便于应用迁移。</p>
 <a id="more"></a>
@@ -315,7 +432,7 @@
     <link href="https://isudox.com/2017/01/01/todo-list-2017/"/>
     <id>https://isudox.com/2017/01/01/todo-list-2017/</id>
     <published>2016-12-31T16:39:29.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>看完李安的《推手》，迎来了 2017 年的第一天。这算是新的一年里的开篇吧，就不写代码了，看社区里很多同行在做过 2016 年的总结，或是新一年的期望。对过去一年，我似乎很难整理出一条清晰的逻辑去完整的复盘和总结，总体来讲，自己并不是很满意，当然也有令我激动的地方，比如遇到了 Kiki 啊……自认为在毕业后的一年里没有取得自己想要的进步，没有达到我想达到的层次，新的一年里还得加油啊。既然不做总结了，展望还是要有的，万一做到了呢？</p>
 <a id="more"></a>
@@ -353,7 +470,7 @@
     <link href="https://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/"/>
     <id>https://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/</id>
     <published>2016-12-27T14:39:09.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>目前使用最广泛的 JavaScript 的包管理工具应该是 npm，可以说是非常时髦的工具。但是在前端圈子，三岁就得叫爷爷，拳怕少壮，不久前 Facebook 和 Google 等联手推出了新的包管理工具 Yarn，一阵横扫之势，GitHub 上狂收 2w+ stars，令人侧目……在上一篇讲 webpack 学习的博客中也尝试使用了 Yarn，本篇就专门写写 Yarn。</p>
 <a id="more"></a>
@@ -526,7 +643,7 @@
     <link href="https://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/"/>
     <id>https://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/</id>
     <published>2016-12-26T02:40:41.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。</p>
 <a id="more"></a>
@@ -612,7 +729,7 @@
     <link href="https://isudox.com/2016/11/12/cors-in-action/"/>
     <id>https://isudox.com/2016/11/12/cors-in-action/</id>
     <published>2016-11-11T16:31:58.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>之前写了篇关于 JSONP 和 CORS 解决跨域请求的博客，在最近和深圳凹凸团队前后端联调时实打实的实战了一把 CORS。还是应了纸上得来终觉浅的老话，因为实际运用中会存在不同的状况，只是看文档理解概念并不能真正成为实战派。</p>
 <a id="more"></a>
@@ -662,7 +779,7 @@
     <link href="https://isudox.com/2016/10/26/python-generator-guide/"/>
     <id>https://isudox.com/2016/10/26/python-generator-guide/</id>
     <published>2016-10-26T12:23:03.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>在 Python 里创建一个有一定规律的序列，很直观的做法就是在循环里创建序列的各个元素。但 Python 有更加符合 Pythonic 风格的做法，就是用生成器来实现。</p>
 <a id="more"></a>
@@ -706,7 +823,7 @@
     <link href="https://isudox.com/2016/10/17/leetcode-26-30/"/>
     <id>https://isudox.com/2016/10/17/leetcode-26-30/</id>
     <published>2016-10-17T09:09:15.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>三个月没上 LeetCode了，最近工作不顺心，好想被虐个痛快，接着写 LeetCode 第 26 至 30 题。<br><a id="more"></a></p>
 <h3 id="Remove-Duplicates-from-Sorted-Array"><a href="#Remove-Duplicates-from-Sorted-Array" class="headerlink" title="Remove Duplicates from Sorted Array"></a>Remove Duplicates from Sorted Array</h3><p>第 26 题 <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="external">Remove Duplicates from Sorted Array</a></p>
@@ -776,7 +893,7 @@
     <link href="https://isudox.com/2016/10/11/spring-aop-with-reflection/"/>
     <id>https://isudox.com/2016/10/11/spring-aop-with-reflection/</id>
     <published>2016-10-11T03:40:04.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>双十一前遭到产品突袭，要把非自营商家的处方药购买流程改为预约流程（出于某种考虑），内心一万只草泥马呼啸而过，那么多接口只给几天时间怎么改的过来……好在需要调用的购物车服务已经为新的预约流程分离了单独的 Redis 存储分组，要做的工作就是在恰当的时候调用恰当的服务。</p>
 <a id="more"></a>
@@ -821,7 +938,7 @@
     <link href="https://isudox.com/2016/10/10/unit-test-with-junit-mockito/"/>
     <id>https://isudox.com/2016/10/10/unit-test-with-junit-mockito/</id>
     <published>2016-10-10T14:12:35.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://junit.org/junit4/" target="_blank" rel="external">JUnit</a> 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇<a href="/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop">小文</a>里描述的情况，JUnit 就可能捉襟见肘了。而 <a href="http://mockito.org/" target="_blank" rel="external">Mockito</a> 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。</p>
 <a id="more"></a>
@@ -925,7 +1042,7 @@
     <link href="https://isudox.com/2016/10/02/flask-context-guide/"/>
     <id>https://isudox.com/2016/10/02/flask-context-guide/</id>
     <published>2016-10-02T12:11:40.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context，可以在不同方法中调用，并且实现通信及交互。</p>
 <a id="more"></a>
@@ -1039,7 +1156,7 @@
     <link href="https://isudox.com/2016/09/24/cross-site-jsonp-and-cors/"/>
     <id>https://isudox.com/2016/09/24/cross-site-jsonp-and-cors/</id>
     <published>2016-09-24T15:55:52.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 <a href="https://en.wikipedia.org/wiki/JSONP" target="_blank" rel="external">JSONP</a>(JSON with Padding) 和 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="external">CORS</a>(Cross-Origin Resource Sharing)。</p>
 <a id="more"></a>
@@ -1173,7 +1290,7 @@
     <link href="https://isudox.com/2016/09/13/java-collections-overview/"/>
     <id>https://isudox.com/2016/09/13/java-collections-overview/</id>
     <published>2016-09-13T12:15:58.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>无论是什么编程语言，容器都是非常重要的概念，在 Java 的实际开发中更是无处不在，各种 List、Set、Map。很多时候就是随着编程的惯性用了 ArrayList 或者 HashMap，但是并没对其特性和适用场景作更多的思考。开发者对 Java 容器的讨论比较多，我自己从源码的角度做个粗浅的整理。</p>
 <a id="more"></a>
@@ -1361,7 +1478,7 @@
     <link href="https://isudox.com/2016/09/09/python-decorator-guide/"/>
     <id>https://isudox.com/2016/09/09/python-decorator-guide/</id>
     <published>2016-09-09T14:42:36.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p>前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 <code>@decorator</code> 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。</p>
 <a id="more"></a>
@@ -1425,7 +1542,7 @@
     <link href="https://isudox.com/2016/09/03/learning-python-package-click/"/>
     <id>https://isudox.com/2016/09/03/learning-python-package-click/</id>
     <published>2016-09-02T17:22:37.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
+    <updated>2017-02-18T15:58:29.381Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://pypi.python.org/pypi/click" target="_blank" rel="external">Click</a> 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。</p>
 <a id="more"></a>
@@ -1520,140 +1637,6 @@
     
     
       <category term="Python" scheme="https://isudox.com/tags/Python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Gunicorn 驱动工厂模式 Flask 应用</title>
-    <link href="https://isudox.com/2016/08/29/running-flask-with-gunicorn-in-application-factory/"/>
-    <id>https://isudox.com/2016/08/29/running-flask-with-gunicorn-in-application-factory/</id>
-    <published>2016-08-29T05:45:50.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
-    
-    <content type="html"><![CDATA[<p>之前用 uWsgi 部署过 Django 应用，但当时的开发和部署都还手生，有很多不合理的地方，最近写的一个 Flask 应用，用了另一个 wsgi 容器 —— <a href="http://gunicorn.org/" target="_blank" rel="external">Gunicorn</a>，并且利用工厂模式对不同开发环境进行了隔离。工厂模式下的 Flask 应用在用 Gunicorn 部署时，需要做一点针对性的改动。</p>
-<a id="more"></a>
-<h3 id="基础的-Flask-应用部署"><a href="#基础的-Flask-应用部署" class="headerlink" title="基础的 Flask 应用部署"></a>基础的 Flask 应用部署</h3><p>先写一个最简单的 Flask 应用 hello：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># hello.py</span></div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@app.route('/')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello_world</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">return</span> <span class="string">"Hello World!"</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(host=<span class="string">'0.0.0.0'</span>, port=<span class="number">5000</span>)</div></pre></td></tr></table></figure>
-<p>然后用 Python 去解释执行这段脚本即可，Flask 内置了简易的 HTTP Server 来处理请求。</p>
-<p>当然这仅仅供本地测试的运行方式，线上部署的方案，通常是采用 wsgi 程序来驱动 Flask / Django 应用。Gunicorn 是性能比较好的一个方案（有时间我会做一次 Gunicorn 与 uWsgi 的性能压测对比）。Gunicorn 的驱动 hello 应用的命令如下：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gunicorn -w <span class="number">4</span> -b <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">5000</span> hello:app</div></pre></td></tr></table></figure>
-<p>Gunicorn 的常用运行参数说明：</p>
-<ul>
-<li>-w  WORKERS, –workers: worker 进程的数量，通常每个 CPU 内核运行 2-4 个 worker 进程。</li>
-<li>-b  BIND, –bind: 指定要绑定的服务器端口号或 socket</li>
-<li>-c  CONFIG, –config: 指定 config 文件</li>
-<li>-k  WORKERCLASS, –worker-class: worker 进程的类型，如 sync, eventlet, gevent, 默认为 sync</li>
-<li>-n  APP_NAME, –name: 指定 Gunicorn 进程在进程查看列表里的显示名（比如 ps 和 htop 命令查看）</li>
-</ul>
-<p>真正部署到生产环境，一般不会用 Gunicorn 直接处理客户端的 HTTP 请求，而是用类似 Nginx 来做代理，将请求代理到 Gunicorn，再由 Flask 程序进行处理，返回结果。配置 Nginx 如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">    listen 80;</div><div class="line"></div><div class="line">    server_name _;</div><div class="line"></div><div class="line">    access_log  /var/log/nginx/access.log;</div><div class="line">    error_log  /var/log/nginx/error.log;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">        proxy_pass         http://127.0.0.1:5000/;</div><div class="line">        proxy_redirect     off;</div><div class="line"></div><div class="line">        proxy_set_header   Host                 $host;</div><div class="line">        proxy_set_header   X-Real-IP            $remote_addr;</div><div class="line">        proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;</div><div class="line">        proxy_set_header   X-Forwarded-Proto    $scheme;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这样就实现了 Client &lt;-&gt; Nginx &lt;-&gt; Server port / socket &lt;-&gt; Gunicorn &lt;-&gt; Flask 整个请求响应链路。</p>
-<h3 id="工厂模式的部署"><a href="#工厂模式的部署" class="headerlink" title="工厂模式的部署"></a>工厂模式的部署</h3><p>上面给了最简单的应用部署方案，学习练手没问题，实际开发部署就得多考虑一些问题。一个主要的问题就是多环境配置，这个在上一篇关于 Django 非最佳实践里涉及到了，但是当时的方案很挫，只是通过配置文件的替换来解决。利用工厂模式来解决这个问题是更正确合理的方法。</p>
-<p>先把上面的 hello 程序做的再复杂一点，把 Flask 的 <a href="http://flask.pocoo.org/docs/0.11/blueprints/#blueprints" target="_blank" rel="external">Blueprints</a> 集成进来：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># blueprint.py</span></div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Blueprint, render_template, abort</div><div class="line"><span class="keyword">from</span> jinja2 <span class="keyword">import</span> TemplateNotFound</div><div class="line"></div><div class="line">simple_page = Blueprint(<span class="string">'simple_page'</span>, __name__, template_folder=<span class="string">'templates'</span>,</div><div class="line">                        static_folder=<span class="string">'static'</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@simple_page.route('/', defaults=&#123;'page': 'index'&#125;)</span></div><div class="line"><span class="meta">@simple_page.route('/&lt;page&gt;')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(page)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">return</span> render_template(<span class="string">'pages/$s.html'</span> % page)</div><div class="line">    <span class="keyword">except</span> TemplateNotFound:</div><div class="line">        abort(<span class="number">404</span>)</div></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># hello.py</span></div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"><span class="keyword">from</span> blueprint <span class="keyword">import</span> simple_page</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line">app.register_blueprint(simple_page)</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(host=<span class="string">'0.0.0.0'</span>, port=<span class="number">5000</span>)</div></pre></td></tr></table></figure>
-<p>Flask 的 Blueprints 有很强大的功能，当项目变的比较大型时尤为重要，这里不作展开。上面的代码是通用的一种简单开发模式，就是在创建应用实例时将 Blueprints 注册进来。工厂模式并不是这么处理，相比这种简单模式，工厂模式会把 app 的创建转移到一个专门的方法中，就是所谓的工厂，然后根据要生产的产品类型，创建不同的实例。<br>这样处理的好处是显而易见的——</p>
-<ul>
-<li>便于测试。测试环境的配置往往和生产环境不同，这样就能运行不同环境配置的应用实例；</li>
-<li>多实例。通过工厂模式，可以实现在同一个应用进程下，运行多个实例；</li>
-</ul>
-<p>创建工厂：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># manage.py</span></div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_app</span><span class="params">(config_filename)</span>:</span></div><div class="line">    app = Flask(__name__)</div><div class="line">    app.config.from_pyfile(config_filename)</div><div class="line"></div><div class="line">    <span class="keyword">from</span> blueprint <span class="keyword">import</span> simple_page</div><div class="line">    app.register_blueprint(simple_page)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> app</div></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> manage <span class="keyword">import</span> create_app</div><div class="line"></div><div class="line">app = create_app(<span class="string">'config.py'</span>)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(host=<span class="string">'0.0.0.0'</span>, port=<span class="number">5000</span>)</div></pre></td></tr></table></figure>
-<p>根据传入的不同 config，创建不通的 app 实例。创建工厂后，有一点需要留意，就是在 Blueprints 内没法访问 app 对象实例了，因为当 Blueprints 注册时 app 对实例尚未被创建，但也有解决办法，就是通过 Flask 的 current_app：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># blueprints.py</span></div><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Blueprint, render_template, abort, current_app</div><div class="line"><span class="keyword">from</span> jinja2 <span class="keyword">import</span> TemplateNotFound</div><div class="line"></div><div class="line">simple_page = Blueprint(<span class="string">'simple_page'</span>, __name__, template_folder=<span class="string">'templates'</span>,</div><div class="line">                        static_folder=<span class="string">'static'</span>)</div><div class="line"></div><div class="line"></div><div class="line"><span class="meta">@simple_page.route('/', defaults=&#123;'page': 'index'&#125;)</span></div><div class="line"><span class="meta">@simple_page.route('/&lt;page&gt;')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">(page)</span>:</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        <span class="keyword">return</span> render_template(current_app.config[<span class="string">'INDEX_TEMPLATE'</span>])</div><div class="line">    <span class="keyword">except</span> TemplateNotFound:</div><div class="line">        abort(<span class="number">404</span>)</div></pre></td></tr></table></figure>
-<p>在实现基本的工厂模式后，再回来对 Gunicorn 和 Nginx 进行配置。上面用的是 Server Port，接下来就改为 socket。<br>Nginx conf 配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">    listen 80;</div><div class="line"></div><div class="line">    server_name _;</div><div class="line"></div><div class="line">    access_log  /var/log/nginx/access.log;</div><div class="line">    error_log  /var/log/nginx/error.log;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">        proxy_pass         http://unix:/path/to/project.sock;</div><div class="line">        proxy_redirect     off;</div><div class="line"></div><div class="line">        proxy_set_header   Host                 $host;</div><div class="line">        proxy_set_header   X-Real-IP            $remote_addr;</div><div class="line">        proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;</div><div class="line">        proxy_set_header   X-Forwarded-Proto    $scheme;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>上面的 proxy_pass 参数也可以使用 upstream 来作反向代理，作用是一样的。然后 Gunicorn 运行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gunicorn -w 4 -b unix:/path/to/project.sock hello:app</div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;之前用 uWsgi 部署过 Django 应用，但当时的开发和部署都还手生，有很多不合理的地方，最近写的一个 Flask 应用，用了另一个 wsgi 容器 —— &lt;a href=&quot;http://gunicorn.org/&quot;&gt;Gunicorn&lt;/a&gt;，并且利用工厂模式对不同开发环境进行了隔离。工厂模式下的 Flask 应用在用 Gunicorn 部署时，需要做一点针对性的改动。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="DevOps" scheme="https://isudox.com/categories/DevOps/"/>
-    
-    
-      <category term="Python" scheme="https://isudox.com/tags/Python/"/>
-    
-      <category term="Flask" scheme="https://isudox.com/tags/Flask/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JDK 8 中 HashMap 的工作原理</title>
-    <link href="https://isudox.com/2016/08/08/how-hashmap-works-in-jdk8/"/>
-    <id>https://isudox.com/2016/08/08/how-hashmap-works-in-jdk8/</id>
-    <published>2016-08-08T09:31:32.000Z</published>
-    <updated>2017-02-14T13:40:20.001Z</updated>
-    
-    <content type="html"><![CDATA[<p>Java 容器类中，<code>HashMap</code> 是一个绕不开的重点，无论是实际开发还是求职面试。由于对 JDK 6 下 <code>HashMap</code> 的讨论已经很多了，而且 JDK 8 对 <code>HashMap</code> 做了比较大的改进，本文仅对 <strong>JDK 8</strong> 中 HashMap 的实现和工作原理做一点粗浅的讨论。</p>
-<a id="more"></a>
-<blockquote>
-<p>文中 Java 代码均基于 <strong>OpenJDK 8</strong></p>
-</blockquote>
-<h3 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h3><p>为了便于切入话题，先写一段最简单的 HashMap 样例代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashMapTest</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        HashMap&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;&gt;();</div><div class="line">        map.put(<span class="string">"China"</span>, <span class="string">"Beijing"</span>);</div><div class="line">        map.put(<span class="string">"Japan"</span>, <span class="string">"Tokyo"</span>);</div><div class="line">        map.put(<span class="string">"Korea"</span>, <span class="string">"Seoul"</span>);</div><div class="line">        <span class="keyword">for</span> (String country : map.keySet()) &#123;  <span class="comment">// set a break point</span></div><div class="line">            String capital = map.get(country);</div><div class="line">            System.out.println(country + <span class="string">"--"</span> + capital);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>在 <code>for</code> 循环处进入断点，查看变量，IntelliJ IDEA 中显示如下：<br><img src="https://o70e8d1kb.qnssl.com/hashmap-breakpoint.png" alt=""></p>
-<p>变量 <code>map</code> 包含 <code>table</code> 属性和 <code>entrySet</code> 属性。其中，<code>table</code> 属性是一个长度为 16 的 <code>Map.Entry</code> 数组；<code>entrySet</code> 属性是一个元素类型为 <code>Map.Entry</code> 的 <code>Set</code> 对象。打开 JDK 8 的 <code>java.util.HashMap</code> 源码，对其属性一探究竟。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;</span></div><div class="line">    <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;, <span class="title">Cloneable</span>, <span class="title">Serializable</span> &#123;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DEFAULT_INITIAL_CAPACITY = <span class="number">1</span> &lt;&lt; <span class="number">4</span>; <span class="comment">// aka 16</span></div><div class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAXIMUM_CAPACITY = <span class="number">1</span> &lt;&lt; <span class="number">30</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">float</span> DEFAULT_LOAD_FACTOR = <span class="number">0.75f</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TREEIFY_THRESHOLD = <span class="number">8</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> UNTREEIFY_THRESHOLD = <span class="number">6</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MIN_TREEIFY_CAPACITY = <span class="number">64</span>;</div><div class="line"></div><div class="line">    <span class="comment">/* ---------------- Fields -------------- */</span></div><div class="line"></div><div class="line">    <span class="keyword">transient</span> Node&lt;K,V&gt;[] table;</div><div class="line"></div><div class="line">    <span class="keyword">transient</span> Set&lt;Map.Entry&lt;K,V&gt;&gt; entrySet;</div><div class="line"></div><div class="line">    <span class="keyword">transient</span> <span class="keyword">int</span> size;</div><div class="line"></div><div class="line">    <span class="keyword">transient</span> <span class="keyword">int</span> modCount;</div><div class="line"></div><div class="line">    <span class="keyword">int</span> threshold;</div><div class="line"></div><div class="line">    <span class="keyword">final</span> <span class="keyword">float</span> loadFactor;</div><div class="line"></div><div class="line">    <span class="comment">/* ---------------- Public operations -------------- */</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Set&lt;K&gt; <span class="title">keySet</span><span class="params">()</span> </span>&#123;</div><div class="line">        Set&lt;K&gt; ks;</div><div class="line">        <span class="keyword">return</span> (ks = keySet) == <span class="keyword">null</span> ? (keySet = <span class="keyword">new</span> KeySet()) : ks;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Collection&lt;V&gt; <span class="title">values</span><span class="params">()</span> </span>&#123;</div><div class="line">        Collection&lt;V&gt; vs;</div><div class="line">        <span class="keyword">return</span> (vs = values) == <span class="keyword">null</span> ? (values = <span class="keyword">new</span> Values()) : vs;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>从截取的源码里，可以理解上面断点执行的 <code>map</code> 各属性具体的含义：</p>
-<ul>
-<li><code>table</code>： 即 hash bucket 数组，存储 Node 单向链表。</li>
-<li><code>entrySet</code>： 存储 Entry 的 Set；</li>
-<li><code>size</code>： <code>map</code> 中键值对的数量；</li>
-<li><code>modCount</code>： 记录当前 <code>HashMap</code> 结构被改变的次数；</li>
-<li><code>threshold</code>： 所能容纳的键值对的最大值</li>
-<li><code>loadFactor</code>： 当前 <code>table</code> 的负载因子，当 <code>table</code> 中 entries 的数量超过负载时，会被重新 hash，table 的容量会增大为先前的 2 倍。默认初始容量为 16，负载因子为 0.75；</li>
-<li><code>keySet()</code>: 返回当前 <code>map</code> 中 key 组成的 Set；</li>
-<li><code>values()</code>: 返回当前 <code>map</code> 中 value 组成的 Collection；</li>
-</ul>
-<p>这样还是不够明白，下面接着说 HashMap 里的数据结构。</p>
-<h3 id="HashMap-中的数据结构"><a href="#HashMap-中的数据结构" class="headerlink" title="HashMap 中的数据结构"></a>HashMap 中的数据结构</h3><p>首先来看 <code>table</code> 属性所存储的 Node 链表：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// HashMap.Node</span></div><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>.<span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> hash;</div><div class="line">    <span class="keyword">final</span> K key;</div><div class="line">    V value;</div><div class="line">    Node&lt;K,V&gt; next;</div><div class="line"></div><div class="line">    Node(<span class="keyword">int</span> hash, K key, V value, Node&lt;K,V&gt; next) &#123;</div><div class="line">        <span class="keyword">this</span>.hash = hash;</div><div class="line">        <span class="keyword">this</span>.key = key;</div><div class="line">        <span class="keyword">this</span>.value = value;</div><div class="line">        <span class="keyword">this</span>.next = next;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> K <span class="title">getKey</span><span class="params">()</span>        </span>&#123; <span class="keyword">return</span> key; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> V <span class="title">getValue</span><span class="params">()</span>      </span>&#123; <span class="keyword">return</span> value; &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> key + <span class="string">"="</span> + value; &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hashCode</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> Objects.hashCode(key) ^ Objects.hashCode(value);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> V <span class="title">setValue</span><span class="params">(V newValue)</span> </span>&#123;</div><div class="line">        V oldValue = value;</div><div class="line">        value = newValue;</div><div class="line">        <span class="keyword">return</span> oldValue;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">equals</span><span class="params">(Object o)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (o == <span class="keyword">this</span>)</div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        <span class="keyword">if</span> (o <span class="keyword">instanceof</span> Map.Entry) &#123;</div><div class="line">            Map.Entry&lt;?,?&gt; e = (Map.Entry&lt;?,?&gt;)o;</div><div class="line">            <span class="keyword">if</span> (Objects.equals(key, e.getKey()) &amp;&amp;</div><div class="line">                Objects.equals(value, e.getValue()))</div><div class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><code>Node</code> 包含的域有 <code>hash</code>，<code>key</code>，<code>value</code> 和 <code>next</code>，其中 <code>next</code> 指向下一 <code>Node</code> 节点。<code>hashCode()</code> 方法通过求 <code>key</code> 和 <code>value</code> 的哈希值的异或计算 <code>hash</code>;</p>
-<p><img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Hash_table_5_0_1_1_1_1_1_LL.svg" alt=""></p>
-<h3 id="put-get"><a href="#put-get" class="headerlink" title="put() / get()"></a>put() / get()</h3><p>HashMap 最主要的操作就是 <code>put()</code> 和 <code>get()</code>，先来看 <code>put()</code> 方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> putVal(hash(key), key, value, <span class="keyword">false</span>, <span class="keyword">true</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent, <span class="keyword">boolean</span> evict)</span> </span>&#123;</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</div><div class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</div><div class="line">        n = (tab = resize()).length;</div><div class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</div><div class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</div><div class="line">    <span class="keyword">else</span> &#123;</div><div class="line">        Node&lt;K,V&gt; e; K k;</div><div class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp; ((k = p.key) == key ||</div><div class="line">            (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</div><div class="line">            e = p;</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</div><div class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</div><div class="line">        <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</div><div class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</div><div class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</div><div class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></div><div class="line">                        treeifyBin(tab, hash);</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</div><div class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                p = e;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></div><div class="line">            V oldValue = e.value;</div><div class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</div><div class="line">                e.value = value;</div><div class="line">            afterNodeAccess(e);</div><div class="line">            <span class="keyword">return</span> oldValue;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    ++modCount;</div><div class="line">    <span class="keyword">if</span> (++size &gt; threshold)</div><div class="line">        resize();</div><div class="line">    afterNodeInsertion(evict);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> h;</div><div class="line">    <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>拆解上面的 <code>putVal()</code> 方法，该方法有 5 个入参，主要的入参是 key 的哈希值，key 和 value，onlyIfAbsent 标识是否改变已存在的 value（默认 false，改变已存在的 value），evict 标识 hash bucket 数组是否为 creation mode（默认 true，非 creation mode）。<code>putVal()</code> 用了几个 <code>if-else</code> 对插入 key-value 时可能出现的情况做了不同的处理：</p>
-<ul>
-<li>通过 key 的哈希值计算 hash bucket 数组的 index 位置，如果该 index 位置的 Node 对象为空，则新建 Node 并写入 bucket 数组的 index 位置；</li>
-<li>如果 index 位置上已存在 Node 对象，即发生碰撞时，也存在多种情况：<ul>
-<li>如果该 Node 对象的 hash 和 key 都和入参 hash 和 key 一致，说明节点已存在；</li>
-<li>如果该 Node 对象是红黑树节点，则把待插入的 Node 节点对象转换为红黑树节点对象 TreeNode；</li>
-<li>否则，迭代 index 位置上存储的 Node 链表，直到最后一个 Node 节点，创建新的 Node 节点并接在末尾。如果 Node 链表长度超过 TREEIFY_THRESHOLD，就把 Node 链表转换为红黑树 TreeNode；</li>
-</ul>
-</li>
-<li>如果节点已存在，就将节点的 value 替换为入参 value，并返回原 value 值。</li>
-</ul>
-<p>再看 <code>get()</code> 方法：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;</div><div class="line">    Node&lt;K,V&gt; e;</div><div class="line">    <span class="keyword">return</span> (e = getNode(hash(key), key)) == <span class="keyword">null</span> ? <span class="keyword">null</span> : e.value;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">final</span> Node&lt;K,V&gt; <span class="title">getNode</span><span class="params">(<span class="keyword">int</span> hash, Object key)</span> </span>&#123;</div><div class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; <span class="keyword">int</span> n; K k;</div><div class="line">    <span class="keyword">if</span> ((tab = table) != <span class="keyword">null</span> &amp;&amp; (n = tab.length) &gt; <span class="number">0</span> &amp;&amp;</div><div class="line">        (first = tab[(n - <span class="number">1</span>) &amp; hash]) != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">if</span> (first.hash == hash &amp;&amp; <span class="comment">// always check first node</span></div><div class="line">            ((k = first.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</div><div class="line">            <span class="keyword">return</span> first;</div><div class="line">        <span class="keyword">if</span> ((e = first.next) != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (first <span class="keyword">instanceof</span> TreeNode)</div><div class="line">                <span class="keyword">return</span> ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);</div><div class="line">            <span class="keyword">do</span> &#123;</div><div class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</div><div class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</div><div class="line">                    <span class="keyword">return</span> e;</div><div class="line">            &#125; <span class="keyword">while</span> ((e = e.next) != <span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><code>get()</code> 方法简明易懂，通过 key 的哈希值来定位 bucket 数组的 index，找到 Node 节点，从而找到所匹配的 value 值。</p>
-<ul>
-<li>从 index 上的 Node 链表的头节点开始，如果头节点的 hash 和 key 域都匹配，则命中，直接返回 value；</li>
-<li>头节点没命中，意味着存在冲撞，就继续向下迭代，每次迭代一个 Node 节点时都判断当前节点是否为红黑树节点<ul>
-<li>如果当前节点是红黑树节点，则获取从红黑树的 root 节点处开始遍历寻找匹配的 key 和 hash；</li>
-<li>如果当前节点非红黑树节点，则检查节点的 hash 和 key 域，若匹配则返回 value 值；</li>
-</ul>
-</li>
-</ul>
-<h3 id="红黑树"><a href="#红黑树" class="headerlink" title="红黑树"></a>红黑树</h3><p>红黑树部分需要单独写一篇。</p>
-<h3 id="优化方法"><a href="#优化方法" class="headerlink" title="优化方法"></a>优化方法</h3><p><code>loadFactor</code> 属性可以控制 HashMap 的空间/时间使用：增大 <code>loadFactor</code> 则减小内存占用，但查找效率减慢；反之则内存占用变大，查找效率提升。</p>
-<h3 id="JDK-8-下-HashMap-的改动"><a href="#JDK-8-下-HashMap-的改动" class="headerlink" title="JDK 8 下 HashMap 的改动"></a>JDK 8 下 HashMap 的改动</h3>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Java 容器类中，&lt;code&gt;HashMap&lt;/code&gt; 是一个绕不开的重点，无论是实际开发还是求职面试。由于对 JDK 6 下 &lt;code&gt;HashMap&lt;/code&gt; 的讨论已经很多了，而且 JDK 8 对 &lt;code&gt;HashMap&lt;/code&gt; 做了比较大的改进，本文仅对 &lt;strong&gt;JDK 8&lt;/strong&gt; 中 HashMap 的实现和工作原理做一点粗浅的讨论。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="https://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Java" scheme="https://isudox.com/tags/Java/"/>
     
   </entry>
   

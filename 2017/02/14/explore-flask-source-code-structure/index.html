@@ -89,16 +89,16 @@
 
 
 
-<meta name="description" content="打算对 Flask 的学习做个整理，以 Flask 的 GitHub 代码库的 master 分支为参考。其实早期的 0.3 版还是单文件，整个 flask.py 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。">
+<meta name="description" content="打算对 Flask 的学习做个整理，以 Flask 的 GitHub 代码库的 master 分支为参考。其实早期的 0.3 版本还是单文件版，整个 flask.py 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="读 Flask 源码：源码结构">
 <meta property="og:url" content="https://isudox.com/2017/02/14/explore-flask-source-code-structure/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="打算对 Flask 的学习做个整理，以 Flask 的 GitHub 代码库的 master 分支为参考。其实早期的 0.3 版还是单文件，整个 flask.py 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。">
-<meta property="og:updated_time" content="2017-02-14T13:40:20.001Z">
+<meta property="og:description" content="打算对 Flask 的学习做个整理，以 Flask 的 GitHub 代码库的 master 分支为参考。其实早期的 0.3 版本还是单文件版，整个 flask.py 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。">
+<meta property="og:updated_time" content="2017-02-18T15:58:29.381Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="读 Flask 源码：源码结构">
-<meta name="twitter:description" content="打算对 Flask 的学习做个整理，以 Flask 的 GitHub 代码库的 master 分支为参考。其实早期的 0.3 版还是单文件，整个 flask.py 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。">
+<meta name="twitter:description" content="打算对 Flask 的学习做个整理，以 Flask 的 GitHub 代码库的 master 分支为参考。其实早期的 0.3 版本还是单文件版，整个 flask.py 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。">
 
 
 
@@ -392,17 +392,8 @@
       
 
       
-        <p>打算对 Flask 的学习做个整理，以 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 <code>0.3</code> 版还是单文件，整个 <code>flask.py</code> 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。</p>
+        <p>打算对 Flask 的学习做个整理，以 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 0.3 版本还是单文件版，整个 <code>flask.py</code> 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。</p>
 <a id="more"></a>
-<p>拿到源码先不着急，就像读书一样，不妨浏览下目录，以便有个全局的了解。Flask 的源码有一个非常好的优点，就是它的注释非常完备，即使不看源码，只看注释，也能有个大概的理解。</p>
-<p>从 Flask 根目录下的 <code>setup.py</code> 可以看到，Flask 依赖的组件主要有 3 个：</p>
-<ul>
-<li><a href="http://werkzeug.pocoo.org/docs/" target="_blank" rel="external">Werkzeug</a>：一个 HTTP 和 WSGI 的工具集；</li>
-<li><a href="http://jinja.pocoo.org/docs/" target="_blank" rel="external">Jinja2</a>：Python 的前端模板引擎；</li>
-<li><a href="http://pythonhosted.org/itsdangerous/" target="_blank" rel="external">itsdangerous</a>：处理并传递可信数据的辅助函数集；</li>
-</ul>
-<p>Flask 的核心代码都在 <code>flask</code> 目录下，其目录结构如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">flask</div><div class="line">├── ext</div><div class="line">│   └── __init__.py     flask 扩展</div><div class="line">├── __init__.py         导入模块</div><div class="line">├── __main__.py         命令行运行</div><div class="line">├── _compat.py          Py2/3 兼容性模块</div><div class="line">├── app.py              核心模块</div><div class="line">├── blueprints.py       蓝图模块</div><div class="line">├── cli.py              命令行支持模块</div><div class="line">├── config.py           flask 配置模块</div><div class="line">├── ctx.py              flask context 模块</div><div class="line">├── debughelpers.py     debug 辅助函数</div><div class="line">├── exthook.py          flask 扩展迁移，flaskext.foo 迁移到 flask_foo</div><div class="line">├── globals.py          flask 全局变量模块，包括 `g`，`current_app`，`request`</div><div class="line">├── helpers.py          辅助函数模块</div><div class="line">├── json.py             JSON 支持模块</div><div class="line">├── logging.py          日志模块</div><div class="line">├── sessions.py         基于 itsdangerous 的 cookie 和 session 模块</div><div class="line">├── signals.py          基于 blinker 的信号模块</div><div class="line">├── templating.py       桥接 Jinja2 的模板模块</div><div class="line">├── testing.py          测试模块</div><div class="line">├── views.py            view_func 模块</div><div class="line">└── wrappers.py         WSGI request 和 response 的封装模块</div></pre></td></tr></table></figure>
 <hr>
 <p>参考资料：</p>
 <ul>
@@ -468,6 +459,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/16/spring-mvc-redirect-forward/" rel="prev" title="探究 Spring MVC 的重定向和转发">
+                探究 Spring MVC 的重定向和转发 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -567,7 +562,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">50</span>
+              <span class="site-state-item-count">52</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
