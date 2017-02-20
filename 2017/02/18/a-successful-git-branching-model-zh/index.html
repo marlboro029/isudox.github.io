@@ -89,21 +89,22 @@
 
 
 
-<meta name="description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
+<meta name="description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="[译] Git 分支开发模型">
+<meta property="og:title" content="[译] 一个行之有效的 Git 分支模型">
 <meta property="og:url" content="https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/index.html">
 <meta property="og:site_name" content="I sudo X">
-<meta property="og:description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
+<meta property="og:description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/git-model@2x.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/centr-decentr@2x.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/main-branches@2x.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/fb@2x.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/merge-without-ff@2x.png">
-<meta property="og:updated_time" content="2017-02-18T15:58:29.381Z">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/hotfix-branches@2x.png">
+<meta property="og:updated_time" content="2017-02-20T14:12:05.483Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="[译] Git 分支开发模型">
-<meta name="twitter:description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
+<meta name="twitter:title" content="[译] 一个行之有效的 Git 分支模型">
+<meta name="twitter:description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
 <meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/git-model@2x.png">
 
 
@@ -133,7 +134,7 @@
 
 
 
-  <title> [译] Git 分支开发模型 | I sudo X </title>
+  <title> [译] 一个行之有效的 Git 分支模型 | I sudo X </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -323,7 +324,7 @@
             
             
               
-                [译] Git 分支开发模型
+                [译] 一个行之有效的 Git 分支模型
               
             
           </h1>
@@ -376,7 +377,7 @@
 
           
           
-             <span id="/2017/02/18/a-successful-git-branching-model-zh/" class="leancloud_visitors" data-flag-title="[译] Git 分支开发模型">
+             <span id="/2017/02/18/a-successful-git-branching-model-zh/" class="leancloud_visitors" data-flag-title="[译] 一个行之有效的 Git 分支模型">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -398,10 +399,10 @@
       
 
       
-        <p>原文 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a> 是 <a href="https://github.com/nvie/gitflow" target="_blank" rel="external">gitflow</a> 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。</p>
+        <p>原文 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a> 是 <a href="https://github.com/nvie/gitflow" target="_blank" rel="external">gitflow</a> 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。</p>
 <a id="more"></a>
 <blockquote>
-<p>下面是原文的译文。</p>
+<p>上面是废话，下面是译文。</p>
 </blockquote>
 <hr>
 <p>本文里，我会介绍一个在一年前就引入进多个项目（包括工作和个人项目）中的开发模型，实践表明该模型很成功。为此专门写篇文章的想法由来已久，但始终没挤出时间来做，直到现在。我不会细究项目的具体细节，仅仅是项目开发的分支策略和发布管理。</p>
@@ -461,9 +462,35 @@
 <p>该新分支可能会存在一段时间，知道 release 可以确定被发布出来。在此期间，分支上可能会修复一些 bug（而不是在 <code>develop</code> 分支上）。严禁在该分支上添加大的 feature 进来。release 分支最后必须被 merge 回 <code>develop</code> 分支上，然后继续等待下一个大版本的发布。</p>
 <center><strong>完成 release 分支</strong></center>
 
+<p>当 release 分支的开发状态到了真正可以发布的时候，就需要采取一些行动了。首先， release 分支得 merge 到 <code>master</code> 分支（记住，<code>master</code> 上的每个 commit 都是一个新的 release）。然后，提交到 <code>master</code> 上的 commit 必须被标记上 Tag，以便将来参考该历史版本。最后，release 分支上的改动还需要 merge 回 <code>develop</code> 分支，以便将来的 release 也能包含这些 bug fixes。</p>
 <p>开始的两步操作：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ git checkout master</div><div class="line">Switched to branch <span class="string">'master'</span></div><div class="line">$ git merge --no-ff release-1.2</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div><div class="line">$ git tag <span class="_">-a</span> 1.2</div></pre></td></tr></table></figure>
-<h3 id="Hotfix-分支"><a href="#Hotfix-分支" class="headerlink" title="Hotfix 分支"></a>Hotfix 分支</h3><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>
+<p>到此，release 已经完成，并且标记了 Tag。（你可能还想使用 <code>-s</code> 或 <code>-u</code> 参数来对 Tag 进行加密）</p>
+<p>为了让 release 分支上的改动能保留下来，继续将改动 merge 回 <code>develop</code> 分支，Git 操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ git checkout develop</div><div class="line">Switched to branch <span class="string">'develop'</span></div><div class="line">$ git merge --no-ff release-1.2</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div></pre></td></tr></table></figure>
+<p>这些操作可能会导致代码冲突，尝试解决冲突后再提交。<br>现在，我们已经彻底完成工作并且 release 分支已经可以被移除了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git branch <span class="_">-d</span> release-1.2</div><div class="line">Deleted branch release-1.2 (was ff452fe).</div></pre></td></tr></table></figure>
+<h3 id="Hotfix-分支"><a href="#Hotfix-分支" class="headerlink" title="Hotfix 分支"></a>Hotfix 分支</h3><p><img align="right" src="https://o70e8d1kb.qnssl.com/hotfix-branches@2x.png" width="316"><br>从 <code>master</code> 分支派生；<br>必须 merge 回 <code>develop</code> 分支和 <code>master</code> 分支；<br>分支命名惯例：hotfix-*</p>
+<p>Hotfix 分支和 release 分支很类似，都是为发布新的生产版本而准备，虽然是计划外的。其存在的必要性是由于当前生产版本处于需要紧急修复的状态。当生产版本发生严重 bug 时，就必须立即修复，hotfix 分支可以从生产版本的 <code>master</code> 分支上的相应 Tag 派生出来。</p>
+<p>实质上，在 <code>develop</code> 分支上开发的人员可以继续，另一边，其他人员则可以快速的进行生产版本的修复工作。</p>
+<center><strong>创建 release 分支</strong></center>
+
+<p>Hotfix 分支从 <code>master</code> 派生。比如，当前线上运行的生产版本是 1.2 版，遇到严重 bug，但是 <code>develop</code> 分支上的版本还不到稳定版，就可以派生 hotfix 分支来修复线上发现的 bug：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git checkout -b hotfix-1.2.1 master</div><div class="line">Switched to a new branch <span class="string">"hotfix-1.2.1"</span></div><div class="line">$ ./bump-version.sh 1.2.1</div><div class="line">Files modified successfully, version bumped to 1.2.1.</div><div class="line">$ git commit <span class="_">-a</span> -m <span class="string">"Bumped version number to 1.2.1"</span></div><div class="line">[hotfix-1.2.1 41e61bb] Bumped version number to 1.2.1</div><div class="line">1 files changed, 1 insertions(+), 1 deletions(-)</div></pre></td></tr></table></figure>
+<p>别忘了在派生新分支后 bump 了版本号。<br>然后，修复 bug 并提交上去：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git commit -m <span class="string">"Fixed severe production problem"</span></div><div class="line">[hotfix-1.2.1 abbe5d6] Fixed severe production problem</div><div class="line">5 files changed, 32 insertions(+), 17 deletions(-)</div></pre></td></tr></table></figure>
+<center><strong>完成 release 分支</strong></center>
+
+<p>当 bug 修复完成，修复代码需要合并到 <code>master</code> 分支上，同时还得 merge 到 <code>develop</code> 分支，以保证下一个 release 版本不会出现此 bug。这和 release 分支的结束过程是非常类似的。</p>
+<p>首先，<code>master</code> 分支合并修复代码，然后为新的 release 标记 Tag：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ git checkout master</div><div class="line">Switched to branch <span class="string">'master'</span></div><div class="line">$ git merge --no-ff hotfix-1.2.1</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div><div class="line">$ git tag <span class="_">-a</span> 1.2.1</div></pre></td></tr></table></figure>
+<p>然后，轮到 <code>develop</code> 分支合并修复代码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ git checkout develop</div><div class="line">Switched to branch <span class="string">'develop'</span></div><div class="line">$ git merge --no-ff hotfix-1.2.1</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div></pre></td></tr></table></figure>
+<p>有一个例外的原则是，如果当前有一个 release 分支存在，那么 hotfix 分支上的改动需要 merge 到 release 分支，而不是 <code>develop</code> 分支。当 release 分支结束时，merge 到 release 分支上的修复代码最终还是会 merge 到 <code>develop</code> 上。</p>
+<p>最后，移除已经完成历史使命的分支：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git branch <span class="_">-d</span> hotfix-1.2.1</div><div class="line">Deleted branch hotfix-1.2.1 (was abbe5d6).</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个分支模型虽然没什么令人耳目一新的东西，不过文章一开始给出的那张大图已经呈现了它对我们项目的裨益。它构造了一个优雅的模型，易于理解，并允许团队成员对分支的派生和发布有共同的认识。</p>
+
       
     </div>
 
@@ -512,8 +539,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/02/16/spring-mvc-redirect-forward/" rel="next" title="探究 Spring MVC 的重定向和转发">
-                <i class="fa fa-chevron-left"></i> 探究 Spring MVC 的重定向和转发
+              <a href="/2017/02/16/spring-mvc-redirect-forward/" rel="next" title="探索 Spring MVC 重定向和转发">
+                <i class="fa fa-chevron-left"></i> 探索 Spring MVC 重定向和转发
               </a>
             
           </div>
@@ -1060,7 +1087,7 @@
     <script type="text/javascript">
       var disqus_shortname = 'isudox';
       var disqus_identifier = '2017/02/18/a-successful-git-branching-model-zh/';
-      var disqus_title = '[译] Git 分支开发模型';
+      var disqus_title = '[译] 一个行之有效的 Git 分支模型';
 
       function run_disqus_script(disqus_script) {
         var dsq = document.createElement('script');

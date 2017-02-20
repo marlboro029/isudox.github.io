@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://isudox.com/"/>
-  <updated>2017-02-18T15:58:29.381Z</updated>
+  <updated>2017-02-20T14:12:05.483Z</updated>
   <id>https://isudox.com/</id>
   
   <author>
@@ -16,16 +16,16 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>[译] Git 分支开发模型</title>
+    <title>[译] 一个行之有效的 Git 分支模型</title>
     <link href="https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/"/>
     <id>https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/</id>
     <published>2017-02-18T06:51:10.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
-    <content type="html"><![CDATA[<p>原文 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a> 是 <a href="https://github.com/nvie/gitflow" target="_blank" rel="external">gitflow</a> 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。</p>
+    <content type="html"><![CDATA[<p>原文 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a> 是 <a href="https://github.com/nvie/gitflow" target="_blank" rel="external">gitflow</a> 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。</p>
 <a id="more"></a>
 <blockquote>
-<p>下面是原文的译文。</p>
+<p>上面是废话，下面是译文。</p>
 </blockquote>
 <hr>
 <p>本文里，我会介绍一个在一年前就引入进多个项目（包括工作和个人项目）中的开发模型，实践表明该模型很成功。为此专门写篇文章的想法由来已久，但始终没挤出时间来做，直到现在。我不会细究项目的具体细节，仅仅是项目开发的分支策略和发布管理。</p>
@@ -85,13 +85,39 @@
 <p>该新分支可能会存在一段时间，知道 release 可以确定被发布出来。在此期间，分支上可能会修复一些 bug（而不是在 <code>develop</code> 分支上）。严禁在该分支上添加大的 feature 进来。release 分支最后必须被 merge 回 <code>develop</code> 分支上，然后继续等待下一个大版本的发布。</p>
 <center><strong>完成 release 分支</strong></center>
 
+<p>当 release 分支的开发状态到了真正可以发布的时候，就需要采取一些行动了。首先， release 分支得 merge 到 <code>master</code> 分支（记住，<code>master</code> 上的每个 commit 都是一个新的 release）。然后，提交到 <code>master</code> 上的 commit 必须被标记上 Tag，以便将来参考该历史版本。最后，release 分支上的改动还需要 merge 回 <code>develop</code> 分支，以便将来的 release 也能包含这些 bug fixes。</p>
 <p>开始的两步操作：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ git checkout master</div><div class="line">Switched to branch <span class="string">'master'</span></div><div class="line">$ git merge --no-ff release-1.2</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div><div class="line">$ git tag <span class="_">-a</span> 1.2</div></pre></td></tr></table></figure>
-<h3 id="Hotfix-分支"><a href="#Hotfix-分支" class="headerlink" title="Hotfix 分支"></a>Hotfix 分支</h3><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>]]></content>
+<p>到此，release 已经完成，并且标记了 Tag。（你可能还想使用 <code>-s</code> 或 <code>-u</code> 参数来对 Tag 进行加密）</p>
+<p>为了让 release 分支上的改动能保留下来，继续将改动 merge 回 <code>develop</code> 分支，Git 操作如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ git checkout develop</div><div class="line">Switched to branch <span class="string">'develop'</span></div><div class="line">$ git merge --no-ff release-1.2</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div></pre></td></tr></table></figure>
+<p>这些操作可能会导致代码冲突，尝试解决冲突后再提交。<br>现在，我们已经彻底完成工作并且 release 分支已经可以被移除了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git branch <span class="_">-d</span> release-1.2</div><div class="line">Deleted branch release-1.2 (was ff452fe).</div></pre></td></tr></table></figure>
+<h3 id="Hotfix-分支"><a href="#Hotfix-分支" class="headerlink" title="Hotfix 分支"></a>Hotfix 分支</h3><p><img align="right" src="https://o70e8d1kb.qnssl.com/hotfix-branches@2x.png" width="316"><br>从 <code>master</code> 分支派生；<br>必须 merge 回 <code>develop</code> 分支和 <code>master</code> 分支；<br>分支命名惯例：hotfix-*</p>
+<p>Hotfix 分支和 release 分支很类似，都是为发布新的生产版本而准备，虽然是计划外的。其存在的必要性是由于当前生产版本处于需要紧急修复的状态。当生产版本发生严重 bug 时，就必须立即修复，hotfix 分支可以从生产版本的 <code>master</code> 分支上的相应 Tag 派生出来。</p>
+<p>实质上，在 <code>develop</code> 分支上开发的人员可以继续，另一边，其他人员则可以快速的进行生产版本的修复工作。</p>
+<center><strong>创建 release 分支</strong></center>
+
+<p>Hotfix 分支从 <code>master</code> 派生。比如，当前线上运行的生产版本是 1.2 版，遇到严重 bug，但是 <code>develop</code> 分支上的版本还不到稳定版，就可以派生 hotfix 分支来修复线上发现的 bug：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ git checkout -b hotfix-1.2.1 master</div><div class="line">Switched to a new branch <span class="string">"hotfix-1.2.1"</span></div><div class="line">$ ./bump-version.sh 1.2.1</div><div class="line">Files modified successfully, version bumped to 1.2.1.</div><div class="line">$ git commit <span class="_">-a</span> -m <span class="string">"Bumped version number to 1.2.1"</span></div><div class="line">[hotfix-1.2.1 41e61bb] Bumped version number to 1.2.1</div><div class="line">1 files changed, 1 insertions(+), 1 deletions(-)</div></pre></td></tr></table></figure>
+<p>别忘了在派生新分支后 bump 了版本号。<br>然后，修复 bug 并提交上去：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git commit -m <span class="string">"Fixed severe production problem"</span></div><div class="line">[hotfix-1.2.1 abbe5d6] Fixed severe production problem</div><div class="line">5 files changed, 32 insertions(+), 17 deletions(-)</div></pre></td></tr></table></figure>
+<center><strong>完成 release 分支</strong></center>
+
+<p>当 bug 修复完成，修复代码需要合并到 <code>master</code> 分支上，同时还得 merge 到 <code>develop</code> 分支，以保证下一个 release 版本不会出现此 bug。这和 release 分支的结束过程是非常类似的。</p>
+<p>首先，<code>master</code> 分支合并修复代码，然后为新的 release 标记 Tag：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ git checkout master</div><div class="line">Switched to branch <span class="string">'master'</span></div><div class="line">$ git merge --no-ff hotfix-1.2.1</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div><div class="line">$ git tag <span class="_">-a</span> 1.2.1</div></pre></td></tr></table></figure>
+<p>然后，轮到 <code>develop</code> 分支合并修复代码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ git checkout develop</div><div class="line">Switched to branch <span class="string">'develop'</span></div><div class="line">$ git merge --no-ff hotfix-1.2.1</div><div class="line">Merge made by recursive.</div><div class="line">(Summary of changes)</div></pre></td></tr></table></figure>
+<p>有一个例外的原则是，如果当前有一个 release 分支存在，那么 hotfix 分支上的改动需要 merge 到 release 分支，而不是 <code>develop</code> 分支。当 release 分支结束时，merge 到 release 分支上的修复代码最终还是会 merge 到 <code>develop</code> 上。</p>
+<p>最后，移除已经完成历史使命的分支：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ git branch <span class="_">-d</span> hotfix-1.2.1</div><div class="line">Deleted branch hotfix-1.2.1 (was abbe5d6).</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个分支模型虽然没什么令人耳目一新的东西，不过文章一开始给出的那张大图已经呈现了它对我们项目的裨益。它构造了一个优雅的模型，易于理解，并允许团队成员对分支的派生和发布有共同的认识。</p>
+]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;原文 &lt;a href=&quot;http://nvie.com/posts/a-successful-git-branching-model/&quot;&gt;A successful Git branching model&lt;/a&gt; 是 &lt;a href=&quot;https://github.com/nvie/gitflow&quot;&gt;gitflow&lt;/a&gt; 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。&lt;/p&gt;
+      &lt;p&gt;原文 &lt;a href=&quot;http://nvie.com/posts/a-successful-git-branching-model/&quot;&gt;A successful Git branching model&lt;/a&gt; 是 &lt;a href=&quot;https://github.com/nvie/gitflow&quot;&gt;gitflow&lt;/a&gt; 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。&lt;/p&gt;
     
     </summary>
     
@@ -103,22 +129,40 @@
   </entry>
   
   <entry>
-    <title>探究 Spring MVC 的重定向和转发</title>
+    <title>探索 Spring MVC 重定向和转发</title>
     <link href="https://isudox.com/2017/02/16/spring-mvc-redirect-forward/"/>
     <id>https://isudox.com/2017/02/16/spring-mvc-redirect-forward/</id>
     <published>2017-02-16T03:35:09.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
-    <content type="html"><![CDATA[<p>最近参与的一个微信公众号相关的项目开发中，业务逻辑包含大量的页面跳转逻辑，以及数据的拦截器获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。</p>
+    <content type="html"><![CDATA[<p>最近参与的一个微信公众号相关项目的开发中，业务包含大量的页面跳转逻辑，以及拦截器的数据获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。</p>
 <a id="more"></a>
 <p>比如客户端的请求进到 Controller 方法中，我们会判断当前用户状态，可能会跳转到用户中心页，也可能会跳转到等待页，又或者错误页。类似的场景很多，都需要用到请求的重定向和转发。Sping MVC 实现重定向或转发的方法有很多，我先大致梳理下，然后再通过源码加深理解。</p>
-<h2 id="不同情况的处理"><a href="#不同情况的处理" class="headerlink" title="不同情况的处理"></a>不同情况的处理</h2><p>Controller 间方法的跳转，无非就是带参跳转和不带参跳转。通常的做法是 return 映射到另一个 Controller 方法的字符串。如果有请求参数，就拼接在 RequestMapping 映射的字符串后面。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 返回字符串映射 RequestMapping 的方式</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="string">"redirect:/bye"</span>;</div><div class="line">    <span class="comment">// return "redirect:/bye?username=sudoz";</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>另一种方法是通过返回 <code>ModelAndView</code> 对象来实现跳转，类似的，如果有请求参数，也可以通过类似 GET 参数拼接的方式：</p>
+<h2 id="常用处理方式"><a href="#常用处理方式" class="headerlink" title="常用处理方式"></a>常用处理方式</h2><p>Controller 视图方法间的跳转，无非就是带参跳转和不带参跳转。常用的方法有通过 String 映射 RequestMapping 实现重定向，或者通过 <code>ModelAndView</code> 对象，又或者是 <code>RedirectView</code> 对象，下面逐一说明。</p>
+<h3 id="String-重定向"><a href="#String-重定向" class="headerlink" title="String 重定向"></a>String 重定向</h3><p>是 return 映射到另一个 Controller 方法的字符串。如果有请求参数，就拼接在 RequestMapping 映射的字符串后面。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 返回字符串映射的方式</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="string">"redirect:/bye"</span>;</div><div class="line">    <span class="comment">// return "redirect:/bye?username=sudoz";</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="ModelAndView-重定向"><a href="#ModelAndView-重定向" class="headerlink" title="ModelAndView 重定向"></a>ModelAndView 重定向</h3><p>另一种方法是通过返回 <code>ModelAndView</code> 对象来实现跳转。类似的，如果有请求参数，也可以通过类似 GET 参数拼接的方式：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 返回 ModelAndView 对象</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> ModelAndView <span class="title">hello</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView(<span class="string">"redirect:/bye"</span>);</div><div class="line">    <span class="comment">// return new ModelAndView("redirect:/bye?username=sudoz");</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>还有一种方法是通过返回 <code>RedirectView</code> 对象实现跳转</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> RedirectView <span class="title">hello</span><span class="params">()</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RedirectView(<span class="string">""</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UrlBasedViewResolver</span> <span class="keyword">extends</span> <span class="title">AbstractCachingViewResolver</span> <span class="keyword">implements</span> <span class="title">Ordered</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String REDIRECT_URL_PREFIX = <span class="string">"redirect:"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String FORWARD_URL_PREFIX = <span class="string">"forward:"</span>;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> View <span class="title">createView</span><span class="params">(String viewName, Locale locale)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="comment">// If this resolver is not supposed to handle the given view,</span></div><div class="line">        <span class="comment">// return null to pass on to the next resolver in the chain.</span></div><div class="line">        <span class="keyword">if</span> (!canHandle(viewName, locale)) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Check for special "redirect:" prefix.</span></div><div class="line">        <span class="keyword">if</span> (viewName.startsWith(REDIRECT_URL_PREFIX)) &#123;</div><div class="line">            String redirectUrl = viewName.substring(REDIRECT_URL_PREFIX.length());</div><div class="line">            RedirectView view = <span class="keyword">new</span> RedirectView(redirectUrl, isRedirectContextRelative(), isRedirectHttp10Compatible());</div><div class="line">            <span class="keyword">return</span> applyLifecycleMethods(viewName, view);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Check for special "forward:" prefix.</span></div><div class="line">        <span class="keyword">if</span> (viewName.startsWith(FORWARD_URL_PREFIX)) &#123;</div><div class="line">            String forwardUrl = viewName.substring(FORWARD_URL_PREFIX.length());</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> InternalResourceView(forwardUrl);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Else fall back to superclass implementation: calling loadView.</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.createView(viewName, locale);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="RedirectView-重定向"><a href="#RedirectView-重定向" class="headerlink" title="RedirectView 重定向"></a>RedirectView 重定向</h3><p>还有一种方法是通过返回 <code>RedirectView</code> 对象实现跳转，该方法和上面的不同之处在于，<code>RedirectView</code> 对象不需要设置 redirect 前缀：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 返回 RedirectView 对象</span></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> RedirectView <span class="title">hello</span><span class="params">()</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RedirectView(<span class="string">"/bye"</span>);</div><div class="line">    <span class="comment">// return new RedirectView("bye?username=sudoz");</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="带参跳转"><a href="#带参跳转" class="headerlink" title="带参跳转"></a>带参跳转</h2><p>在做方法跳转时，如果要把参数带给下一个方法，像上面代码里通过拼接 URL 参数的方法有时候并不实用。因为参数不一定都是是字符串，而且浏览器对 URL 的长度是有限制的。<code>RedirectAttributes</code> 对象可以用来保存请求重定向时的参数。利用 <code>RedirectAttributes</code> 改写上面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> RedirectView <span class="title">hello</span><span class="params">(RedirectAttributes attrs)</span> </span>&#123;</div><div class="line">    attrs.addAttribute(<span class="string">"message"</span>, <span class="string">"hello"</span>);    </div><div class="line">    attrs.addFlashAttribute(<span class="string">"username"</span>, <span class="string">"sudoz"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> RedirectView(<span class="string">"hello"</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"hello"</span>)</div><div class="line">    <span class="function">Map&lt;String, String&gt; <span class="title">hello</span><span class="params">(@ModelAttribute(<span class="string">"username"</span>)</span> String username,</span></div><div class="line">                              @<span class="title">ModelAttribute</span><span class="params">(<span class="string">"message"</span>)</span> String message) &#123;</div><div class="line">    Map&lt;String, String&gt; map = Maps.newHashMap();</div><div class="line">    map.put(<span class="string">"username"</span>, username);</div><div class="line">    map.put(<span class="string">"message"</span>, message);</div><div class="line">    <span class="keyword">return</span> map;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面的代码中，调用 <code>addAttribute()</code> 和 <code>addFlashAttribute()</code> 方法往 <code>RedirectAttributes</code> 对象中插入了两个值，如果看源码，就能知道，<code>RedirectAttributes</code> 接口的实现类 <code>RedirectAttributesModelMap</code> 继承了 <code>ModelMap</code>，本质上就是 <code>HashMap</code> 的子类，因此可以用来存储 Key-Value 对。这两个方法都很常用，使用上也必然存在不同：</p>
+<ul>
+<li><code>addAttribute()</code> 方法会把 Key-Value 作为请求参数添加的 URL 的后面；</li>
+<li><code>addFlashAttribute()</code> 方法会把 Key-Value 暂存在 session 中，在跳转到目标方法后，即完成任务，会从 session 中删掉；</li>
+</ul>
+<p>用 <code>curl</code> 命令来测试：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl -i http://localhost:8080/</div><div class="line"></div><div class="line">HTTP/1.1 302 </div><div class="line">Set-Cookie: JSESSIONID=D1CC5E15FA8EF9474C4CED7D4F660E66;path=/;HttpOnly</div><div class="line">Location: http://localhost:8080/hello;jsessionid=D1CC5E15FA8EF9474C4CED7D4F660E66?username=sudoz</div><div class="line">Content-Language: en-US</div><div class="line">Content-Length: 0</div><div class="line">Date: Thu, 16 Feb 2017 12:33:46 GMT</div></pre></td></tr></table></figure>
+<p>可以看到，通过 <code>addAttribute()</code> 添加的键值对变成了 URL 后面的参数，<code>addFlashAttribute()</code> 方法添加的键值对则没有出现在 URL 上，而是存储在了 session 中。跳转的目标方法通过 <code>@ModelAttribute(&quot;key&quot;)</code> 注解指定接收的参数。</p>
+<h2 id="redirect-和-forward-的区别"><a href="#redirect-和-forward-的区别" class="headerlink" title="redirect 和 forward 的区别"></a>redirect 和 forward 的区别</h2><p>上面列出的 3 种方法，其实都是 Spring MVC 在处理请求时的重定向，即 redirect 跳转。另一种分发请求的方式是转发，即 forward。（我不确定这么翻译是否正确，所以下面就直接用 redirect 和 forward 来表述），二者的区别从 HTTP 的规范中就明确了：</p>
+<ul>
+<li>redirect 的 HTTP 返回码是 302，且跳转的新 URL 会存储在 HTTP Response Headers 的 Location 字段中。客户端在接收到 Response 后，会发起另一次请求，这次请求的 URL 就是重定向的 URL；</li>
+<li>forward 的转发过程只发生在服务端；Servlet 容器会直接把源请求打向目标 URL，而不会经由客户端发起请求；因此客户端接收到的响应是来自转发后的目标方法，但是浏览器呈现的 URL 却并不会改变，且 forward 不能将参数转发出去。</li>
+</ul>
+<h2 id="Spring-Boot-测试"><a href="#Spring-Boot-测试" class="headerlink" title="Spring Boot 测试"></a>Spring Boot 测试</h2><p>为了更清晰的比较各种方法，我把 Spring Boot 的测试代码贴出来。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Controller</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HomeController</span> </span>&#123;</div><div class="line">    <span class="meta">@Value</span>(<span class="string">"sudoz"</span>)</div><div class="line">    <span class="keyword">private</span> String username;</div><div class="line"></div><div class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/"</span>)</div><div class="line">    <span class="function">String <span class="title">index</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"redirect:hello?username=jim&amp;message=how are you"</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@GetMapping</span>(<span class="string">"redirectView"</span>)</div><div class="line">    <span class="function">RedirectView <span class="title">redirectView</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RedirectView(<span class="string">"hello"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@GetMapping</span>(<span class="string">"forward"</span>)</div><div class="line">    <span class="function">ModelAndView <span class="title">forward</span><span class="params">(RedirectAttributes attrs)</span> </span>&#123;</div><div class="line">        attrs.addFlashAttribute(<span class="string">"username"</span>, username);</div><div class="line">        attrs.addAttribute(<span class="string">"message"</span>, <span class="string">"hello"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView(<span class="string">"forward:hello"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@GetMapping</span>(<span class="string">"redirect"</span>)</div><div class="line">    <span class="function">ModelAndView <span class="title">redirect</span><span class="params">(RedirectAttributes attrs)</span> </span>&#123;</div><div class="line">        attrs.addFlashAttribute(<span class="string">"username"</span>, username);</div><div class="line">        attrs.addAttribute(<span class="string">"message"</span>, <span class="string">"hello"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ModelAndView(<span class="string">"redirect:hello"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@GetMapping</span>(<span class="string">"hello"</span>)</div><div class="line">    <span class="meta">@ResponseBody</span></div><div class="line">    <span class="function">Map&lt;String, String&gt; <span class="title">hello</span><span class="params">(Model model, @ModelAttribute(<span class="string">"username"</span>)</span> String username,</span></div><div class="line">                              @<span class="title">ModelAttribute</span><span class="params">(<span class="string">"message"</span>)</span> String message) &#123;</div><div class="line">        Map&lt;String, String&gt; map = Maps.newHashMap();</div><div class="line">        map.put(<span class="string">"username"</span>, username);</div><div class="line">        map.put(<span class="string">"message"</span>, message);</div><div class="line">        <span class="keyword">return</span> map;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="分析源码"><a href="#分析源码" class="headerlink" title="分析源码"></a>分析源码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UrlBasedViewResolver</span> <span class="keyword">extends</span> <span class="title">AbstractCachingViewResolver</span> <span class="keyword">implements</span> <span class="title">Ordered</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String REDIRECT_URL_PREFIX = <span class="string">"redirect:"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String FORWARD_URL_PREFIX = <span class="string">"forward:"</span>;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> View <span class="title">createView</span><span class="params">(String viewName, Locale locale)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="comment">// If this resolver is not supposed to handle the given view,</span></div><div class="line">        <span class="comment">// return null to pass on to the next resolver in the chain.</span></div><div class="line">        <span class="keyword">if</span> (!canHandle(viewName, locale)) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Check for special "redirect:" prefix.</span></div><div class="line">        <span class="keyword">if</span> (viewName.startsWith(REDIRECT_URL_PREFIX)) &#123;</div><div class="line">            String redirectUrl = viewName.substring(REDIRECT_URL_PREFIX.length());</div><div class="line">            RedirectView view = <span class="keyword">new</span> RedirectView(redirectUrl, isRedirectContextRelative(), isRedirectHttp10Compatible());</div><div class="line">            <span class="keyword">return</span> applyLifecycleMethods(viewName, view);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Check for special "forward:" prefix.</span></div><div class="line">        <span class="keyword">if</span> (viewName.startsWith(FORWARD_URL_PREFIX)) &#123;</div><div class="line">            String forwardUrl = viewName.substring(FORWARD_URL_PREFIX.length());</div><div class="line">            <span class="keyword">return</span> <span class="keyword">new</span> InternalResourceView(forwardUrl);</div><div class="line">        &#125;</div><div class="line">        <span class="comment">// Else fall back to superclass implementation: calling loadView.</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.createView(viewName, locale);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <hr>
 <p>参考资料</p>
 <ul>
@@ -128,7 +172,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;最近参与的一个微信公众号相关的项目开发中，业务逻辑包含大量的页面跳转逻辑，以及数据的拦截器获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。&lt;/p&gt;
+      &lt;p&gt;最近参与的一个微信公众号相关项目的开发中，业务包含大量的页面跳转逻辑，以及拦截器的数据获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。&lt;/p&gt;
     
     </summary>
     
@@ -146,10 +190,19 @@
     <link href="https://isudox.com/2017/02/14/explore-flask-source-code-structure/"/>
     <id>https://isudox.com/2017/02/14/explore-flask-source-code-structure/</id>
     <published>2017-02-14T11:47:11.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
-    <content type="html"><![CDATA[<p>打算对 Flask 的学习做个整理，以 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 0.3 版本还是单文件版，整个 <code>flask.py</code> 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。</p>
+    <content type="html"><![CDATA[<p>打算对 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的学习做个整理，以 Flask 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 <code>0.3</code> 版还是单文件，整个 <code>flask.py</code> 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。</p>
 <a id="more"></a>
+<p>拿到源码先不着急，就像读书一样，不妨浏览下目录，以便有个全局的了解。Flask 的源码有一个非常好的优点，就是它的注释非常完备，即使不看源码，只看注释，也能有个大概的理解。</p>
+<p>从 Flask 根目录下的 <code>setup.py</code> 可以看到，Flask 依赖的组件主要有 3 个：</p>
+<ul>
+<li><a href="http://werkzeug.pocoo.org/docs/" target="_blank" rel="external">Werkzeug</a>：一个 HTTP 和 WSGI 的工具集；</li>
+<li><a href="http://jinja.pocoo.org/docs/" target="_blank" rel="external">Jinja2</a>：Python 的前端模板引擎；</li>
+<li><a href="http://pythonhosted.org/itsdangerous/" target="_blank" rel="external">itsdangerous</a>：处理并传递可信数据的辅助函数集；</li>
+</ul>
+<p>Flask 的核心代码都在 <code>flask</code> 目录下，其目录结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">flask</div><div class="line">├── ext</div><div class="line">│   └── __init__.py     flask 扩展</div><div class="line">├── __init__.py         导入模块</div><div class="line">├── __main__.py         命令行运行</div><div class="line">├── _compat.py          Py2/3 兼容性模块</div><div class="line">├── app.py              核心模块</div><div class="line">├── blueprints.py       蓝图模块</div><div class="line">├── cli.py              命令行支持模块</div><div class="line">├── config.py           flask 配置模块</div><div class="line">├── ctx.py              flask context 模块</div><div class="line">├── debughelpers.py     debug 辅助函数</div><div class="line">├── exthook.py          flask 扩展迁移，flaskext.foo 迁移到 flask_foo</div><div class="line">├── globals.py          flask 全局变量模块，包括 `g`，`current_app`，`request`</div><div class="line">├── helpers.py          辅助函数模块</div><div class="line">├── json.py             JSON 支持模块</div><div class="line">├── logging.py          日志模块</div><div class="line">├── sessions.py         基于 itsdangerous 的 cookie 和 session 模块</div><div class="line">├── signals.py          基于 blinker 的信号模块</div><div class="line">├── templating.py       桥接 Jinja2 的模板模块</div><div class="line">├── testing.py          测试模块</div><div class="line">├── views.py            view_func 模块</div><div class="line">└── wrappers.py         WSGI request 和 response 的封装模块</div></pre></td></tr></table></figure>
 <hr>
 <p>参考资料：</p>
 <ul>
@@ -159,7 +212,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;打算对 Flask 的学习做个整理，以 &lt;a href=&quot;https://github.com/pallets/flask&quot;&gt;Flask&lt;/a&gt; 的 GitHub 代码库的 &lt;code&gt;master&lt;/code&gt; 分支为参考。其实早期的 0.3 版本还是单文件版，整个 &lt;code&gt;flask.py&lt;/code&gt; 就 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。拿到源码先不着急，就像一本书一样，不妨浏览下目录，有个全局的了解。&lt;/p&gt;
+      &lt;p&gt;打算对 &lt;a href=&quot;https://github.com/pallets/flask&quot;&gt;Flask&lt;/a&gt; 的学习做个整理，以 Flask 的 GitHub 代码库的 &lt;code&gt;master&lt;/code&gt; 分支为参考。其实早期的 &lt;code&gt;0.3&lt;/code&gt; 版还是单文件，整个 &lt;code&gt;flask.py&lt;/code&gt; 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。&lt;/p&gt;
     
     </summary>
     
@@ -177,7 +230,7 @@
     <link href="https://isudox.com/2017/02/10/spring-boot-note-1/"/>
     <id>https://isudox.com/2017/02/10/spring-boot-note-1/</id>
     <published>2017-02-10T15:59:24.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://projects.spring.io/spring-boot/" target="_blank" rel="external">Spring Boot</a> 是 Pivotal 团队开发的开源 Java Web 框架，相比同门师兄 Spring，Spring Boot 把开发者从繁重的配置中解放出来，遵循“约定大于配置”(convention over configuration)的设计范式。从零搭建 Spring Boot 项目几乎是傻瓜化的，因为框架把大量配置自动完成了。</p>
 <a id="more"></a>
@@ -222,7 +275,7 @@
     <link href="https://isudox.com/2017/02/06/rpc-uni-entry-with-reflection/"/>
     <id>https://isudox.com/2017/02/06/rpc-uni-entry-with-reflection/</id>
     <published>2017-02-06T07:18:55.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>最近项目开发中，有这样一个场景，依赖外部很多服务，每个服务从功能上彼此独立，因此各个外部服务的调用也是相对独立的。因此当时为每个调用都写了一个专属的 Porcessor 去处理服务调用的结果。当然好处就是功能区分清晰，不好的地方就是当 Processor 多了后维护起来不太方便。一种思路就是利用反射思想，为 Processor 中的 RPC 调用添加统一入口，通过服务名和方法名对调用进行定位。</p>
 <a id="more"></a>
@@ -254,7 +307,7 @@
     <link href="https://isudox.com/2017/01/24/deploy-site-with-travis-ci/"/>
     <id>https://isudox.com/2017/01/24/deploy-site-with-travis-ci/</id>
     <published>2017-01-24T14:07:42.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能一劳永逸，但我觉得还可以再抢救下。</p>
 <a id="more"></a>
@@ -322,7 +375,7 @@
     <link href="https://isudox.com/2017/01/16/dockerize-applications/"/>
     <id>https://isudox.com/2017/01/16/dockerize-applications/</id>
     <published>2017-01-16T05:30:31.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>最近看了一篇<a href="http://www.kkblog.me/notes/%E4%BD%BF%E7%94%A8Docker%E6%9E%84%E5%BB%BA%E9%AB%98%E6%95%88Web%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83" target="_blank" rel="external">博文</a>，大受启发，也想着手尝试把自己 VPS 上的应用容器化，一方面尝试下新的开发方式，另一方面也便于应用迁移。</p>
 <a id="more"></a>
@@ -432,7 +485,7 @@
     <link href="https://isudox.com/2017/01/01/todo-list-2017/"/>
     <id>https://isudox.com/2017/01/01/todo-list-2017/</id>
     <published>2016-12-31T16:39:29.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>看完李安的《推手》，迎来了 2017 年的第一天。这算是新的一年里的开篇吧，就不写代码了，看社区里很多同行在做过 2016 年的总结，或是新一年的期望。对过去一年，我似乎很难整理出一条清晰的逻辑去完整的复盘和总结，总体来讲，自己并不是很满意，当然也有令我激动的地方，比如遇到了 Kiki 啊……自认为在毕业后的一年里没有取得自己想要的进步，没有达到我想达到的层次，新的一年里还得加油啊。既然不做总结了，展望还是要有的，万一做到了呢？</p>
 <a id="more"></a>
@@ -470,7 +523,7 @@
     <link href="https://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/"/>
     <id>https://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/</id>
     <published>2016-12-27T14:39:09.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>目前使用最广泛的 JavaScript 的包管理工具应该是 npm，可以说是非常时髦的工具。但是在前端圈子，三岁就得叫爷爷，拳怕少壮，不久前 Facebook 和 Google 等联手推出了新的包管理工具 Yarn，一阵横扫之势，GitHub 上狂收 2w+ stars，令人侧目……在上一篇讲 webpack 学习的博客中也尝试使用了 Yarn，本篇就专门写写 Yarn。</p>
 <a id="more"></a>
@@ -643,7 +696,7 @@
     <link href="https://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/"/>
     <id>https://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/</id>
     <published>2016-12-26T02:40:41.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。</p>
 <a id="more"></a>
@@ -729,7 +782,7 @@
     <link href="https://isudox.com/2016/11/12/cors-in-action/"/>
     <id>https://isudox.com/2016/11/12/cors-in-action/</id>
     <published>2016-11-11T16:31:58.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>之前写了篇关于 JSONP 和 CORS 解决跨域请求的博客，在最近和深圳凹凸团队前后端联调时实打实的实战了一把 CORS。还是应了纸上得来终觉浅的老话，因为实际运用中会存在不同的状况，只是看文档理解概念并不能真正成为实战派。</p>
 <a id="more"></a>
@@ -779,7 +832,7 @@
     <link href="https://isudox.com/2016/10/26/python-generator-guide/"/>
     <id>https://isudox.com/2016/10/26/python-generator-guide/</id>
     <published>2016-10-26T12:23:03.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.483Z</updated>
     
     <content type="html"><![CDATA[<p>在 Python 里创建一个有一定规律的序列，很直观的做法就是在循环里创建序列的各个元素。但 Python 有更加符合 Pythonic 风格的做法，就是用生成器来实现。</p>
 <a id="more"></a>
@@ -823,7 +876,7 @@
     <link href="https://isudox.com/2016/10/17/leetcode-26-30/"/>
     <id>https://isudox.com/2016/10/17/leetcode-26-30/</id>
     <published>2016-10-17T09:09:15.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p>三个月没上 LeetCode了，最近工作不顺心，好想被虐个痛快，接着写 LeetCode 第 26 至 30 题。<br><a id="more"></a></p>
 <h3 id="Remove-Duplicates-from-Sorted-Array"><a href="#Remove-Duplicates-from-Sorted-Array" class="headerlink" title="Remove Duplicates from Sorted Array"></a>Remove Duplicates from Sorted Array</h3><p>第 26 题 <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="external">Remove Duplicates from Sorted Array</a></p>
@@ -893,7 +946,7 @@
     <link href="https://isudox.com/2016/10/11/spring-aop-with-reflection/"/>
     <id>https://isudox.com/2016/10/11/spring-aop-with-reflection/</id>
     <published>2016-10-11T03:40:04.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p>双十一前遭到产品突袭，要把非自营商家的处方药购买流程改为预约流程（出于某种考虑），内心一万只草泥马呼啸而过，那么多接口只给几天时间怎么改的过来……好在需要调用的购物车服务已经为新的预约流程分离了单独的 Redis 存储分组，要做的工作就是在恰当的时候调用恰当的服务。</p>
 <a id="more"></a>
@@ -938,7 +991,7 @@
     <link href="https://isudox.com/2016/10/10/unit-test-with-junit-mockito/"/>
     <id>https://isudox.com/2016/10/10/unit-test-with-junit-mockito/</id>
     <published>2016-10-10T14:12:35.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://junit.org/junit4/" target="_blank" rel="external">JUnit</a> 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇<a href="/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop">小文</a>里描述的情况，JUnit 就可能捉襟见肘了。而 <a href="http://mockito.org/" target="_blank" rel="external">Mockito</a> 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。</p>
 <a id="more"></a>
@@ -1042,7 +1095,7 @@
     <link href="https://isudox.com/2016/10/02/flask-context-guide/"/>
     <id>https://isudox.com/2016/10/02/flask-context-guide/</id>
     <published>2016-10-02T12:11:40.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context，可以在不同方法中调用，并且实现通信及交互。</p>
 <a id="more"></a>
@@ -1156,7 +1209,7 @@
     <link href="https://isudox.com/2016/09/24/cross-site-jsonp-and-cors/"/>
     <id>https://isudox.com/2016/09/24/cross-site-jsonp-and-cors/</id>
     <published>2016-09-24T15:55:52.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p>Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 <a href="https://en.wikipedia.org/wiki/JSONP" target="_blank" rel="external">JSONP</a>(JSON with Padding) 和 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="external">CORS</a>(Cross-Origin Resource Sharing)。</p>
 <a id="more"></a>
@@ -1290,7 +1343,7 @@
     <link href="https://isudox.com/2016/09/13/java-collections-overview/"/>
     <id>https://isudox.com/2016/09/13/java-collections-overview/</id>
     <published>2016-09-13T12:15:58.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p>无论是什么编程语言，容器都是非常重要的概念，在 Java 的实际开发中更是无处不在，各种 List、Set、Map。很多时候就是随着编程的惯性用了 ArrayList 或者 HashMap，但是并没对其特性和适用场景作更多的思考。开发者对 Java 容器的讨论比较多，我自己从源码的角度做个粗浅的整理。</p>
 <a id="more"></a>
@@ -1478,7 +1531,7 @@
     <link href="https://isudox.com/2016/09/09/python-decorator-guide/"/>
     <id>https://isudox.com/2016/09/09/python-decorator-guide/</id>
     <published>2016-09-09T14:42:36.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p>前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 <code>@decorator</code> 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。</p>
 <a id="more"></a>
@@ -1542,7 +1595,7 @@
     <link href="https://isudox.com/2016/09/03/learning-python-package-click/"/>
     <id>https://isudox.com/2016/09/03/learning-python-package-click/</id>
     <published>2016-09-02T17:22:37.000Z</published>
-    <updated>2017-02-18T15:58:29.381Z</updated>
+    <updated>2017-02-20T14:12:05.479Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://pypi.python.org/pypi/click" target="_blank" rel="external">Click</a> 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。</p>
 <a id="more"></a>
