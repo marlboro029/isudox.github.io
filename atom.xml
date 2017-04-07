@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://isudox.com/"/>
-  <updated>2017-02-20T14:12:05.483Z</updated>
+  <updated>2017-04-07T10:10:13.158Z</updated>
   <id>https://isudox.com/</id>
   
   <author>
@@ -16,11 +16,77 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Thrift 学习笔记：IDL</title>
+    <link href="https://isudox.com/2017/04/06/thrift-learn-notes-idl/"/>
+    <id>https://isudox.com/2017/04/06/thrift-learn-notes-idl/</id>
+    <published>2017-04-06T03:08:26.000Z</published>
+    <updated>2017-04-07T10:10:13.158Z</updated>
+    
+    <content type="html"><![CDATA[<p>上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。</p>
+<a id="more"></a>
+<p>Thrift 是由 Facebook 开源、Apache 维护的跨语言 RPC 框架。类似 Google 的 protobuf，Thrift 是典型的 C/S 架构，RPC 客户端和服务端间需要定义 IDL(Interface Description Language) 来实现跨语言通信。本文是对 Thrift IDL 学习的总结。</p>
+<h2 id="基础类型"><a href="#基础类型" class="headerlink" title="基础类型"></a>基础类型</h2><p>参考官方<a href="http://thrift.apache.org/docs/types" target="_blank" rel="external">文档</a>，Thrift IDL 的基础类型覆盖了绝大多数编程语言的关键类型，共有以下 7 种：</p>
+<ul>
+<li>bool：布尔值，true 或 false</li>
+<li>byte：8-bit 有符号整数</li>
+<li>i16：16-bit 有符号整数</li>
+<li>i32：32-bit 有符号整数</li>
+<li>i64：64-bit 有符号整数</li>
+<li>double：64-bit 浮点数</li>
+<li>string：UTF-8 编码的字符串</li>
+</ul>
+<p>文档中说明了，IDL 并没有包含无符号整型，这是由于很多编程语言并没有原生的无符号整型数。</p>
+<h2 id="特殊类型"><a href="#特殊类型" class="headerlink" title="特殊类型"></a>特殊类型</h2><p>Thrift IDL 支持 binary 类型，它是未编码字节序列，是 string 类型的特殊形式。binary 类型提高了和 Java 的互操作性，Thrift 计划在某个时候将其提升为基础类型。</p>
+<h2 id="结构体"><a href="#结构体" class="headerlink" title="结构体"></a>结构体</h2><p>Thrift 结构体定义了公共对象，基本等同于面向对象语言中的类，但没有继承特性。一个结构体有一组强类型的字段，每个字段都有唯一名称标识符。Thrift 接口文件中的结构体类型，编译后会转换成一个类，类的属性就是结构体中的各个类型字段，而类的方法就是对这些类型字段进行处理的相关函数。结构体类型的关键字是 <code>struct</code>，参考下面的 IDL 代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">struct Student &#123;</div><div class="line">    1: i32 id;</div><div class="line">    2: string name;</div><div class="line">    3: i32 age;</div><div class="line">    4: string sex;</div><div class="line">    5: i32 grade;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>对应的，Thrift 编译后生成下面的 Student 类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Student</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</div><div class="line">    <span class="keyword">private</span> String sex;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> grade;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h2><p>Thrift 容器是强类型的，可以映射成大多数编程语言的容器。Thrift 包含 3 种容器——</p>
+<ul>
+<li>list：元素可重复的有序列表，对应 C++ STL 的 vector、Java 的 ArrayList、脚本语言中的原生数组；</li>
+<li>set：元素不可重复的无需列表，对应 STL 的 set、Java 的 HashSet、Python 的 set；</li>
+<li>map：key 严格唯一的 key-value 字典，对应 STL 的 map、Java 的 HashMap、Python/Ruby 的 字典；</li>
+</ul>
+<p>容器元素可能是任意 Thrift 类型。</p>
+<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>Thrift 异常和结构体形式上类似，只是关键字是 exception，由指定语言的原生异常类派生，Java 的话，就是 <code>java.lang.Exception</code>。参考下面的 IDL 声明代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">exception RequestException &#123;</div><div class="line">    1: i32 code;</div><div class="line">    2: string message;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h2><p>Thrift 中的服务定义类似 OOP 语言中的接口（或纯虚函数）。Thrift 编译后，会创建客户端和服务端相应的函数和方法。服务中定义的每个方法都是具有返回类型的。另外，对于 void 方法，可以额外的加上 oneway 关键字，使得方法在执行时不会等待返回结果，直接异步处理。</p>
+<h2 id="枚举"><a href="#枚举" class="headerlink" title="枚举"></a>枚举</h2><p>Thrift 的枚举和 C/C++ 类似，由 <code>enum</code> 关键字声明：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">enum UserType &#123;</div><div class="line">    VALID,</div><div class="line">    INVALID,</div><div class="line">    FROZEN</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当 IDL 未对枚举赋值时，枚举型的第一个元素默认赋值为 0，并逐个递增。</p>
+<h2 id="类型定义"><a href="#类型定义" class="headerlink" title="类型定义"></a>类型定义</h2><p>Thrift 通过关键字 <code>typedef</code> 对类型名进行自定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">typedef i32 MyInt</div><div class="line">typedef string Str</div></pre></td></tr></table></figure>
+<h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><p>Thrift 支持 <code>include</code> 关键字引入其他 thrift 文件，从而引入外部 thrift 文件中声明的类型。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">include &quot;test.thrift&quot;</div><div class="line"></div><div class="line">service MyService extends test.FacebookService&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://thrift.apache.org/docs/" target="_blank" rel="external">Thrift Documentation</a></li>
+<li><a href="http://thrift.apache.org/tutorial/java" target="_blank" rel="external">Thrfit Tutorial</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Coding" scheme="https://isudox.com/categories/Coding/"/>
+    
+    
+      <category term="RPC" scheme="https://isudox.com/tags/RPC/"/>
+    
+      <category term="Thrift" scheme="https://isudox.com/tags/Thrift/"/>
+    
+  </entry>
+  
+  <entry>
     <title>[译] 一个行之有效的 Git 分支模型</title>
     <link href="https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/"/>
     <id>https://isudox.com/2017/02/18/a-successful-git-branching-model-zh/</id>
     <published>2017-02-18T06:51:10.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>原文 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="external">A successful Git branching model</a> 是 <a href="https://github.com/nvie/gitflow" target="_blank" rel="external">gitflow</a> 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。</p>
 <a id="more"></a>
@@ -133,7 +199,7 @@
     <link href="https://isudox.com/2017/02/16/spring-mvc-redirect-forward/"/>
     <id>https://isudox.com/2017/02/16/spring-mvc-redirect-forward/</id>
     <published>2017-02-16T03:35:09.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>最近参与的一个微信公众号相关项目的开发中，业务包含大量的页面跳转逻辑，以及拦截器的数据获取校验。其间也遇到一些困惑，在探究 Spring MVC 中 redirect 和 forward 的源码后，把经验归纳整理出来，遂成此文。</p>
 <a id="more"></a>
@@ -190,7 +256,7 @@
     <link href="https://isudox.com/2017/02/14/explore-flask-source-code-structure/"/>
     <id>https://isudox.com/2017/02/14/explore-flask-source-code-structure/</id>
     <published>2017-02-14T11:47:11.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>打算对 <a href="https://github.com/pallets/flask" target="_blank" rel="external">Flask</a> 的学习做个整理，以 Flask 的 GitHub 代码库的 <code>master</code> 分支为参考。其实早期的 <code>0.3</code> 版还是单文件，整个 <code>flask.py</code> 加上注释也只有 1426 行代码，非常简洁，很适合作为 Python 源码学习的教材。</p>
 <a id="more"></a>
@@ -230,7 +296,7 @@
     <link href="https://isudox.com/2017/02/10/spring-boot-note-1/"/>
     <id>https://isudox.com/2017/02/10/spring-boot-note-1/</id>
     <published>2017-02-10T15:59:24.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://projects.spring.io/spring-boot/" target="_blank" rel="external">Spring Boot</a> 是 Pivotal 团队开发的开源 Java Web 框架，相比同门师兄 Spring，Spring Boot 把开发者从繁重的配置中解放出来，遵循“约定大于配置”(convention over configuration)的设计范式。从零搭建 Spring Boot 项目几乎是傻瓜化的，因为框架把大量配置自动完成了。</p>
 <a id="more"></a>
@@ -275,7 +341,7 @@
     <link href="https://isudox.com/2017/02/06/rpc-uni-entry-with-reflection/"/>
     <id>https://isudox.com/2017/02/06/rpc-uni-entry-with-reflection/</id>
     <published>2017-02-06T07:18:55.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>最近项目开发中，有这样一个场景，依赖外部很多服务，每个服务从功能上彼此独立，因此各个外部服务的调用也是相对独立的。因此当时为每个调用都写了一个专属的 Porcessor 去处理服务调用的结果。当然好处就是功能区分清晰，不好的地方就是当 Processor 多了后维护起来不太方便。一种思路就是利用反射思想，为 Processor 中的 RPC 调用添加统一入口，通过服务名和方法名对调用进行定位。</p>
 <a id="more"></a>
@@ -307,7 +373,7 @@
     <link href="https://isudox.com/2017/01/24/deploy-site-with-travis-ci/"/>
     <id>https://isudox.com/2017/01/24/deploy-site-with-travis-ci/</id>
     <published>2017-01-24T14:07:42.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>这两天在想 GitHub Page 部署的最佳实践。本站之前的部署方案，是通过在 VPS 上创建 Git 仓库后，再把生成的静态文件同时 Push 到 GitHub Page 和 VPS 的 Git 仓库。其中，VPS 上的 Git 仓库会设置 hook，使得有新的 Commit 被 Push 上来后，自动把 Nginx 下的站点目录进行 Pull 更新。这种方案只是一开始的设置比较麻烦，之后就能一劳永逸，但我觉得还可以再抢救下。</p>
 <a id="more"></a>
@@ -375,7 +441,7 @@
     <link href="https://isudox.com/2017/01/16/dockerize-applications/"/>
     <id>https://isudox.com/2017/01/16/dockerize-applications/</id>
     <published>2017-01-16T05:30:31.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>最近看了一篇<a href="http://www.kkblog.me/notes/%E4%BD%BF%E7%94%A8Docker%E6%9E%84%E5%BB%BA%E9%AB%98%E6%95%88Web%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83" target="_blank" rel="external">博文</a>，大受启发，也想着手尝试把自己 VPS 上的应用容器化，一方面尝试下新的开发方式，另一方面也便于应用迁移。</p>
 <a id="more"></a>
@@ -485,7 +551,7 @@
     <link href="https://isudox.com/2017/01/01/todo-list-2017/"/>
     <id>https://isudox.com/2017/01/01/todo-list-2017/</id>
     <published>2016-12-31T16:39:29.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>看完李安的《推手》，迎来了 2017 年的第一天。这算是新的一年里的开篇吧，就不写代码了，看社区里很多同行在做过 2016 年的总结，或是新一年的期望。对过去一年，我似乎很难整理出一条清晰的逻辑去完整的复盘和总结，总体来讲，自己并不是很满意，当然也有令我激动的地方，比如遇到了 Kiki 啊……自认为在毕业后的一年里没有取得自己想要的进步，没有达到我想达到的层次，新的一年里还得加油啊。既然不做总结了，展望还是要有的，万一做到了呢？</p>
 <a id="more"></a>
@@ -523,7 +589,7 @@
     <link href="https://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/"/>
     <id>https://isudox.com/2016/12/27/yarn-front-end-development-trends-in-2016/</id>
     <published>2016-12-27T14:39:09.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>目前使用最广泛的 JavaScript 的包管理工具应该是 npm，可以说是非常时髦的工具。但是在前端圈子，三岁就得叫爷爷，拳怕少壮，不久前 Facebook 和 Google 等联手推出了新的包管理工具 Yarn，一阵横扫之势，GitHub 上狂收 2w+ stars，令人侧目……在上一篇讲 webpack 学习的博客中也尝试使用了 Yarn，本篇就专门写写 Yarn。</p>
 <a id="more"></a>
@@ -696,7 +762,7 @@
     <link href="https://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/"/>
     <id>https://isudox.com/2016/12/26/webpack-front-end-development-trends-in-2016/</id>
     <published>2016-12-26T02:40:41.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>对于前端开发者而言，2016 又是一个风不平浪不静的一年。今年新冒出的框架工具，如果不是专职前端或全栈，估计现在和我是差不多的状态，一脸懵逼外加黑人问号脸。为了以后和前端协作时不被鄙视，努力在 2016 年结束前，赶紧先上车，这就是我一个后端开发做前端补习的动机，本文是 Webpack 篇，后续还会更新 Yarn、React、Redux 等。</p>
 <a id="more"></a>
@@ -782,7 +848,7 @@
     <link href="https://isudox.com/2016/11/12/cors-in-action/"/>
     <id>https://isudox.com/2016/11/12/cors-in-action/</id>
     <published>2016-11-11T16:31:58.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>之前写了篇关于 JSONP 和 CORS 解决跨域请求的博客，在最近和深圳凹凸团队前后端联调时实打实的实战了一把 CORS。还是应了纸上得来终觉浅的老话，因为实际运用中会存在不同的状况，只是看文档理解概念并不能真正成为实战派。</p>
 <a id="more"></a>
@@ -832,7 +898,7 @@
     <link href="https://isudox.com/2016/10/26/python-generator-guide/"/>
     <id>https://isudox.com/2016/10/26/python-generator-guide/</id>
     <published>2016-10-26T12:23:03.000Z</published>
-    <updated>2017-02-20T14:12:05.483Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>在 Python 里创建一个有一定规律的序列，很直观的做法就是在循环里创建序列的各个元素。但 Python 有更加符合 Pythonic 风格的做法，就是用生成器来实现。</p>
 <a id="more"></a>
@@ -876,7 +942,7 @@
     <link href="https://isudox.com/2016/10/17/leetcode-26-30/"/>
     <id>https://isudox.com/2016/10/17/leetcode-26-30/</id>
     <published>2016-10-17T09:09:15.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>三个月没上 LeetCode了，最近工作不顺心，好想被虐个痛快，接着写 LeetCode 第 26 至 30 题。<br><a id="more"></a></p>
 <h3 id="Remove-Duplicates-from-Sorted-Array"><a href="#Remove-Duplicates-from-Sorted-Array" class="headerlink" title="Remove Duplicates from Sorted Array"></a>Remove Duplicates from Sorted Array</h3><p>第 26 题 <a href="https://leetcode.com/problems/remove-duplicates-from-sorted-array/" target="_blank" rel="external">Remove Duplicates from Sorted Array</a></p>
@@ -946,7 +1012,7 @@
     <link href="https://isudox.com/2016/10/11/spring-aop-with-reflection/"/>
     <id>https://isudox.com/2016/10/11/spring-aop-with-reflection/</id>
     <published>2016-10-11T03:40:04.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.158Z</updated>
     
     <content type="html"><![CDATA[<p>双十一前遭到产品突袭，要把非自营商家的处方药购买流程改为预约流程（出于某种考虑），内心一万只草泥马呼啸而过，那么多接口只给几天时间怎么改的过来……好在需要调用的购物车服务已经为新的预约流程分离了单独的 Redis 存储分组，要做的工作就是在恰当的时候调用恰当的服务。</p>
 <a id="more"></a>
@@ -991,7 +1057,7 @@
     <link href="https://isudox.com/2016/10/10/unit-test-with-junit-mockito/"/>
     <id>https://isudox.com/2016/10/10/unit-test-with-junit-mockito/</id>
     <published>2016-10-10T14:12:35.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.154Z</updated>
     
     <content type="html"><![CDATA[<p><a href="http://junit.org/junit4/" target="_blank" rel="external">JUnit</a> 是 2015 年 Java 开发者引用最多的库，是 Java 单元测试框架里无可争议的 No.1。JUnit 基本上能覆盖大部分接口的测试，但如果待测接口依赖外部服务，比如我之前写的这篇<a href="/2016/08/03/imitate-rpc-invoke-locally-by-spring-aop">小文</a>里描述的情况，JUnit 就可能捉襟见肘了。而 <a href="http://mockito.org/" target="_blank" rel="external">Mockito</a> 在 Mock 数据方面功能强大，正好弥补了 JUnit 在这方面的不足。风云合璧，摩诃无量。</p>
 <a id="more"></a>
@@ -1095,7 +1161,7 @@
     <link href="https://isudox.com/2016/10/02/flask-context-guide/"/>
     <id>https://isudox.com/2016/10/02/flask-context-guide/</id>
     <published>2016-10-02T12:11:40.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.154Z</updated>
     
     <content type="html"><![CDATA[<p>Flask Context 类似 Spring 框架的核心组件 Context，给应用程序提供运行时所需的环境（包含状态、变量等）的快照。如果程序本身就包含了运行所需的完备条件，那么它可以独立运行了；如果程序需要外部环境的支持，Context 的存在就有意义。比如 Flask Web 开发中常用的 <code>current_app</code>、<code>request</code> 都是 Context，可以在不同方法中调用，并且实现通信及交互。</p>
 <a id="more"></a>
@@ -1209,7 +1275,7 @@
     <link href="https://isudox.com/2016/09/24/cross-site-jsonp-and-cors/"/>
     <id>https://isudox.com/2016/09/24/cross-site-jsonp-and-cors/</id>
     <published>2016-09-24T15:55:52.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.154Z</updated>
     
     <content type="html"><![CDATA[<p>Web 开发中，跨域请求是个经常碰到的问题，因为涉及到网站安全，所以浏览器是拒绝跨域请求的。通常解决跨域会采用 <a href="https://en.wikipedia.org/wiki/JSONP" target="_blank" rel="external">JSONP</a>(JSON with Padding) 和 <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank" rel="external">CORS</a>(Cross-Origin Resource Sharing)。</p>
 <a id="more"></a>
@@ -1343,7 +1409,7 @@
     <link href="https://isudox.com/2016/09/13/java-collections-overview/"/>
     <id>https://isudox.com/2016/09/13/java-collections-overview/</id>
     <published>2016-09-13T12:15:58.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.154Z</updated>
     
     <content type="html"><![CDATA[<p>无论是什么编程语言，容器都是非常重要的概念，在 Java 的实际开发中更是无处不在，各种 List、Set、Map。很多时候就是随着编程的惯性用了 ArrayList 或者 HashMap，但是并没对其特性和适用场景作更多的思考。开发者对 Java 容器的讨论比较多，我自己从源码的角度做个粗浅的整理。</p>
 <a id="more"></a>
@@ -1531,7 +1597,7 @@
     <link href="https://isudox.com/2016/09/09/python-decorator-guide/"/>
     <id>https://isudox.com/2016/09/09/python-decorator-guide/</id>
     <published>2016-09-09T14:42:36.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
+    <updated>2017-04-07T10:10:13.154Z</updated>
     
     <content type="html"><![CDATA[<p>前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 <code>@decorator</code> 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。</p>
 <a id="more"></a>
@@ -1580,109 +1646,6 @@
     <summary type="html">
     
       &lt;p&gt;前一篇水文里记录的 Click 包，大量的运用了 Python 的装饰器。装饰器是非常实用的编程思想，Java 开发里经常看到的 AOP 也是同样的思想。Python 装饰器使用很简单，只需要在需要装饰的方法前加上注解 &lt;code&gt;@decorator&lt;/code&gt; 函数进行包裹。但是经常用不代表能理解到位，下文就来尝试捋一捋 Python 装饰器的来龙去脉。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Coding" scheme="https://isudox.com/categories/Coding/"/>
-    
-    
-      <category term="Python" scheme="https://isudox.com/tags/Python/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Python Click 学习笔记</title>
-    <link href="https://isudox.com/2016/09/03/learning-python-package-click/"/>
-    <id>https://isudox.com/2016/09/03/learning-python-package-click/</id>
-    <published>2016-09-02T17:22:37.000Z</published>
-    <updated>2017-02-20T14:12:05.479Z</updated>
-    
-    <content type="html"><![CDATA[<p><a href="https://pypi.python.org/pypi/click" target="_blank" rel="external">Click</a> 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。</p>
-<a id="more"></a>
-<p>国际惯例，先来一段 “Hello World” 程序（假定已经安装了 Click 包）。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># hello.py</span></div><div class="line"><span class="keyword">import</span> click</div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--count', default=1, help='Number of greetings.')</span></div><div class="line"><span class="meta">@click.option('--name', prompt='Your name',</span></div><div class="line">              help=<span class="string">'The person to greet.'</span>)</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(count, name)</span>:</span></div><div class="line">    <span class="string">"""Simple program that greets NAME for a total of COUNT times."""</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(count):</div><div class="line">        click.echo(<span class="string">'Hello %s!'</span> % name)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    hello()</div></pre></td></tr></table></figure>
-<p>执行 <code>python hello.py --count=3</code>，不难猜到控制台的输出结果。除此之外，Click 还悄悄地做了其他的工作，比如帮助选项：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ python hello.py --help</div><div class="line">Usage: hello.py [OPTIONS]</div><div class="line"></div><div class="line">  Simple program that greets NAME for a total of COUNT times.</div><div class="line"></div><div class="line">Options:</div><div class="line">  --count INTEGER  Number of greetings.</div><div class="line">  --name TEXT      The person to greet.</div><div class="line">  --help           Show this message and exit.</div></pre></td></tr></table></figure>
-<h3 id="函数秒变-CLI"><a href="#函数秒变-CLI" class="headerlink" title="函数秒变 CLI"></a>函数秒变 CLI</h3><p>从上面的 “Hello World” 演示中可以看出，Click 是通过装饰器来把一个函数方法装饰成命令行接口的，这个装饰器方法就是 <code>@click.command()</code>。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> click</div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Hello World!'</span>)</div></pre></td></tr></table></figure>
-<p><code>@click.command()</code> 装饰器把 <code>hello()</code> 方法变成了 <code>Command</code> 对象，当它被调用时，就会执行该实例内的行为。而 <code>--help</code> 参数就是 <code>Command</code> 对象内置的参数。</p>
-<p>不同的 <code>Command</code> 实例可以关联到 <code>group</code> 中。<code>group</code> 下绑定的命令就成为了它的子命令，参考下面的代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.group()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">cli</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Initialized the database'</span>)</div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dropdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Dropped the database'</span>)</div><div class="line"></div><div class="line">cli.add_command(initdb)</div><div class="line">cli.add_command(dropdb)</div></pre></td></tr></table></figure>
-<p><code>@click.group</code> 装饰器把方法装饰为可以拥有多个子命令的 <code>Group</code> 对象。由 <code>Group.add_command()</code> 方法把 <code>Command</code> 对象关联到 <code>Group</code> 对象。<br>也可以直接用 <code>@Group.command</code> 装饰方法，会自动把方法关联到该 <code>Group</code> 对象下。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.group()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">cli</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">pass</span></div><div class="line"></div><div class="line"><span class="meta">@cli.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">initdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Initialized the database'</span>)</div><div class="line"></div><div class="line"><span class="meta">@cli.command()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dropdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Dropped the database'</span>)</div></pre></td></tr></table></figure>
-<p>命令行的参数是不可或缺的，Click 支持对 <code>command</code> 方法添加自定义的参数，由 <code>option()</code> 和 <code>argument()</code> 装饰器实现。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--count', default=1, help='number of greetings')</span></div><div class="line"><span class="meta">@click.argument('name')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(count, name)</span>:</span></div><div class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> range(count):</div><div class="line">        click.echo(<span class="string">'Hello %s!'</span> % name)</div></pre></td></tr></table></figure>
-<h3 id="打包跨平台可执行程序"><a href="#打包跨平台可执行程序" class="headerlink" title="打包跨平台可执行程序"></a>打包跨平台可执行程序</h3><p>通过 Click 编写了简单的命令行方法后，还需要把 <code>.py</code> 文件转换成可以在控制台里运行的命令行程序。最简单的办法就是在文件末尾加上如下代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    command()</div></pre></td></tr></table></figure>
-<p>Click 支持使用 <code>setuptools</code> 来更好的实现命令行程序打包，把源码文件打包成系统中的可执行程序，并且不限平台。一般我们会在源码根目录下创建 <code>setup.py</code> 脚本，先看一段简单的打包代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> setuptools <span class="keyword">import</span> setup</div><div class="line"></div><div class="line">setup(</div><div class="line">    name=<span class="string">'hello'</span>,</div><div class="line">    version=<span class="string">'0.1'</span>,</div><div class="line">    py_modules=[<span class="string">'hello'</span>],</div><div class="line">    install_requires=[</div><div class="line">        <span class="string">'Click'</span>,</div><div class="line">    ],</div><div class="line">    entry_points=<span class="string">'''</span></div><div class="line">        [console_scripts]</div><div class="line">        hello=hello:cli</div><div class="line">    ''',</div><div class="line">)</div></pre></td></tr></table></figure>
-<p>留意 <code>entry_points</code> 字段，在 <code>console_scripts</code> 下，每一行都是一个控制台脚本，等号左边的的是脚本的名称，右边的是 Click 命令的导入路径。</p>
-<h3 id="详解命令行参数"><a href="#详解命令行参数" class="headerlink" title="详解命令行参数"></a>详解命令行参数</h3><p>上面提到了自定义命令行参数的两个装饰器：<code>@click.option()</code> 和 <code>@click.argument()</code>，两者有些许区别，使用场景也有所不同。</p>
-<p>总体而言，<code>argument()</code> 装饰器比 <code>option()</code> 功能简单些，后者支持下面的特性：</p>
-<ul>
-<li>自动提示缺失的输入；</li>
-<li>option 参数可以从环境变量中获取，argument 参数则不行；</li>
-<li>option 参数在 help 输出中有完整的文档，argument 则没有；</li>
-</ul>
-<p>而 argument 参数可以接受可变个数的参数值，而 option 参数只能接收固定个数的参数值（默认是 1 个）。</p>
-<p>Click 可以设置不同的参数类型，简单类型如 <code>click.STRING</code>，<code>click.INT</code>，<code>click.FLOAT</code>，<code>click.BOOL</code>。</p>
-<p>命令行的参数名由 “-short_name” 和 “–long_name” 声明，如果参数名既没有以 “-“ 开头，也没有以 “–” 开头，那么这边变量名会成为被装饰方法的内部变量，而非方法参数。</p>
-<h4 id="Option-参数"><a href="#Option-参数" class="headerlink" title="Option 参数"></a>Option 参数</h4><p>option 最基础的用法就是简单值变量，option 接收一个变量值，下面是一段示例代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--n', default=1)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dots</span><span class="params">(n)</span>:</span></div><div class="line">    click.echo(<span class="string">'.'</span> * n)</div></pre></td></tr></table></figure>
-<p>如果在命令行后面跟随参数 <code>--n=2</code> 就会输出两个点，如果传参数，默认输出一个点。上面的代码中，参数类型没有显示给出，但解释器会认为是 <code>INT</code> 型，因为默认值 1 是 int 值。<br>有些时候需要传入多个值，可以理解为一个 list，option 只支持固定长度的参数值，即设置后必须传入，个数由 <code>nargs</code> 确定。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--pos', nargs=2, type=float)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">findme</span><span class="params">(pos)</span>:</span></div><div class="line">    click.echo(<span class="string">'%s / %s'</span> % pos)</div></pre></td></tr></table></figure>
-<p><code>findme --pos 2.0 3.0</code> 输出结果就是 2.0 / 3.0</p>
-<p>既然可以传入 list，那么 tuple 呢？Click 也是支持的：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--item', type=(unicode, int))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">putitem</span><span class="params">(item)</span>:</span></div><div class="line">    click.echo(<span class="string">'name=%s id=%d'</span> % item)</div></pre></td></tr></table></figure>
-<p>这样就传入了一个 tuple 变量，<code>putitem --item peter 1338</code> 得到的输出就是 name=peter id=1338<br>上面没有设置 nargs，因为 nargs 会自动取 tuple 的长度值。因此上面的代码实际上等同于：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--item', nargs=2, type=click.Tuple([unicode, int]))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">putitem</span><span class="params">(item)</span>:</span></div><div class="line">    click.echo(<span class="string">'name=%s id=%d'</span> % item)</div></pre></td></tr></table></figure>
-<p>option 还支持同一个参数多次使用，类似 <code>git commit -m aa -m bb</code> 中 <code>-m</code> 参数就传入了 2 次。option 通过 <code>multiple</code> 标识位来支持这一特性：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--message', '-m', multiple=True)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">commit</span><span class="params">(message)</span>:</span></div><div class="line">    click.echo(<span class="string">'\n'</span>.join(message))</div></pre></td></tr></table></figure>
-<p>有时候，命令行参数是固定的几个值，这时就可以用到 <code>Click.choice</code> 类型来限定传参的潜在值：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># choice</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--hash-type', type=click.Choice(['md5', 'sha1']))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">digest</span><span class="params">(hash_type)</span>:</span></div><div class="line">    click.echo(hash_type)</div></pre></td></tr></table></figure>
-<p>当上面的命令行程序参数 <code>--hash-type</code> 不是 md5 或 sha1，就会输出错误提示，并且在 <code>--help</code> 提示中也会对 choice 选项有显示。</p>
-<p>如果希望命令行程序能在我们错误输入或漏掉输入的情况下，友好的提示用户，就需要用到 Click 的 prompt 功能，看代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># prompt</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--name', prompt=True)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">(name)</span>:</span></div><div class="line">    click.echo(<span class="string">'Hello %s!'</span> % name)</div></pre></td></tr></table></figure>
-<p>如果在执行 hello 时没有提供 –name 参数，控制台会提示用户输入该参数。也可以自定义控制台的提示输出，把 <code>prompt</code> 改为自定义内容即可。</p>
-<p>对于类似账户密码等参数的输入，就要进行隐藏显示。<code>option</code> 的 <code>hide_input</code> 和 <code>confirmation_promt</code> 标识就是用来控制密码参数的输入：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># password</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--password', prompt=True, hide_input=True,</span></div><div class="line">              confirmation_prompt=<span class="keyword">True</span>)</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">encrypt</span><span class="params">(password)</span>:</span></div><div class="line">    click.echo(<span class="string">'Encrypting password to %s'</span> % password.encode(<span class="string">'rot13'</span>))</div></pre></td></tr></table></figure>
-<p>Click 把上面的操作进一步封装成装饰器 <code>click.password_option()</code>，因此上面的代码也可以简化成：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># password</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.password_option()</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">encrypt</span><span class="params">(password)</span>:</span></div><div class="line">    click.echo(<span class="string">'Encrypting password to %s'</span> % password.encode(<span class="string">'rot13'</span>))</div></pre></td></tr></table></figure>
-<p>有的参数会改变命令行程序的执行，比如 <code>node</code> 是进入 Node 控制台，而 <code>node --verion</code> 是输出 node 的版本号。Click 提供 eager 标识对参数名进行标记，拦截既定的命令行执行流程，而是调用一个回调方法，执行后直接退出。下面模拟 <code>click.version_option()</code> 的功能，实现 <code>--version</code> 参数名输出版本号：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># eager</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_version</span><span class="params">(ctx, param, value)</span>:</span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> value <span class="keyword">or</span> ctx.resilient_parsing:</div><div class="line">        <span class="keyword">return</span></div><div class="line">    click.echo(<span class="string">'Version 1.0'</span>)</div><div class="line">    ctx.exit()</div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--version', is_flag=True, callback=print_version,</span></div><div class="line">              expose_value=<span class="keyword">False</span>, is_eager=<span class="keyword">True</span>)</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Hello World!'</span>)</div></pre></td></tr></table></figure>
-<p>对于类似删除数据库表这样的危险操作，Click 支持弹出确认提示，<code>--yes</code> 标识位置为 True 时会让用户再次确认：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># yes parameters</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">abort_if_false</span><span class="params">(ctx, param, value)</span>:</span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> value:</div><div class="line">        ctx.abort()</div><div class="line"></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--yes', is_flag=True, callback=abort_if_false,</span></div><div class="line">              expose_value=<span class="keyword">False</span>,</div><div class="line">              prompt=<span class="string">'Are you sure you want to drop the db?'</span>)</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dropdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Dropped all tables!'</span>)</div></pre></td></tr></table></figure>
-<p>测试运行下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ dropdb</div><div class="line">Are you sure you want to drop the db? [y/N]: n</div><div class="line">Aborted!</div><div class="line">$ dropdb --yes</div><div class="line">Dropped all tables!</div></pre></td></tr></table></figure>
-<p>同样的，Click 对次进行了封装，<code>click.confirmation_option()</code> 装饰器实现了上述功能：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.confirmation_option(prompt='Are you sure you want to drop the db?')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">dropdb</span><span class="params">()</span>:</span></div><div class="line">    click.echo(<span class="string">'Dropped all tables!'</span>)</div></pre></td></tr></table></figure>
-<p>前面只讲了默认的参数前缀 <code>--</code> 和 <code>-</code>，Click 允许开发者自定义参数前缀（虽然严重不推荐）。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># other prefix</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('+w/-w')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">chmod</span><span class="params">(w)</span>:</span></div><div class="line">    click.echo(<span class="string">'writable=%s'</span> % w)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    chmod()</div></pre></td></tr></table></figure>
-<p>如果想要用 <code>/</code> 作为前缀，而且要像上面一样采用布尔标识，会产生冲突，因为布尔标识也是用 <code>/</code>，这种情况下可以用 <code>;</code> 代替布尔标识的 <code>/</code>：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('/debug;/no-debug')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">log</span><span class="params">(debug)</span>:</span></div><div class="line">    click.echo(<span class="string">'debug=%s'</span> % debug)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    log()</div></pre></td></tr></table></figure>
-<p>既然支持 Choice，不难联想到 Range，先看代码：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># range</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.option('--count', type=click.IntRange(0, 20, clamp=True))</span></div><div class="line"><span class="meta">@click.option('--digit', type=click.IntRange(0, 10))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">repeat</span><span class="params">(count, digit)</span>:</span></div><div class="line">    click.echo(str(digit) * count)</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    repeat()</div></pre></td></tr></table></figure>
-<h4 id="Argument-参数"><a href="#Argument-参数" class="headerlink" title="Argument 参数"></a>Argument 参数</h4><p>Argument 的作用类似 Option，但没有 Option 那么全面的功能。</p>
-<p>和 Option 一样，Argument 最基础的应用就是传递一个简单变量值：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.argument('filename')</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">touch</span><span class="params">(filename)</span>:</span></div><div class="line">    click.echo(filename)</div></pre></td></tr></table></figure>
-<p>命令行后跟的参数值被赋值给参数名 <code>filename</code>。</p>
-<p>另一个用的比较广泛的是可变参数，也是由 <code>nargs</code> 来确定参数个数，变量值会以 tuple 的形式传入函数：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.argument('src', nargs=-1)</span></div><div class="line"><span class="meta">@click.argument('dst', nargs=1)</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">copy</span><span class="params">(src, dst)</span>:</span></div><div class="line">    <span class="keyword">for</span> fn <span class="keyword">in</span> src:</div><div class="line">        click.echo(<span class="string">'move %s to folder %s'</span> % (fn, dst))</div></pre></td></tr></table></figure>
-<p>运行程序：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ copy foo.txt bar.txt my_folder</div><div class="line">move foo.txt to folder my_folder</div><div class="line">move bar.txt to folder my_folder</div></pre></td></tr></table></figure>
-<p>Click 支持通过文件名参数对文件进行操作，<code>click.File()</code> 装饰器就是处理这种操作的，尤其是在类 Unix 系统下，它支持以 <code>-</code> 符号作为标准输入/输出。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># File</span></div><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.argument('input', type=click.File('rb'))</span></div><div class="line"><span class="meta">@click.argument('output', type=click.File('wb'))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">inout</span><span class="params">(input, output)</span>:</span></div><div class="line">    <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">        chunk = input.read(<span class="number">1024</span>)</div><div class="line">        <span class="keyword">if</span> <span class="keyword">not</span> chunk:</div><div class="line">            <span class="keyword">break</span></div><div class="line">        output.write(chunk)</div></pre></td></tr></table></figure>
-<p>运行程序，先将文本写进文件，再读取</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ inout - hello.txt</div><div class="line">hello</div><div class="line">^D</div><div class="line">$ inout hello.txt -</div><div class="line">hello</div></pre></td></tr></table></figure>
-<p>如果参数值只是想做为文件名而已呢，很简单，将 <code>type</code> 指定为 <code>click.Path()</code>：</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@click.command()</span></div><div class="line"><span class="meta">@click.argument('f', type=click.Path(exists=True))</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">touch</span><span class="params">(f)</span>:</span></div><div class="line">    click.echo(click.format_filename(f))</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ touch hello.txt</div><div class="line">hello.txt</div><div class="line"></div><div class="line">$ touch missing.txt</div><div class="line">Usage: touch [OPTIONS] F</div><div class="line"></div><div class="line">Error: Invalid value for &quot;f&quot;: Path &quot;missing.txt&quot; does not exist.</div></pre></td></tr></table></figure>
-<h3 id="命令组"><a href="#命令组" class="headerlink" title="命令组"></a>命令组</h3><h3 id="仿-Hexo-示例程序"><a href="#仿-Hexo-示例程序" class="headerlink" title="仿 Hexo 示例程序"></a>仿 Hexo 示例程序</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># hexo.py</span></div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;a href=&quot;https://pypi.python.org/pypi/click&quot;&gt;Click&lt;/a&gt; 是 Flask 的团队 pallets 开发的优秀开源项目，它为命令行工具的开发封装了大量方法，使开发者只需要专注于功能实现。恰好我最近在开发的一个小工具需要在命令行环境下操作，就写个学习笔记。&lt;/p&gt;
     
     </summary>
     
