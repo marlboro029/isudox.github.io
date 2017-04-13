@@ -101,7 +101,7 @@
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/fb@2x.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/merge-without-ff@2x.png">
 <meta property="og:image" content="https://o70e8d1kb.qnssl.com/hotfix-branches@2x.png">
-<meta property="og:updated_time" content="2017-04-07T10:10:13.158Z">
+<meta property="og:updated_time" content="2017-04-13T03:12:49.089Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[译] 一个行之有效的 Git 分支模型">
 <meta name="twitter:description" content="原文 A successful Git branching model 是 gitflow 的作者 nvie 于 2010 年撰写的，最近才看到此文，恨晚。网上和微信公众号推送的 Git 最佳实践多多少少应该从这篇文章中获得过经验值。虽然文中有些表述略显唠叨和陈旧，但不缺干货，搬运过来做个日常开发手册也是好的。">
@@ -406,7 +406,8 @@
 </blockquote>
 <hr>
 <p>本文里，我会介绍一个在一年前就引入进多个项目（包括工作和个人项目）中的开发模型，实践表明该模型很成功。为此专门写篇文章的想法由来已久，但始终没挤出时间来做，直到现在。我不会细究项目的具体细节，仅仅是项目开发的分支策略和发布管理。</p>
-<p><img align="center" src="https://o70e8d1kb.qnssl.com/git-model@2x.png" width="575"></p>
+<p align="center"><img src="https://o70e8d1kb.qnssl.com/git-model@2x.png" width="575"></p>
+
 <p>该模型专注于使用 <a href="https://git-scm.com/" target="_blank" rel="external">Git</a> 作为代码版本管理工具。（另外，如果你对 Git 感兴趣，我司的 GitPrime 提供了一些很棒的软件性能实时数据分析功能）</p>
 <h2 id="为什么使用-Git"><a href="#为什么使用-Git" class="headerlink" title="为什么使用 Git"></a>为什么使用 Git</h2><p>关于 Git 相比于中心化的代码管理系统的优劣，可以从网上找到很多相关讨论。作为开发者，我选择 Git。Git 确实改变了开发者们对分支和合并的理解。在之前使用经典的 CVS/Subversion 时，新建分支和合并分支总是有点吓人（小心代码合并时的冲突，它们会咬你）。</p>
 <p>但是用 Git 时，这些日常工作流的主要操作都变得简便易行。举例来说，在 CVS/Subversion 的相关书籍中，分支和合并操作会在靠后的章节中介绍（面向高阶读者），而 Git 的书中，往往是前三章的基础操作里就会做说明。</p>
@@ -447,7 +448,8 @@
 <p>已开发完成的 features 应该被合并至 <code>develop</code> 分支上，将 features 添加到即将发 release 的代码版本中。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ git checkout develop</div><div class="line">Switched to branch <span class="string">'develop'</span></div><div class="line">$ git merge --no-ff myfeature</div><div class="line">Updating ea1b82a..05e9557</div><div class="line">(Summary of changes)</div><div class="line">$ git branch <span class="_">-d</span> myfeature</div><div class="line">Deleted branch myfeature (was 05e9557).</div><div class="line">$ git push origin develop</div></pre></td></tr></table></figure>
 <p><code>--no-ff</code> 标识使得 merge 操作总是创建一个新的 commit，即使 merge 可以使用 fast-forward。这避免了 feature 分支历史信息的丢失，而且把所有 commit 归并在一起。比较下图的两个案例：</p>
-<p><img align="center" src="https://o70e8d1kb.qnssl.com/merge-without-ff@2x.png" width="478"></p>
+<p align="center"><img src="https://o70e8d1kb.qnssl.com/merge-without-ff@2x.png" width="478"></p>
+
 <p>右边的案例中，无法从 Git 历史中找到是哪些 commit 实现了 feature，你必须要手工的去检查所有的 log 信息。撤销一个 feature 对后一案例而言简直是头疼，而如果使用了 –no-ff 标志，则很容易完成。</p>
 <p>是的，它会付出创建更多的 commit 的代价，但所得更多。</p>
 <h3 id="Release-分支"><a href="#Release-分支" class="headerlink" title="Release 分支"></a>Release 分支</h3><p>从 <code>develop</code> 分支派生；<br>必须 merge 回 <code>develop</code> 分支和 <code>master</code> 分支；<br>分支命名惯例：release-*</p>
@@ -651,7 +653,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">53</span>
+              <span class="site-state-item-count">54</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

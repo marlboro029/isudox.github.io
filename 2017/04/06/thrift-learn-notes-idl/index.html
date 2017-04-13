@@ -95,7 +95,7 @@
 <meta property="og:url" content="https://isudox.com/2017/04/06/thrift-learn-notes-idl/index.html">
 <meta property="og:site_name" content="I sudo X">
 <meta property="og:description" content="上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。">
-<meta property="og:updated_time" content="2017-04-07T10:10:13.158Z">
+<meta property="og:updated_time" content="2017-04-13T03:12:49.089Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Thrift 学习笔记：IDL">
 <meta name="twitter:description" content="上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。">
@@ -414,7 +414,7 @@
 <h2 id="容器"><a href="#容器" class="headerlink" title="容器"></a>容器</h2><p>Thrift 容器是强类型的，可以映射成大多数编程语言的容器。Thrift 包含 3 种容器——</p>
 <ul>
 <li>list：元素可重复的有序列表，对应 C++ STL 的 vector、Java 的 ArrayList、脚本语言中的原生数组；</li>
-<li>set：元素不可重复的无需列表，对应 STL 的 set、Java 的 HashSet、Python 的 set；</li>
+<li>set：元素不可重复的无序列表，对应 STL 的 set、Java 的 HashSet、Python 的 set；</li>
 <li>map：key 严格唯一的 key-value 字典，对应 STL 的 map、Java 的 HashMap、Python/Ruby 的 字典；</li>
 </ul>
 <p>容器元素可能是任意 Thrift 类型。</p>
@@ -428,6 +428,69 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">typedef i32 MyInt</div><div class="line">typedef string Str</div></pre></td></tr></table></figure>
 <h2 id="引入"><a href="#引入" class="headerlink" title="引入"></a>引入</h2><p>Thrift 支持 <code>include</code> 关键字引入其他 thrift 文件，从而引入外部 thrift 文件中声明的类型。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">include &quot;test.thrift&quot;</div><div class="line"></div><div class="line">service MyService extends test.FacebookService&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Thrift IDL 和 Java 的类型对应关系如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Thrift</th>
+<th style="text-align:left">Java</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">bool</td>
+<td style="text-align:left">布尔值</td>
+</tr>
+<tr>
+<td style="text-align:left">byte</td>
+<td style="text-align:left">8 位有符号整型</td>
+</tr>
+<tr>
+<td style="text-align:left">i16</td>
+<td style="text-align:left">16 位有符号整型</td>
+</tr>
+<tr>
+<td style="text-align:left">i32</td>
+<td style="text-align:left">32 位有符号整型</td>
+</tr>
+<tr>
+<td style="text-align:left">i64</td>
+<td style="text-align:left">64 位有符号整型</td>
+</tr>
+<tr>
+<td style="text-align:left">double</td>
+<td style="text-align:left">64 位浮点数</td>
+</tr>
+<tr>
+<td style="text-align:left">string</td>
+<td style="text-align:left">UTF-8 编码的字符串</td>
+</tr>
+<tr>
+<td style="text-align:left">struct</td>
+<td style="text-align:left">公共的对象</td>
+</tr>
+<tr>
+<td style="text-align:left">list</td>
+<td style="text-align:left">元素可重复的有序列表，ArrayList</td>
+</tr>
+<tr>
+<td style="text-align:left">set</td>
+<td style="text-align:left">元素不可重复的无序列表，HashSet</td>
+</tr>
+<tr>
+<td style="text-align:left">map</td>
+<td style="text-align:left">key 唯一的字典，HashMap</td>
+</tr>
+<tr>
+<td style="text-align:left">exception</td>
+<td style="text-align:left">Exception</td>
+</tr>
+<tr>
+<td style="text-align:left">service</td>
+<td style="text-align:left">服务的接口</td>
+</tr>
+</tbody>
+</table>
 <hr>
 <p>参考资料：</p>
 <ul>
@@ -494,6 +557,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/10/thrift-notes-server-client/" rel="prev" title="Thrift 学习笔记：RPC Server 和 Client">
+                Thrift 学习笔记：RPC Server 和 Client <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -593,7 +660,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">53</span>
+              <span class="site-state-item-count">54</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -704,7 +771,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础类型"><span class="nav-number">1.</span> <span class="nav-text">基础类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特殊类型"><span class="nav-number">2.</span> <span class="nav-text">特殊类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构体"><span class="nav-number">3.</span> <span class="nav-text">结构体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容器"><span class="nav-number">4.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常"><span class="nav-number">5.</span> <span class="nav-text">异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务"><span class="nav-number">6.</span> <span class="nav-text">服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#枚举"><span class="nav-number">7.</span> <span class="nav-text">枚举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类型定义"><span class="nav-number">8.</span> <span class="nav-text">类型定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引入"><span class="nav-number">9.</span> <span class="nav-text">引入</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础类型"><span class="nav-number">1.</span> <span class="nav-text">基础类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特殊类型"><span class="nav-number">2.</span> <span class="nav-text">特殊类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结构体"><span class="nav-number">3.</span> <span class="nav-text">结构体</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容器"><span class="nav-number">4.</span> <span class="nav-text">容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异常"><span class="nav-number">5.</span> <span class="nav-text">异常</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务"><span class="nav-number">6.</span> <span class="nav-text">服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#枚举"><span class="nav-number">7.</span> <span class="nav-text">枚举</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类型定义"><span class="nav-number">8.</span> <span class="nav-text">类型定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引入"><span class="nav-number">9.</span> <span class="nav-text">引入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">10.</span> <span class="nav-text">小结</span></a></li></ol></div>
             
 
           </div>
