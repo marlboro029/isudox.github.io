@@ -90,12 +90,13 @@
 
 
 <meta name="description" content="上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。">
+<meta name="keywords" content="RPC,Thrift">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Thrift 学习笔记：IDL">
 <meta property="og:url" content="https://isudox.com/2017/04/06/thrift-learn-notes-idl/index.html">
 <meta property="og:site_name" content="I sudo X">
 <meta property="og:description" content="上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。">
-<meta property="og:updated_time" content="2017-04-13T03:12:49.089Z">
+<meta property="og:updated_time" content="2017-05-31T13:33:47.167Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Thrift 学习笔记：IDL">
 <meta name="twitter:description" content="上月底来到了 M 记，氛围和风格都和 J 记有很大不同，很舒服。开发工作还在按照 Mentor 定制的计划学习适应中，部分技术栈之前没接触过，比如 RPC，M 记用的是自己改写的 Thrift，这两天也在看相关的文档，汇总成学习笔记。">
@@ -415,7 +416,7 @@
 <ul>
 <li>list：元素可重复的有序列表，对应 C++ STL 的 vector、Java 的 ArrayList、脚本语言中的原生数组；</li>
 <li>set：元素不可重复的无序列表，对应 STL 的 set、Java 的 HashSet、Python 的 set；</li>
-<li>map：key 严格唯一的 key-value 字典，对应 STL 的 map、Java 的 HashMap、Python/Ruby 的 字典；</li>
+<li>map：key 严格唯一的 key-value 字典，对应 STL 的 map、Java 的 HashMap、Python/Ruby 的字典；</li>
 </ul>
 <p>容器元素可能是任意 Thrift 类型。</p>
 <h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>Thrift 异常和结构体形式上类似，只是关键字是 exception，由指定语言的原生异常类派生，Java 的话，就是 <code>java.lang.Exception</code>。参考下面的 IDL 声明代码：</p>
@@ -652,7 +653,7 @@
       <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               src="https://avatars1.githubusercontent.com/u/8557100?v=3&u=3271f83b84ff18d515f17afa931059ef4d88a267&s=400"
                alt="sudoz" />
           <p class="site-author-name" itemprop="name">sudoz</p>
           <p class="site-description motion-element" itemprop="description"></p>
@@ -660,7 +661,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">54</span>
+              <span class="site-state-item-count">55</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -677,7 +678,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

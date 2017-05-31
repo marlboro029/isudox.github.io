@@ -90,12 +90,13 @@
 
 
 <meta name="description" content="之前用 uWsgi 部署过 Django 应用，但当时的开发和部署都还手生，有很多不合理的地方，最近写的一个 Flask 应用，用了另一个 wsgi 容器 —— Gunicorn，并且利用工厂模式对不同开发环境进行了隔离。工厂模式下的 Flask 应用在用 Gunicorn 部署时，需要做一点针对性的改动。">
+<meta name="keywords" content="Python,Flask">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Gunicorn 驱动工厂模式 Flask 应用">
 <meta property="og:url" content="https://isudox.com/2016/08/29/running-flask-with-gunicorn-in-application-factory/index.html">
 <meta property="og:site_name" content="I sudo X">
 <meta property="og:description" content="之前用 uWsgi 部署过 Django 应用，但当时的开发和部署都还手生，有很多不合理的地方，最近写的一个 Flask 应用，用了另一个 wsgi 容器 —— Gunicorn，并且利用工厂模式对不同开发环境进行了隔离。工厂模式下的 Flask 应用在用 Gunicorn 部署时，需要做一点针对性的改动。">
-<meta property="og:updated_time" content="2017-04-13T03:12:49.089Z">
+<meta property="og:updated_time" content="2017-05-31T13:33:47.163Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gunicorn 驱动工厂模式 Flask 应用">
 <meta name="twitter:description" content="之前用 uWsgi 部署过 Django 应用，但当时的开发和部署都还手生，有很多不合理的地方，最近写的一个 Flask 应用，用了另一个 wsgi 容器 —— Gunicorn，并且利用工厂模式对不同开发环境进行了隔离。工厂模式下的 Flask 应用在用 Gunicorn 部署时，需要做一点针对性的改动。">
@@ -427,7 +428,7 @@
 <p>在实现基本的工厂模式后，再回来对 Gunicorn 和 Nginx 进行配置。上面用的是 Server Port，接下来就改为 socket。<br>Nginx conf 配置：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">    listen 80;</div><div class="line"></div><div class="line">    server_name _;</div><div class="line"></div><div class="line">    access_log  /var/log/nginx/access.log;</div><div class="line">    error_log  /var/log/nginx/error.log;</div><div class="line"></div><div class="line">    location / &#123;</div><div class="line">        proxy_pass         http://unix:/path/to/project.sock;</div><div class="line">        proxy_redirect     off;</div><div class="line"></div><div class="line">        proxy_set_header   Host                 $host;</div><div class="line">        proxy_set_header   X-Real-IP            $remote_addr;</div><div class="line">        proxy_set_header   X-Forwarded-For      $proxy_add_x_forwarded_for;</div><div class="line">        proxy_set_header   X-Forwarded-Proto    $scheme;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>上面的 proxy_pass 参数也可以使用 upstream 来作反向代理，作用是一样的。然后 Gunicorn 运行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gunicorn -w 4 -b unix:/path/to/project.sock hello:app</div></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gunicorn -w 4 -b unix:/path/to/project.sock hello:app</div></pre></td></tr></table></figure>
 
       
     </div>
@@ -583,7 +584,7 @@
       <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               src="https://avatars1.githubusercontent.com/u/8557100?v=3&u=3271f83b84ff18d515f17afa931059ef4d88a267&s=400"
                alt="sudoz" />
           <p class="site-author-name" itemprop="name">sudoz</p>
           <p class="site-description motion-element" itemprop="description"></p>
@@ -591,7 +592,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">54</span>
+              <span class="site-state-item-count">55</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -608,7 +609,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

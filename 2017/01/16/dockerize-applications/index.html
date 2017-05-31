@@ -90,12 +90,13 @@
 
 
 <meta name="description" content="最近看了一篇博文，大受启发，也想着手尝试把自己 VPS 上的应用容器化，一方面尝试下新的开发方式，另一方面也便于应用迁移。">
+<meta name="keywords" content="Docker">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Docker 容器化应用">
 <meta property="og:url" content="https://isudox.com/2017/01/16/dockerize-applications/index.html">
 <meta property="og:site_name" content="I sudo X">
 <meta property="og:description" content="最近看了一篇博文，大受启发，也想着手尝试把自己 VPS 上的应用容器化，一方面尝试下新的开发方式，另一方面也便于应用迁移。">
-<meta property="og:updated_time" content="2017-04-13T03:12:49.089Z">
+<meta property="og:updated_time" content="2017-05-31T13:33:47.167Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Docker 容器化应用">
 <meta name="twitter:description" content="最近看了一篇博文，大受启发，也想着手尝试把自己 VPS 上的应用容器化，一方面尝试下新的开发方式，另一方面也便于应用迁移。">
@@ -450,14 +451,14 @@
 <h4 id="USER"><a href="#USER" class="headerlink" title="USER"></a>USER</h4><p><code>USER</code> 指令设置容器运行时和执行 <code>RUN</code> <code>CMD</code> <code>ENTRYPOINT</code> 的用户或 UID，默认为 root 用户。</p>
 <h4 id="ARG"><a href="#ARG" class="headerlink" title="ARG"></a>ARG</h4><p><code>ARG</code> 指令规定了用户在通过 <code>docker build --build-arg &lt;varname&gt;=&lt;value&gt;</code> 构建镜像时允许传递的变量 varname。如果用户传递了 dockerfile 中未定义的变量，构建会报 “One or more build-args were not consumed, failing build.” 的错误信息。</p>
 <p><code>ARG</code> 也可以设置默认变量值，当设置了默认值后，用户如果在构建时没有传相应变量，则使用默认值，构建正常进行。</p>
-<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ARG &lt;name&gt;[=&lt;default value&gt;]</div></pre></td></tr></table></figure>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ARG</span> &lt;name&gt;[=&lt;default value&gt;]</div></pre></td></tr></table></figure>
 <p>还有一个注意点，当 <code>ARG</code> 和 <code>ENV</code> 同时设置了一个变量时，<code>ENV</code> 的设置会覆盖 <code>ARG</code>。</p>
 <h3 id="dockerfile-完整示例"><a href="#dockerfile-完整示例" class="headerlink" title="dockerfile 完整示例"></a>dockerfile 完整示例</h3><p>官网给了几个完整的 <code>dockerfile</code> 示例，例如 Firefox over VNC：</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># Firefox over VNC</span></div><div class="line"><span class="comment">#</span></div><div class="line"><span class="comment"># VERSION               0.3</span></div><div class="line"></div><div class="line"><span class="keyword">FROM</span> ubuntu</div><div class="line"></div><div class="line"><span class="comment"># Install vnc, xvfb in order to create a 'fake' display and firefox</span></div><div class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y x11vnc xvfb firefox</span></div><div class="line"><span class="keyword">RUN</span><span class="bash"> mkdir ~/.vnc</span></div><div class="line"><span class="comment"># Setup a password</span></div><div class="line"><span class="keyword">RUN</span><span class="bash"> x11vnc -storepasswd 1234 ~/.vnc/passwd</span></div><div class="line"><span class="comment"># Autostart firefox (might not be the best way, but it does the trick)</span></div><div class="line"><span class="keyword">RUN</span><span class="bash"> bash -c <span class="string">'echo "firefox" &gt;&gt; /.bashrc'</span></span></div><div class="line"></div><div class="line"><span class="keyword">EXPOSE</span> <span class="number">5900</span></div><div class="line"><span class="keyword">CMD</span><span class="bash">    [<span class="string">"x11vnc"</span>, <span class="string">"-forever"</span>, <span class="string">"-usepw"</span>, <span class="string">"-create"</span>]</span></div></pre></td></tr></table></figure>
 <h2 id="容器化应用实践"><a href="#容器化应用实践" class="headerlink" title="容器化应用实践"></a>容器化应用实践</h2><h3 id="shadowsocks-libev"><a href="#shadowsocks-libev" class="headerlink" title="shadowsocks-libev"></a>shadowsocks-libev</h3><p><a href="https://github.com/shadowsocks/shadowsocks-libev" target="_blank" rel="external">shadowsocks-libev</a> 的容器化相对比较简单，对上面的指令初步了解后，再参考别人已有的镜像，实践编写 dockerfile 不算麻烦。</p>
 <p>我的 VPS 是 Debian 系统，<code>FROM</code> 可以设为 debian，不过还是选了非常了流行的小镜像 <a href="https://alpinelinux.org/" target="_blank" rel="external">alpine</a>。然后根据 shadowsocks-libev README 编写安装的命令。</p>
 <p>shadowsocks-libev 的源码编译安装过程如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># Debian / Ubuntu</div><div class="line">sudo apt-get install --no-install-recommends build-essential autoconf libtool libssl-dev libpcre3-dev asciidoc xmlto zlib1g-dev</div><div class="line">./autogen.sh &amp;&amp; ./configure &amp;&amp; make</div><div class="line">sudo make install</div></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#</span><span class="bash"> Debian / Ubuntu</span></div><div class="line">sudo apt-get install --no-install-recommends build-essential autoconf libtool libssl-dev libpcre3-dev asciidoc xmlto zlib1g-dev</div><div class="line">./autogen.sh &amp;&amp; ./configure &amp;&amp; make</div><div class="line">sudo make install</div></pre></td></tr></table></figure>
 <p>如果采用 Alpine 作为基础镜像的话，个别命令要改动，<code>apt-get install</code> 要替换成 <code>apk add</code>。用 <code>RUN</code> 指令完成源码的编译安装。</p>
 <figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">ENV</span> DEP asciidoc autoconf build-base curl libtool linux-headers openssl-dev pcre-dev tar xmlto</div><div class="line"></div><div class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">set</span> -ex &amp;&amp; \</span></div><div class="line">    apk add --no-cache --virtual .build-deps <span class="variable">$DEP</span> &amp;&amp; \</div><div class="line">    curl <span class="_">-s</span>SL <span class="variable">$URL</span> | tar xz &amp;&amp; \</div><div class="line">    <span class="built_in">cd</span> <span class="variable">$DIR</span> &amp;&amp; \</div><div class="line">        ./configure --disable-documentation &amp;&amp; \</div><div class="line">        make install &amp;&amp; \</div><div class="line">        <span class="built_in">cd</span> .. &amp;&amp; \</div><div class="line">    apk del .build-deps &amp;&amp; \</div><div class="line">    rm -rf <span class="variable">$DIR</span></div></pre></td></tr></table></figure>
 <p>参考 shadowsocks 的启动参数，编写 <code>CMD</code> 或 <code>ENTRYPOINT</code> 指令：</p>
@@ -468,12 +469,12 @@
 <li>Docker Hub <a href="https://hub.docker.com/r/sudoz/shadowsocks-libev/" target="_blank" rel="external">镜像地址</a></li>
 </ul>
 <p>Docker Hub 上有镜像后，以后再安装 shadowsocks 只需要一条命令就能完成安装和配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d -e METHOD=aes-256-cfb -e PASSWORD=123456 -p 8388:8388 --restart always sudoz/shadowsocks-libev</div></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run -d -e METHOD=aes-256-cfb -e PASSWORD=123456 -p 8388:8388 --restart always sudoz/shadowsocks-libev</div></pre></td></tr></table></figure>
 <p>一劳永逸！</p>
 <h3 id="docker-compose"><a href="#docker-compose" class="headerlink" title="docker-compose"></a>docker-compose</h3><p>如果每次启动 Docker 镜像都要手敲一大段命令来给容器配置参数的话，还是不够简洁优雅，docker-compose 就解决了这个问题，直接把配置写成文本，由 docker-compose 来读取配置文件 <code>docker-compose.yml</code> 并启动容器，真正做到一次编写，到处运行。</p>
-<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="attr">shadowsocks:</span></div><div class="line"><span class="attr">  image:</span> sudoz/shadowsocks-libev</div><div class="line"><span class="attr">  ports:</span></div><div class="line"><span class="bullet">    -</span> <span class="string">"8388:8388"</span></div><div class="line"><span class="attr">  environment:</span></div><div class="line"><span class="bullet">    -</span> METHOD=aes<span class="bullet">-256</span>-cfb</div><div class="line"><span class="bullet">    -</span> PASSWORD=<span class="number">123456</span></div><div class="line"><span class="attr">  restart:</span> always</div></pre></td></tr></table></figure>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="attr">shadowsocks:</span></div><div class="line"><span class="attr">  image:</span> <span class="string">sudoz/shadowsocks-libev</span></div><div class="line"><span class="attr">  ports:</span></div><div class="line"><span class="bullet">    -</span> <span class="string">"8388:8388"</span></div><div class="line"><span class="attr">  environment:</span></div><div class="line"><span class="bullet">    -</span> <span class="string">METHOD=aes-256-cfb</span></div><div class="line"><span class="bullet">    -</span> <span class="string">PASSWORD=123456</span></div><div class="line"><span class="attr">  restart:</span> <span class="string">always</span></div></pre></td></tr></table></figure>
 <p>配置很明白，对应了 <code>docker run</code> 启动容器时的参数配置，现在只需要一行简单的命令来启动容器：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker-compose up -d</div></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker-compose up -d</div></pre></td></tr></table></figure>
 <hr>
 <p>参考资料：</p>
 <ul>
@@ -633,7 +634,7 @@
       <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="https://o70e8d1kb.qnssl.com/avatar_125.jpg"
+               src="https://avatars1.githubusercontent.com/u/8557100?v=3&u=3271f83b84ff18d515f17afa931059ef4d88a267&s=400"
                alt="sudoz" />
           <p class="site-author-name" itemprop="name">sudoz</p>
           <p class="site-description motion-element" itemprop="description"></p>
@@ -641,7 +642,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">54</span>
+              <span class="site-state-item-count">55</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -658,7 +659,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-count">37</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

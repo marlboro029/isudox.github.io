@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.6.3" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=1.0.0" rel="stylesheet" type="text/css" />
+
+<link href="/vendors/nprogress/nprogress.css" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,Spring," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="I sudo X" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=1.0.0" />
+
+
+
+
+
+
+<meta name="description" content="AOP 即 Aspect-Oriented Programming，面向切面编程，是对 OOP 编程思想的补充。OOP 核心是继承、封装、多态，是实现 OOP 模块化的基础。当 OOP 达到一定规模后，对于遍布各处的横向代码的处理就开始捉襟见肘，而 AOP 正好弥补了这个不足。">
+<meta name="keywords" content="Java,Spring">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP 那些事儿">
+<meta property="og:url" content="https://isudox.com/2017/05/24/spring-aop-guide/index.html">
+<meta property="og:site_name" content="I sudo X">
+<meta property="og:description" content="AOP 即 Aspect-Oriented Programming，面向切面编程，是对 OOP 编程思想的补充。OOP 核心是继承、封装、多态，是实现 OOP 模块化的基础。当 OOP 达到一定规模后，对于遍布各处的横向代码的处理就开始捉襟见肘，而 AOP 正好弥补了这个不足。">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/redundant_code.png">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/clean_code.png">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/aop-proxy.png">
+<meta property="og:image" content="https://o70e8d1kb.qnssl.com/proxy-uml.png">
+<meta property="og:updated_time" content="2017-05-31T13:33:47.167Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring AOP 那些事儿">
+<meta name="twitter:description" content="AOP 即 Aspect-Oriented Programming，面向切面编程，是对 OOP 编程思想的补充。OOP 核心是继承、封装、多态，是实现 OOP 模块化的基础。当 OOP 达到一定规模后，对于遍布各处的横向代码的处理就开始捉襟见肘，而 AOP 正好弥补了这个不足。">
+<meta name="twitter:image" content="https://o70e8d1kb.qnssl.com/redundant_code.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+  <title> Spring AOP 那些事儿 | I sudo X </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-67443010-1', 'auto');
+  ga('send', 'pageview');
+</script>
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?416f859610dfc2db62c90f5d33de2fdd";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+      <a href="https://github.com/isudox"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://o70e8d1kb.qnssl.com/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="top-scroll-bar"></div>
+<div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">I sudo X</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="st-search-show-outputs">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <form class="site-search-form">
+  <input type="text" id="st-search-input" class="st-search-input st-default-search-input" />
+</form>
+
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+    (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+    e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install', 'bDJ1BXjgkwVZSrnkzynx','2.0.0');
+</script>
+
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Spring AOP 那些事儿
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-24T19:25:56+08:00" content="2017-05-24">
+              2017-05-24
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Coding/" itemprop="url" rel="index">
+                    <span itemprop="name">Coding</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/05/24/spring-aop-guide/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/24/spring-aop-guide/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/24/spring-aop-guide/" class="leancloud_visitors" data-flag-title="Spring AOP 那些事儿">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>AOP 即 Aspect-Oriented Programming，<strong>面向切面编程</strong>，是对 OOP 编程思想的补充。OOP 核心是继承、封装、多态，是实现 OOP 模块化的基础。当 OOP 达到一定规模后，对于遍布各处的横向代码的处理就开始捉襟见肘，而 AOP 正好弥补了这个不足。</p>
+<a id="more"></a>
+<h2 id="引入-AOP"><a href="#引入-AOP" class="headerlink" title="引入 AOP"></a>引入 AOP</h2><p>下图是很常见的编程场景──</p>
+<p><img src="https://o70e8d1kb.qnssl.com/redundant_code.png" alt="redundant code"></p>
+<p>我们经常会遇到需要在多个方法中实现相同的一部分功能，面向过程的办法就是像图示在每个方法里都复制粘贴相同的一段代码，但是如果要改动就要改动 N 处代码。在有了 OOP 思想后，我们就进阶了一大步，可以将相同的代码段抽离出来，避免了到处改动的问题。</p>
+<p><img src="https://o70e8d1kb.qnssl.com/clean_code.png" alt="clean code"></p>
+<p>一般像上图去实现代码就能应付大多数场景了。但随着软件规模的升级，有些问题就开始凸显了。首先共同功能的实现需要在各个方法中显示的去调用；其次，共同功能的控制权分散在代码各处；再次，对共同功能的依赖加重了类之间的耦合，降低了可重用性，如果共同功能并非各个方法的核心功能，那么就不应该耦合进各个对象中。AOP 则可以解决这些问题。</p>
+<p>AOP 把系统功能分为两部分：<strong>核心关注点</strong>，<strong>横切关注点</strong>。核心关注点是代码的主要逻辑，横切进多个模块，但不是模块主要逻辑的就是横切关注点。不是简单的把公共模块抽离出来，而是把那些与具体业务无关的，却为业务模块所共同调用的逻辑或责任封装起来，减少冗余代码，降低模块间耦合度，提升可维护性。</p>
+<h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="什么是-AOP"><a href="#什么是-AOP" class="headerlink" title="什么是 AOP"></a>什么是 AOP</h3><p>《Sping 实战》中对 AOP 有一段非常形象的描述──</p>
+<blockquote>
+<p>每家每户都需要用电，电力公司会安装电表会记录用电量，会派员工查电表。但是如果没有电表也没有人来查看用电量，相信大多数家庭都不会去记录电量并缴费，因为这不是家庭重点关注的问题。软件开发中，类似记录用电量这种散布于应用中多处的功能被称为<strong>横切关注点</strong>（cross-cutting concern），从概念上是与应用的业务逻辑相分离的（但往往会直接嵌入到业务逻辑中）。把横切关注点与业务逻辑相分离正是 AOP 所要解决的问题。</p>
+</blockquote>
+<p>知道 AOP 大致是做什么的后，再来了解下 AOP 的专用术语：</p>
+<ul>
+<li>切面 Aspect：横切关注点模块化的类；</li>
+<li>连接点 Join point：程序的执行点，比如方法的执行，或者异常的处理。在 Spring AOP 中，连接点总是表示方法执行；</li>
+<li>通知 Advice：切面在某个具体的连接点上执行的动作。且可以定义动作执行的时机，比如 <code>around</code>、<code>before</code>、<code>after</code> 等。包括 Spring 在内的许多 AOP 框架，都会把通知模块化成拦截器，围绕连接点构建拦截链；</li>
+<li>切点 Poincut：匹配通知所要执行的一个或多个连接点。通常明确指定或者使用正则表达式匹配类名.方法。</li>
+<li>引入 Introduction：即向已有的类添加新方法或属性。Spring AOP 允许向被通知的类添加新的接口（和其实现）。</li>
+<li>目标对象 Target objection：被一个或多个切面通知的类。因为在 Spring 中，AOP 是通过运行时代理实现的，所以目标对象总是代理对象。</li>
+<li>AOP 代理：由 AOP 框架创建的为实现 aspect 的对象，在 Spring 中，AOP 代理是 JDK 动态代理或 CGLIB 代理。</li>
+<li>织入 Weaving：把切面应用到目标对象并创建新的代理对象的过程。切面在指定的连接点被织入到目标对象中。织入可以在对象生命周期的编译期、类加载期、运行期完成。Spring AOP 因为采用动态代理，所以是在<strong>运行期</strong>完成织入。</li>
+</ul>
+<h3 id="代码演示"><a href="#代码演示" class="headerlink" title="代码演示"></a>代码演示</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PrinterServiceImpl</span> <span class="keyword">implements</span> <span class="title">PrinterService</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">(String message)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"Your message: "</span> + message);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Aspect</span></div><div class="line"><span class="keyword">public</span> aspect MethodAspect &#123;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Spring-AOP"><a href="#Spring-AOP" class="headerlink" title="Spring AOP"></a>Spring AOP</h2><p>AOP 有多种实现方案，比如 <a href="http://www.eclipse.org/aspectj/" target="_blank" rel="external">AspectJ</a> 和 Spring AOP。前者需要安装 AspectJ 扩展包，在编译器生成 AOP 代理类，后者则是在运行时动态生成代理类。下文就 Spring AOP 的实现原理做简单的展开。</p>
+<h3 id="代理模式"><a href="#代理模式" class="headerlink" title="代理模式"></a>代理模式</h3><blockquote>
+<p>通过在代理类中包裹切面，Spring 在运行期把切面织入到 Spring 管理的 bean 中。如下图所示，代理类封装了目标类，并拦截被通知方法的调用，再把调用转发给真正的目标 bean。当代理拦截到方法调用时，在调用目标 bean 方法之前，会执行切面逻辑。</p>
+</blockquote>
+<p><img src="https://o70e8d1kb.qnssl.com/aop-proxy.png" alt="aop proxy model"></p>
+<p>Spring AOP 的实现本质上是采用了代理模式。</p>
+<blockquote>
+<p>为其他对象提供一种代理以控制对这个对象的访问。──GoF《设计模式》</p>
+</blockquote>
+<p>通俗的解释下代理模式，比如以前玩魔兽世界，如果南方玩家直接玩华北的服务器延迟会很高，于是有了各种游戏代理服务器，通过走代理直连游戏服务器可以有效缓解高延迟问题，还有 FQ 代理也是同样的道理。运用代理模式的目的是<strong>对其他对象提供一种代理以控制对这个对象引用的访问</strong>，这样设计的好处是，可以在目标对象实现的基础上，增强额外的功能操作，即扩展目标对象的功能。</p>
+<p>代理模式包含 4 中角色，参考如下 UML 图：</p>
+<ul>
+<li>主题接口：代理类和真实对象所实现的共同接口；</li>
+<li>真实对象：被代理的对象，即实际引用的对象；</li>
+<li>代理对象：封装了真实对象的代理类，并提供与真实对象相同的接口以便随时代替真实对象，同时可以对真实对象的操作进行加强；</li>
+<li>客户端：代理对象的调用者；</li>
+</ul>
+<p><img src="https://o70e8d1kb.qnssl.com/proxy-uml.png" alt="代理模式 UML"></p>
+<p>根据代理类的生成时期，可以分为静态代理和动态代理，静态代理是在编译期生成代理类的 <code>.class</code> 文件，动态代理是在运行时通过反射动态生成代理类。</p>
+<h4 id="静态代理"><a href="#静态代理" class="headerlink" title="静态代理"></a>静态代理</h4><p>参考 UML 图，我们可以用 Java 写一个简单的静态代理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Manager 抽象类</span></div><div class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Manager</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String name;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(String param)</span></span>;</div><div class="line"></div><div class="line">    <span class="function">String <span class="title">getName</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> name;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.name = name;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 具体的 Manager 实现</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DepartmentManager</span> <span class="keyword">extends</span> <span class="title">Manager</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(String param)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"Today Plan: "</span> + param);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Manger 代理类</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ManagerProxy</span> <span class="keyword">extends</span> <span class="title">Manager</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Manager manager;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ManagerProxy</span><span class="params">(Manager manager)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.manager = manager;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(String param)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.manager.handle(param);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 测试</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ManagerProxyTest</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Test</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        Manager manager = <span class="keyword">new</span> DepartmentManager();</div><div class="line">        manager.setName(<span class="string">"Pay Team"</span>);</div><div class="line">        Manager proxy = <span class="keyword">new</span> ManagerProxy(manager);</div><div class="line">        proxy.handle(<span class="string">"Monthly Review"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// ----console output:-----</span></div><div class="line">    <span class="comment">// Today Plan: Monthly Review</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面的例子演示了代理模式的一个基本实现，不过有人可能会产生疑问，如果只是简单地让 Department Manager 去做一件事，为什么要费劲创建一个代理类去完成，这不是舍近求远吗？前面讲到了，代理模式的目的是为了控制对目标对象的引用，也就是说，如果对目标对象的需求有所变动，遵循开闭原则不应该直接修改目标对象的代码，通过代理类就能不侵入的实现。以上面的代码为例，如果 Department Manager 需要在制定今日任务前输出今日日期，在制定任务后签署姓名，在代理模式下，只需要对 Proxy 略微做修改即可改变真实对象引用的行为。修改后的代码如下──</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ManagerProxy</span> <span class="keyword">extends</span> <span class="title">Manager</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Manager manager;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ManagerProxy</span><span class="params">(Manager manager)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.manager = manager;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handle</span><span class="params">(String param)</span> </span>&#123;</div><div class="line">        preHandle();</div><div class="line">        <span class="keyword">this</span>.manager.handle(param);</div><div class="line">        postHandle();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">preHandle</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy/MM/dd"</span>).format(<span class="keyword">new</span> Date()));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">postHandle</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"Signed by: "</span> + <span class="keyword">this</span>.manager.getName());</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// ----console output----</span></div><div class="line">    <span class="comment">// 2017/05/24</span></div><div class="line">    <span class="comment">// Today Plan: Monthly Review</span></div><div class="line">    <span class="comment">// Signed by: Pay Team</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述静态代理有个不好处理的地方，如果有 N 个真实对象，就需要指定 N 个代理类来代理，这增加了类的数量，代理类的代码也存在重复冗余，同事也损失了程序的灵活性。动态代理则是在程序运行时动态的生成代理类，可以灵活指定被代理的对象。</p>
+<h4 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h4><h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>对代理模式做个简单的小结──</p>
+<ol>
+<li>Subject 定义 ReaelSubject 和 Proxy 的公共接口，目的是让 Proxy 可以代替 RealSubject；</li>
+<li>RealSubject 定义被代理的目标实体；</li>
+<li>Proxy 会需持有目标对象的引用，使得代理可以访问到目标实体；</li>
+<li>Proxy 对外提供和目标对象接口一致的实现，即直接通过代理替代目标实体；</li>
+</ol>
+<blockquote>
+<p>Spring AOP defaults to using standard JDK dynamic proxies for AOP proxies. This enables any <strong>interface (or set of interfaces)</strong> to be proxied.<br>Spring AOP can also use CGLIB proxies. This is necessary to proxy classes rather than interfaces. CGLIB is used by default if a business object <strong>does not implement an interface</strong>.</p>
+</blockquote>
+<h3 id="JDK-Proxy"><a href="#JDK-Proxy" class="headerlink" title="JDK Proxy"></a>JDK Proxy</h3><h3 id="CGLIB"><a href="#CGLIB" class="headerlink" title="CGLIB"></a>CGLIB</h3><hr>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://book.douban.com/subject/26767354/" target="_blank" rel="external">Spring 实战</a></li>
+<li><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/html/aop.html" target="_blank" rel="external">Spring Docs</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/java/j-lo-springaopcglib/" target="_blank" rel="external">Spring AOP 实现原理与 CGLIB 应用</a></li>
+</ul>
+
+      
+    </div>
+
+<!--
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+-->
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/10/thrift-notes-server-client/" rel="next" title="Thrift 学习笔记：RPC Server 和 Client">
+                <i class="fa fa-chevron-left"></i> Thrift 学习笔记：RPC Server 和 Client
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+
+    </footer>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="https://o70e8d1kb.qnssl.com/wx_donate_min.png" alt="sudoz WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://avatars1.githubusercontent.com/u/8557100?v=3&u=3271f83b84ff18d515f17afa931059ef4d88a267&s=400"
+               alt="sudoz" />
+          <p class="site-author-name" itemprop="name">sudoz</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">55</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">37</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/isudox" target="_blank" title="Github">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  Github
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://stackoverflow.com/users/4305743/sudoz" target="_blank" title="StackOverflow">
+                  
+                    <i class="fa fa-fw fa-stack-overflow"></i>
+                  
+                  StackOverflow
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="http://creativecommons.org/licenses/by-nc-nd/4.0" class="cc-opacity" target="_blank">
+              <img src="/images/cc-by-nc-nd.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-bookmark"></i>
+              书签
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git.isudox.com" title="GitLab" target="_blank">GitLab</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://leetcode.com/problemset/algorithms/" title="LeetCode" target="_blank">LeetCode</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+            <div class="links-of-blogroll-title">
+              <a href="/donors">
+                <i class="fa fa-fw fa-heart"></i>
+                致谢
+              </a>
+            </div>
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引入-AOP"><span class="nav-number">1.</span> <span class="nav-text">引入 AOP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">2.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是-AOP"><span class="nav-number">2.1.</span> <span class="nav-text">什么是 AOP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码演示"><span class="nav-number">2.2.</span> <span class="nav-text">代码演示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring-AOP"><span class="nav-number">3.</span> <span class="nav-text">Spring AOP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#代理模式"><span class="nav-number">3.1.</span> <span class="nav-text">代理模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#静态代理"><span class="nav-number">3.1.1.</span> <span class="nav-text">静态代理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动态代理"><span class="nav-number">3.1.2.</span> <span class="nav-text">动态代理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#小结"><span class="nav-number">3.1.3.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDK-Proxy"><span class="nav-number">3.2.</span> <span class="nav-text">JDK Proxy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CGLIB"><span class="nav-number">3.3.</span> <span class="nav-text">CGLIB</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+<!--
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">sudoz</span>
+-->
+  <span class="with-love">by</span>
+  <span class="author" itemprop="copyrightHolder"><a class="theme-link" href="mailto:me@isudox.com">sudoz</a></span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<!--
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+-->
+
+<!--
+<div class="theme-info">Statistics
+    <span id="busuanzi_container_site_pv" style='display:none'><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_site_uv" style='display:none'><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span>&nbsp;-</span>
+    <span id="busuanzi_container_page_pv" style='display:none'><span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span></span>
+</div>
+-->
+<div class="theme-info">
+  
+    <span class="site-pv"><i class="fa fa-eye"></i>
+      <a class="theme-link" href='javascript:(
+        function go() {
+        var songs = [
+            "https://o70e8d1kb.qnssl.com/music-final-countdown.mp3",
+            "https://o70e8d1kb.qnssl.com/music-zombie.mp3",
+            "https://o70e8d1kb.qnssl.com/music-fade.mp3",
+            "https://o70e8d1kb.qnssl.com/music-antik.mp3"
+        ];
+        function c() {
+            var e = document.createElement("link");
+            e.setAttribute("type", "text/css");
+            e.setAttribute("rel", "stylesheet");
+            e.setAttribute("href", f);
+            e.setAttribute("class", l);
+            document.body.appendChild(e)
+        }
+        function h() {
+            var e = document.getElementsByClassName(l);
+            for (var t = 0; t < e.length; t++) {
+                document.body.removeChild(e[t])
+            }
+        }
+        function p() {
+            var e = document.createElement("div");
+            e.setAttribute("class", a);
+            document.body.appendChild(e);
+            setTimeout(function() {
+                document.body.removeChild(e)
+            }, 100)
+        }
+        function d(e) {
+            return {
+                height : e.offsetHeight,
+                width : e.offsetWidth
+            }
+        }
+        function v(i) {
+            var s = d(i);
+            return s.height > e && s.height < n && s.width > t && s.width < r
+        }
+        function m(e) {
+            var t = e;
+            var n = 0;
+            while (!!t) {
+                n += t.offsetTop;
+                t = t.offsetParent
+            }
+            return n
+        }
+        function g() {
+            var e = document.documentElement;
+            if (!!window.innerWidth) {
+                return window.innerHeight
+            } else if (e && !isNaN(e.clientHeight)) {
+                return e.clientHeight
+            }
+            return 0
+        }
+        function y() {
+            if (window.pageYOffset) {
+                return window.pageYOffset
+            }
+            return Math.max(document.documentElement.scrollTop, document.body.scrollTop)
+        }
+        function E(e) {
+            var t = m(e);
+            return t >= w && t <= b + w
+        }
+        function S() {
+            var e = document.getElementById("audio_element_id");
+            if(e != null){
+                var index = parseInt(e.getAttribute("curSongIndex"));
+                if(index > songs.length - 2) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                e.setAttribute("curSongIndex", index);
+                N();
+            }
+            e.src = i;
+            e.play()
+        }
+        function x(e) {
+            e.className += " " + s + " " + o
+        }
+        function T(e) {
+            e.className += " " + s + " " + u[Math.floor(Math.random() * u.length)]
+        }
+        function N() {
+            var e = document.getElementsByClassName(s);
+            var t = new RegExp("\\b" + s + "\\b");
+            for (var n = 0; n < e.length; ) {
+                e[n].className = e[n].className.replace(t, "")
+            }
+        }
+        function initAudioEle() {
+            var e = document.getElementById("audio_element_id");
+            if(e === null){
+                e = document.createElement("audio");
+                e.setAttribute("class", l);
+                e.setAttribute("curSongIndex", 0);
+                e.id = "audio_element_id";
+                e.loop = false;
+                e.bgcolor = 0;
+                e.addEventListener("canplay", function() {
+                setTimeout(function() {
+                    x(k)
+                }, 500);
+                setTimeout(function() {
+                    N();
+                    p();
+                    for (var e = 0; e < O.length; e++) {
+                        T(O[e])
+                    }
+                }, 15500)
+            }, true);
+            e.addEventListener("ended", function() {
+                N();
+                h();
+                go();
+            }, true);
+            e.innerHTML = " <p>If you are reading this, it is because your browser does not support the audio element. We recommend that you get a new browser.</p> <p>";
+            document.body.appendChild(e);
+            }
+        }
+        initAudioEle();
+        var e = 30;
+        var t = 30;
+        var n = 350;
+        var r = 350;
+
+        var curSongIndex = parseInt(document.getElementById("audio_element_id").getAttribute("curSongIndex"));
+        var i = songs[curSongIndex];
+
+        var s = "mw-harlem_shake_me";
+        var o = "im_first";
+        var u = ["im_drunk", "im_baked", "im_trippin", "im_blown"];
+        var a = "mw-strobe_light";
+
+        /* harlem-shake-style.css，替换成你的位置，也可以直接使用：//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css */
+        var f = "//s3.amazonaws.com/moovweb-marketing/playground/harlem-shake-style.css";
+
+        var l = "mw_added_css";
+        var b = g();
+        var w = y();
+        var C = document.getElementsByTagName("*");
+        var k = null;
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                if (E(A)) {
+                    k = A;
+                    break
+                }
+            }
+        }
+        if (A === null) {
+            console.warn("Could not find a node of the right size. Please try a different page.");
+            return
+        }
+        c();
+        S();
+        var O = [];
+        for (var L = 0; L < C.length; L++) {
+            var A = C[L];
+            if (v(A)) {
+                O.push(A)
+            }
+        }
+        })()'>
+        <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+        <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+      </a>
+
+      
+    </span>
+  
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/nprogress/nprogress.js"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=1.0.0"></script>
+
+  <script type="text/javascript" src="/js/src/custom/custom.js?v=1.0.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=1.0.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=1.0.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=1.0.0"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'isudox';
+      var disqus_identifier = '2017/05/24/spring-aop-guide/';
+      var disqus_title = 'Spring AOP 那些事儿';
+
+      function run_disqus_script(disqus_script) {
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+
+      
+        run_disqus_script('embed.js');
+      
+
+    </script>
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("2apzMnyHrI7f76EHeamQjLII-gzGzoHsz", "Idinj01IR02KEjJaNu5krE0H");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+  
+
+
+</body>
+</html>
